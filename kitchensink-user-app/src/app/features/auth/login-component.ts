@@ -39,30 +39,34 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    this.errorMessage = null; // reset before new attempt
+    this.errorMessage = null;
 
-    if (this.loginForm.valid) {
-      const email = this.loginForm.value.email;
-      const password = this.loginForm.value.password;
-
-      if (email && password) {
-        this.authService.login(email, password).subscribe({
-          next: (res) => {
-            console.log('Login successful', res);
-            this.router.navigate(['/dashboard']);
-          },
-          error: (err) => {
-            console.error('Login failed', err);
-            this.errorMessage = 'Invalid email or password. Please try again.';
-          }
-        });
-      } else {
-        this.errorMessage = 'Please enter both email and password.';
-      }
-    } else {
+    if (!this.loginForm.valid) {
       this.errorMessage = 'Please fill in the form correctly.';
+      return;
     }
+
+    const { email, password } = this.loginForm.value;
+    if (!email || !password) {
+      this.errorMessage = 'Please enter both email and password.';
+      return;
+    }
+
+    this.authService.login(email, password).subscribe({
+      next: (res) => {
+        console.log('Login successful', res);
+        this.authService.saveUserData(res);
+
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        console.error('Login failed', err);
+        this.errorMessage = err
+          || 'An unexpected error occurred. Please try again.';
+      }
+    });
   }
+
 
   togglePasswordVisibility() {
     this.hidePassword = !this.hidePassword;
@@ -89,4 +93,5 @@ export class LoginComponent {
     }
     return this.loginForm.get('password')?.hasError('minlength') ? 'Password must be at least 6 characters' : '';
   }
+
 }

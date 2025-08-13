@@ -1,8 +1,13 @@
 package com.mongodb.kitchensink.service;
 
+import com.mongodb.kitchensink.constants.ErrorCodes;
+import com.mongodb.kitchensink.dto.LoginResponse;
+import com.mongodb.kitchensink.exception.UserAuthException;
 import com.mongodb.kitchensink.util.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,16 +32,30 @@ public class AuthService {
     @Autowired
     private UserDetailsService userDetailsService;
 
-    public String login(String email, String password) {
-        Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
-        );
 
-        List<String> roles = auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+    public LoginResponse login(String email, String password) {
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, password)
+            );
 
-        return jwtTokenProvider.generateToken(email, roles);
+            List<String> roles = auth.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+
+            String username = auth.getName();
+            String token = jwtTokenProvider.generateToken(email, roles);
+
+            return new LoginResponse(true, "Login successful", token, email, username, roles);
+
+        } catch (BadCredentialsException | DisabledException e) {
+            ErrorCodes errorCode = (e instanceof BadCredentialsException)
+                    ? ErrorCodes.INVALID_CREDENTIALS
+                    : ErrorCodes.ACCOUNT_DISABLED;
+            throw new UserAuthException(errorCode);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean isUserAdminOrUser(List<String> roles) {
@@ -58,4 +77,5 @@ public class AuthService {
 
         return userDetails != null;
     }
+
 }

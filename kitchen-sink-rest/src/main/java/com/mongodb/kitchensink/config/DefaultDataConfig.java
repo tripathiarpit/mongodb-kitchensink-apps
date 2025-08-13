@@ -42,11 +42,6 @@ public class DefaultDataConfig implements CommandLineRunner {
                     .active(true)
                     .createdAt(Instant.now())
                     .build();
-            System.out.println("adminUser*********" +
-                    "*******##############"+adminUser.getUsername());
-            System.out.println("adminUser*********" +
-                    "*******##############"+adminUser.toString()); System.out.println("adminUser*********" +
-                    "*******##############"+adminUser.toString());
             userRepository.save(adminUser);
             Profile adminProfile = Profile.builder()
                     .name("Admin User")

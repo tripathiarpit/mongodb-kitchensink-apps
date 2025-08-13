@@ -4,24 +4,26 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
+import static com.mongodb.kitchensink.constants.ErrorMessageConstants.*;
+
 
 @Schema(description = "Address details for registration request")
 public class AddressRequest {
 
-    @NotBlank(message = "Street is required")
+    @NotBlank(message = STREET_REQUIRED)
     private String street;
 
-    @NotBlank(message = "City is required")
+    @NotBlank(message = CITY_REQUIRED)
     private String city;
 
-    @NotBlank(message = "State is required")
+    @NotBlank(message = STATE_REQUIRED)
     private String state;
 
-    @NotBlank(message = "Pincode is required")
-    @Pattern(regexp = "\\d{5,6}", message = "Pincode must be 5 or 6 digits")
+    @NotBlank(message = PINCODE_REQUIRED)
+    @Pattern(regexp = "\\d{5,6}", message = PINCODE_INVALID)
     private String pincode;
 
-    @NotBlank(message = "Country is required")
+    @NotBlank(message = COUNTRY_REQUIRED)
     private String country;
 
     public String getCountry() {

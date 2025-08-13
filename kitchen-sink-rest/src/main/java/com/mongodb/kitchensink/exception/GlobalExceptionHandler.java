@@ -1,39 +1,55 @@
 package com.mongodb.kitchensink.exception;
 
+import com.mongodb.kitchensink.constants.ErrorCodes;
+import com.mongodb.kitchensink.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.validation.FieldError;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleResourceNotFound(ResourceNotFoundException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
+        ErrorCodes errorCode = ErrorCodes.RESOURCE_NOT_FOUND;
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(new ErrorResponse(ex.getMessage() != null ? ex.getMessage() : errorCode.getMessage(), errorCode.getStatus()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        StringBuilder errorMessages = new StringBuilder();
         ex.getBindingResult().getAllErrors().forEach(err -> {
             String field = ((FieldError) err).getField();
             String message = err.getDefaultMessage();
-            errors.put(field, message);
+            errorMessages.append(field).append(": ").append(message).append("; ");
         });
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+
+        ErrorCodes errorCode = ErrorCodes.VALIDATION_ERROR;
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(new ErrorResponse(errorMessages.toString(), errorCode.getStatus()));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGlobalException(Exception ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Internal Server Error: " + ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
+        ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(new ErrorResponse(errorCode.getMessage(), errorCode.getStatus()));
+    }
+    @ExceptionHandler(UserAuthException.class)
+    public ResponseEntity<ErrorResponse> handleUserAuthException(UserAuthException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage(), ex.getErrorCode().getStatus());// or whatever fits
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+    @ExceptionHandler(InvalidOtpException.class)
+    public ResponseEntity<ErrorResponse> handleOtpException(InvalidOtpException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage(), ex.getErrorCode().getStatus());// or whatever fits
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

@@ -1,0 +1,11 @@
+node_modules
+dist
+.angular
+.git
+.gitignore
+README.md
+.env
+e2e
+karma.conf.js
+protractor.conf.js
+src/test.ts

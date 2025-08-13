@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import {Observable, of, throwError, tap, BehaviorSubject} from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import {Observable, throwError, BehaviorSubject} from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import {Router} from '@angular/router';
+import {ApiResponse} from '../../shared/model/ApiResponse';
 
-interface LoginResponse {
+export interface LoginResponse {
   token: string;
+  email: string;
+  username: string;
+  roles: string[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -31,16 +35,12 @@ export class AuthService {
     return !!token;
   }
 
-  login(email: string, password: string): Observable<boolean> {
+  login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>('/api/auth/login', { email, password }).pipe(
-      tap(response => {
-        localStorage.setItem(this.tokenKey, response.token);
-        const role = this.parseRoleFromToken(response.token);
-        localStorage.setItem(this.userRoleKey, role);
-        this.isLoggedIn$.next(true);
-      }),
-      map(() => true),
-      catchError(err => throwError(() => new Error(err.error || 'Login failed')))
+      catchError(err => {
+        const errorMsg = err?.error?.message || 'Login failed';
+        return throwError(() => new Error(errorMsg));
+      })
     );
   }
 
@@ -70,5 +70,23 @@ export class AuthService {
     } catch {
       return 'USER';
     }
+  }
+
+  sendOtp(email: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(`/api/auth/forgot-password/request-otp`, { email });
+  }
+
+  verifyOtp(email: string, otp: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(`/api/auth/forgot-password/verify-otp`, { email, otp });
+  }
+
+  resetPassword(email: string, newPassword: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(`/api/auth/forgot-password/reset`, { email, newPassword });
+  }
+  saveUserData(res: LoginResponse) {
+    localStorage.setItem('auth_token', res.token);
+    localStorage.setItem('user_email', res.email);
+    localStorage.setItem('username', res.username);
+    localStorage.setItem('roles', JSON.stringify(res.roles));
   }
 }
