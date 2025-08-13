@@ -1,0 +1,278 @@
+@if (!registrationSuccess) {
+    <div class="signup-container">
+      <div class="signup-background"></div>
+
+      <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+          <div class="col-12 col-lg-8 col-xl-6">
+            <mat-card class="signup-card">
+              <mat-card-header class="text-center mb-4">
+                <mat-card-title class="signup-title">
+                  <h2 class="mb-0">Create Account</h2>
+                  <p class="text-muted mt-2">Join us today - it's quick and easy!</p>
+                </mat-card-title>
+              </mat-card-header>
+
+              <mat-card-content>
+                <div *ngIf="errorMessage" class="alert alert-danger text-center mb-3">
+                  {{ errorMessage }}
+                </div>
+
+                <mat-stepper
+                  [linear]="isLinear"
+                  [orientation]="(stepperOrientation | async)!"
+                  class="signup-stepper"
+                  #stepper>
+
+                  <!-- Step 1: Personal Information -->
+                  <mat-step [stepControl]="personalInfoForm" label="Personal Info">
+                    <form [formGroup]="personalInfoForm" class="step-form">
+                      <div class="row">
+                        <!-- First Name -->
+                        <div class="col-md-6 mb-3">
+                          <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>First Name</mat-label>
+                            <input matInput formControlName="firstName" placeholder="Enter first name">
+                            <mat-icon matSuffix>person</mat-icon>
+                            <mat-error *ngIf="personalInfoForm.get('firstName')?.invalid && personalInfoForm.get('firstName')?.touched">
+                              {{getPersonalInfoErrorMessage('firstName')}}
+                            </mat-error>
+                          </mat-form-field>
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="col-md-6 mb-3">
+                          <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Last Name</mat-label>
+                            <input matInput formControlName="lastName" placeholder="Enter last name">
+                            <mat-icon matSuffix>person</mat-icon>
+                            <mat-error *ngIf="personalInfoForm.get('lastName')?.invalid && personalInfoForm.get('lastName')?.touched">
+                              {{getPersonalInfoErrorMessage('lastName')}}
+                            </mat-error>
+                          </mat-form-field>
+                        </div>
+                      </div>
+
+
+
+                      <!-- Password -->
+                      <div class="mb-3">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Password</mat-label>
+                          <input matInput
+                                 [type]="hidePassword ? 'password' : 'text'"
+                                 formControlName="password"
+                                 placeholder="Create a strong password">
+                          <button mat-icon-button
+                                  matSuffix
+                                  type="button"
+                                  (click)="togglePasswordVisibility()">
+                            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                          </button>
+                          <mat-hint>Must contain uppercase, lowercase, number and special character</mat-hint>
+                          <mat-error *ngIf="personalInfoForm.get('password')?.invalid && personalInfoForm.get('password')?.touched">
+                            {{getPersonalInfoErrorMessage('password')}}
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+
+                      <!-- Confirm Password -->
+                      <div class="mb-4">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Confirm Password</mat-label>
+                          <input matInput
+                                 [type]="hideConfirmPassword ? 'password' : 'text'"
+                                 formControlName="confirmPassword"
+                                 placeholder="Confirm your password">
+                          <button mat-icon-button
+                                  matSuffix
+                                  type="button"
+                                  (click)="toggleConfirmPasswordVisibility()">
+                            <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                          </button>
+                          <mat-error *ngIf="(personalInfoForm.get('confirmPassword')?.invalid && personalInfoForm.get('confirmPassword')?.touched)
+                      || personalInfoForm.hasError('passwordMismatch')
+">
+                            {{getPersonalInfoErrorMessage('confirmPassword')}}
+                          </mat-error>
+
+                        </mat-form-field>
+                      </div>
+
+                      <div class="step-actions">
+                        <button mat-raised-button
+                                color="primary"
+                                matStepperNext
+                                [disabled]="personalInfoForm.invalid"
+                                class="next-btn">
+                          Next
+                        </button>
+                      </div>
+                    </form>
+                  </mat-step>
+
+                  <!-- Step 2: Contact Information -->
+                  <mat-step [stepControl]="contactForm" label="Contact Info">
+                    <form [formGroup]="contactForm" class="step-form">
+                      <!-- Email -->
+                      <div class="mb-3">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Email Address</mat-label>
+                          <input matInput type="email" formControlName="email" placeholder="Enter your email">
+                          <mat-icon matSuffix>email</mat-icon>
+                          <mat-error *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
+                            {{getContactErrorMessage('email')}}
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+
+                      <!-- Phone Number -->
+                      <div class="mb-4">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Phone Number</mat-label>
+                          <input matInput type="tel" formControlName="phoneNumber" placeholder="Enter your phone number">
+                          <mat-icon matSuffix>phone</mat-icon>
+                          <mat-hint>Include country code if international</mat-hint>
+                          <mat-error *ngIf="contactForm.get('phoneNumber')?.invalid && contactForm.get('phoneNumber')?.touched">
+                            {{getContactErrorMessage('phoneNumber')}}
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+
+                      <div class="step-actions">
+                        <button mat-button matStepperPrevious class="back-btn">Back</button>
+                        <button mat-raised-button
+                                color="primary"
+                                matStepperNext
+                                [disabled]="contactForm.invalid"
+                                class="next-btn">
+                          Next
+                        </button>
+                      </div>
+                    </form>
+                  </mat-step>
+
+                  <!-- Step 3: Address Information -->
+                  <mat-step [stepControl]="addressForm" label="Address">
+                    <form [formGroup]="addressForm" class="step-form">
+                      <!-- Street Address -->
+                      <div class="mb-3">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Street Address</mat-label>
+                          <textarea matInput
+                                    formControlName="street"
+                                    placeholder="Enter your street address"
+                                    rows="2"></textarea>
+                          <mat-icon matSuffix>home</mat-icon>
+                          <mat-error *ngIf="addressForm.get('street')?.invalid && addressForm.get('street')?.touched">
+                            {{getAddressErrorMessage('street')}}
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+
+                      <div class="row">
+                        <!-- City -->
+                        <div class="col-md-6 mb-3">
+                          <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>City</mat-label>
+                            <input matInput formControlName="city" placeholder="Enter city">
+                            <mat-icon matSuffix>location_city</mat-icon>
+                            <mat-error *ngIf="addressForm.get('city')?.invalid && addressForm.get('city')?.touched">
+                              {{getAddressErrorMessage('city')}}
+                            </mat-error>
+                          </mat-form-field>
+                        </div>
+
+                        <!-- State -->
+                        <div class="col-md-6 mb-3">
+                          <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>State</mat-label>
+                            <input matInput formControlName="state" placeholder="Enter state">
+                            <mat-icon matSuffix>map</mat-icon>
+                            <mat-error *ngIf="addressForm.get('state')?.invalid && addressForm.get('state')?.touched">
+                              {{getAddressErrorMessage('state')}}
+                            </mat-error>
+                          </mat-form-field>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <!-- Pincode -->
+                        <div class="col-md-6 mb-3">
+                          <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Pincode</mat-label>
+                            <input matInput formControlName="pincode" placeholder="Enter pincode">
+                            <mat-icon matSuffix>pin_drop</mat-icon>
+                            <mat-error *ngIf="addressForm.get('pincode')?.invalid && addressForm.get('pincode')?.touched">
+                              {{getAddressErrorMessage('pincode')}}
+                            </mat-error>
+                          </mat-form-field>
+                        </div>
+
+                        <!-- Country -->
+                        <div class="col-md-6 mb-4">
+                          <mat-form-field appearance="outline">
+                            <mat-label>Country</mat-label>
+                            <mat-select
+                              formControlName="country"
+                              placeholder="Select country"
+                              panelClass="country-dropdown-panel">
+                              <mat-option *ngFor="let country of countries" [value]="country">
+                                {{ country }}
+                              </mat-option>
+                            </mat-select>
+                            <mat-icon matSuffix>public</mat-icon>
+                            <mat-error *ngIf="addressForm.get('country')?.invalid && addressForm.get('country')?.touched">
+                              {{getAddressErrorMessage('country')}}
+                            </mat-error>
+                          </mat-form-field>
+                        </div>
+                      </div>
+
+                      <div class="step-actions">
+                        <button mat-button matStepperPrevious class="back-btn">Back</button>
+                        <button mat-raised-button
+                                color="primary"
+                                (click)="onSubmit()"
+                                [disabled]="addressForm.invalid"
+                                class="submit-btn">
+                          Create Account
+                        </button>
+                      </div>
+                    </form>
+                  </mat-step>
+
+                </mat-stepper>
+
+                <!-- Sign In Link -->
+                <div class="text-center mt-4">
+                  <span class="text-muted">Already have an account? </span>
+                  <a href="javascript:void(0)"
+                     class="signin-link"
+                     (click)="onSignIn()">
+                    Sign In
+                  </a>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </div>
+    </div>
+}
+
+@if (registrationSuccess){
+  <div class="success-card-container">
+    <mat-card class="success-card">
+      <mat-card-header>
+        <mat-card-title class="rainbow-text">🎉 Congratulations! Your Account has been Created Successfully</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="rainbow-text">{{ successMessage }}</p>
+        <p class="rainbow-text">You will be redirected to login in a few seconds...</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+}
+

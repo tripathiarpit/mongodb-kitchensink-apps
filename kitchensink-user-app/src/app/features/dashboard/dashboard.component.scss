@@ -1,0 +1,142 @@
+/* Prevent horizontal scroll on root */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Dashboard container uses flex to layout sidenav + content */
+.dashboard-container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+}
+
+/* Fixed width sidenav */
+.dashboard-sidenav {
+  width: 250px;
+  flex-shrink: 0;
+  background: #3f51b5; /* Indigo */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0;
+  box-shadow: 3px 0 8px rgba(0, 0, 0, 0.15);
+  height: 100vh;
+}
+
+.dashboard-sidenav .nav-menu {
+  flex-grow: 1;
+}
+
+.dashboard-sidenav a.mat-list-item {
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.dashboard-sidenav a.mat-list-item:hover,
+.dashboard-sidenav a.mat-list-item.active-item {
+  background: #5c6bc0; /* lighter indigo */
+}
+
+.dashboard-sidenav .menu-icon {
+  font-size: 24px;
+  color: #ff4081; /* pink accent */
+}
+
+.dashboard-sidenav .sidenav-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+.dashboard-sidenav .logout-btn {
+  width: 100%;
+  font-weight: 700;
+  color: #ff4081;
+  justify-content: center;
+}
+
+.dashboard-sidenav .logout-btn mat-icon {
+  margin-right: 0.5rem;
+}
+
+.dashboard-sidenav .logout-btn:hover {
+  background: rgba(255, 64, 129, 0.2);
+}
+
+/* Sidenav content fills remaining space */
+mat-sidenav-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-x: hidden; /* prevent horizontal scroll */
+  background: #f5f7fa;
+}
+
+/* Top toolbar styling */
+.top-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #3f51b5;
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.top-toolbar button {
+  color: white;
+}
+
+.top-toolbar .page-title {
+  margin-left: 1rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.top-toolbar .spacer {
+  flex: 1 1 auto;
+}
+
+/* Main content area scrolls vertically */
+.dashboard-main {
+  flex-grow: 1;
+  padding: 1.5rem 2rem;
+  overflow-y: auto;
+  overflow-x: hidden; /* prevent horizontal scroll */
+  min-height: 0; /* allow flex scrolling */
+}
+
+/* Footer styling */
+.dashboard-footer {
+  background: white;
+  padding: 1rem 2rem;
+  text-align: center;
+  box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Reset problematic negative margins in MDC list items */
+.mdc-list-item--with-two-lines .mdc-list-item__primary-text,
+.mdc-list-item--with-three-lines .mdc-list-item__primary-text {
+  margin-bottom: 0 !important;
+  line-height: 1.2;
+}
+
+/* If you use Bootstrap rows inside, remove their negative margin */
+.row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}

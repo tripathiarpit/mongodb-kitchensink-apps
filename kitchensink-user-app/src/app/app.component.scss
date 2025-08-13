@@ -1,0 +1,26 @@
+/* Make sure body and html fill viewport and have no margin */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* prevent scroll on root */
+}
+
+/* Host or root container should fill full viewport height */
+:host, app-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Toolbar fixed height */
+.app-header {
+  flex-shrink: 0; /* don't shrink */
+  height: 56px; /* standard toolbar height */
+  min-height: 56px;
+  line-height: 56px;
+}
+
+

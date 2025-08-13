@@ -1,0 +1,173 @@
+/* ------------------ Layout & Background ------------------ */
+.login-container {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.login-background {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: -1;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.1"><circle cx="30" cy="30" r="1.5"/></g></g></svg>') repeat;
+    opacity: 0.3;
+  }
+}
+
+/* ------------------ Card ------------------ */
+.login-card {
+  max-width: 400px;
+  margin: auto;
+  padding: 2rem;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15) !important;
+  }
+}
+
+/* ------------------ Titles ------------------ */
+.login-title h2 {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.login-title p {
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+/* ------------------ Angular Material Fixes ------------------ */
+.mat-mdc-form-field {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-focus-overlay {
+  background-color: transparent;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-form-field-focus-overlay {
+  opacity: 0;
+}
+
+/* Fix text padding inside outlined form fields */
+:host ::ng-deep .mat-mdc-form-field-infix {
+  padding: 0.5rem 0 !important;
+}
+
+:host ::ng-deep .mat-mdc-input-element {
+  padding: 0.5rem 0.75rem !important;
+  box-sizing: border-box;
+}
+
+/* ------------------ Buttons ------------------ */
+.login-btn {
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: none;
+  border-radius: 8px;
+  background: linear-gradient(45deg, #667eea, #764ba2) !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  }
+
+  &:disabled {
+    background: #cccccc !important;
+    color: #666666 !important;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* ------------------ Links ------------------ */
+.forgot-password-link {
+  color: #667eea;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #764ba2;
+    text-decoration: underline;
+  }
+}
+
+.signup-link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #764ba2;
+    text-decoration: underline;
+  }
+}
+
+.signup-section {
+  font-size: 0.9rem;
+}
+
+/* ------------------ Error Message ------------------ */
+.error-message {
+  color: #d32f2f;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.mat-mdc-form-field-error {
+  font-size: 0.8rem;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------ Responsive ------------------ */
+@media (max-width: 768px) {
+  .login-card {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  .login-title h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    margin: 0.5rem;
+    padding: 1.25rem;
+  }
+  .login-title h2 {
+    font-size: 1.25rem;
+  }
+}

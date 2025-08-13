@@ -1,0 +1,51 @@
+<mat-sidenav-container class="dashboard-container">
+
+  <mat-sidenav #sidenav mode="side" [opened]="isOpened" class="dashboard-sidenav">
+    <!-- Navigation Menu Only -->
+    <mat-nav-list class="nav-menu">
+      <a mat-list-item
+         *ngFor="let item of menuItems"
+         (click)="onMenuClick(item.route)"
+         routerLinkActive="active-item">
+        <mat-icon class="menu-icon">{{ item.icon }}</mat-icon>
+        <span class="menu-label">{{ item.label }}</span>
+      </a>
+    </mat-nav-list>
+
+    <!-- Logout at bottom -->
+    <div class="sidenav-footer">
+      <button mat-button color="warn" (click)="logout()" class="logout-btn">
+        <mat-icon>logout</mat-icon>
+        Logout
+      </button>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+
+    <mat-toolbar color="primary" class="top-toolbar">
+      <button mat-icon-button (click)="toggleSidenav()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="page-title">Welcome !</span>
+      <span class="spacer"></span>
+      <button mat-button>
+        <mat-icon>account_circle</mat-icon>
+        Profile
+      </button>
+    </mat-toolbar>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+      <!-- Stats Cards and Router outlet as before -->
+      <router-outlet></router-outlet>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+      <app-footer></app-footer>
+    </footer>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>
+

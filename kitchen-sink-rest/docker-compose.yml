@@ -1,0 +1,40 @@
+#version: "3.8"
+#
+#services:
+#  mongodb:
+#    image: mongo:6.0
+#    container_name: mongo
+#    restart: always
+#    ports:
+#      - "27017:27017"
+#    volumes:
+#      - mongo_data:/data/db
+#
+#  springboot-app:
+#    build: .
+#    container_name: kitchensink-app
+#    depends_on:
+#      - mongodb
+#    ports:ports
+#      - "8080:8080"
+#    environment:
+#      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/kitchensinkdb
+#    restart: always
+#
+#volumes:
+#  mongo_data:
+
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
