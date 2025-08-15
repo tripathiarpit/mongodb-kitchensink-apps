@@ -9,6 +9,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {Router} from '@angular/router';
 import {AuthService} from '../../core/services/AuthService';
+import {LoaderService} from '../../core/services/LoaderService';
 
 @Component({
   selector: 'app-login',
@@ -29,40 +30,45 @@ export class LoginComponent {
   loginForm: FormGroup;
   hidePassword = true;
   errorMessage: string | null = null;
+  isLoading = false;
   constructor(private fb: FormBuilder ,
   private router: Router,
-              private authService: AuthService){
+              private authService: AuthService, private loaderService: LoaderService){
     this.loginForm = this.fb.group({
       email: ['admin@example.com', [Validators.required, Validators.email]],
       password: ['admin', [Validators.required, Validators.minLength(2)]]
     });
   }
 
-  onSubmit() {
+  onSubmit(): void {
     this.errorMessage = null;
+    this.isLoading = true;
 
     if (!this.loginForm.valid) {
       this.errorMessage = 'Please fill in the form correctly.';
+      this.isLoading = false;
       return;
     }
 
     const { email, password } = this.loginForm.value;
-    if (!email || !password) {
-      this.errorMessage = 'Please enter both email and password.';
-      return;
-    }
-
+    this.loaderService.show();
     this.authService.login(email, password).subscribe({
-      next: (res) => {
-        console.log('Login successful', res);
-        this.authService.saveUserData(res);
-
-        this.router.navigate(['/dashboard']);
+      next: (response) => {
+        console.log('Login successful', response);
+        this.isLoading = false;
+        this.authService.saveUserData(response);
+        // Navigation will happen automatically after successful login
+        // because AuthService updates the authentication state
+        setTimeout(() => {
+          this.loaderService.hide();
+          this.router.navigate(['/dashboard']);
+        }, 1000);
       },
-      error: (err) => {
-        console.error('Login failed', err);
-        this.errorMessage = err
-          || 'An unexpected error occurred. Please try again.';
+      error: (error) => {
+        console.error('Login failed', error);
+        this.isLoading = false;
+        this.errorMessage = error?.message || 'Login failed. Please try again.';
+        this.loaderService.hide();
       }
     });
   }

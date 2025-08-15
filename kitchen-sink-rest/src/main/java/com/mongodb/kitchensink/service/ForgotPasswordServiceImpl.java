@@ -47,12 +47,12 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService   {
 
         User user = optionalUser.get();
 
-        String otp = otpService.generateOtp(email);
+        String otp  = otpService.generateOtp(email, "FORGOT_PASSWORD", 5 * 60);
 
         emailService.sendEmail(
                 user.getEmail(),
                 PASSWORD_RESET_OTP_SUBJECT,
-                String.format(PASSWORD_RESET_OTP_BODY_TEMPLATE, otp) // Insert OTP into template
+                String.format(PASSWORD_RESET_OTP_BODY_TEMPLATE, user.getUsername(),otp)
         );
 
          return new ApiResponse(OTP_SENT_SUCCESS+ " : "+ email+ ".", true);
@@ -60,7 +60,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService   {
 
     @Override
     public ApiResponse verifyOtp(String email, String otp) {
-        boolean valid = otpService.validateOtp(email, otp);
+        boolean valid = otpService.verifyOtp(email, "FORGOT_PASSWORD", otp);
         if (!valid) {
             throw new InvalidOtpException(ErrorCodes.VALIDATION_ERROR, ErrorMessageConstants.INVALID_OR_EXPIRED_OTP);
         }
@@ -74,7 +74,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService   {
 
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        otpService.clearOtp(email);
+        otpService.clearOtp(email,"FORGOT_PASSWORD");
 
         return new ApiResponse(PASSWORD_RESET_SUCCESS, true);
     }

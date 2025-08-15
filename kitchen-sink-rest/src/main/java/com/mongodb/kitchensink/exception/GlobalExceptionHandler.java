@@ -4,10 +4,14 @@ import com.mongodb.kitchensink.constants.ErrorCodes;
 import com.mongodb.kitchensink.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.validation.FieldError;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -44,12 +48,42 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(UserAuthException.class)
     public ResponseEntity<ErrorResponse> handleUserAuthException(UserAuthException ex) {
-        ErrorResponse response = new ErrorResponse(ex.getMessage(), ex.getErrorCode().getStatus());// or whatever fits
+        ErrorResponse response = new ErrorResponse(ex.getMessage(), ex.getErrorCode().getStatus());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
     @ExceptionHandler(InvalidOtpException.class)
     public ResponseEntity<ErrorResponse> handleOtpException(InvalidOtpException ex) {
-        ErrorResponse response = new ErrorResponse(ex.getMessage(), ex.getErrorCode().getStatus());// or whatever fits
+        ErrorResponse response = new ErrorResponse(ex.getMessage(), ex.getErrorCode().getStatus());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(JwtExpiredException.class)
+    public ResponseEntity<ErrorResponse> handleJwtExpired(JwtExpiredException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage(), ex.getErrorCode().getStatus());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRequest(InvalidRequestException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage(), ex.getErrorCode().getStatus());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAuthorizationDeniedDetailed(
+            AuthorizationDeniedException ex) {
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", 403);
+
+        String message = "Access denied. ";
+        if (ex.getMessage().contains("ADMIN")) {
+            message += "Admin privileges required.";
+        } else {
+            message += "Insufficient permissions.";
+        }
+
+        body.put("message", message);
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
 }

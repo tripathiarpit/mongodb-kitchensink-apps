@@ -12,31 +12,31 @@ export class NavigationMenu {
       label: 'Dashboard',
       route: '',
       icon: 'dashboard',
-      allowedRoles: ['USER', 'ADMIN']
+      allowedRoles: ["ADMIN"]
     },
     {
       label: 'Admin Panel',
       route: '/admin',
       icon: 'admin_panel_settings',
-      allowedRoles: ['ADMIN']
+      allowedRoles: ["ADMIN"]
     },
     {
-      label: 'User Access Control',
-      route: '/admin',
+      label: 'User Management',
+      route: '/user-management',
       icon: 'admin_panel_settings',
-      allowedRoles: ['ADMIN']
+      allowedRoles: ["ADMIN","USER"]
     },
     {
       label: 'Settings',
       route: '/settings',
       icon: 'settings',
-      allowedRoles: ['USER', 'ADMIN']
+      allowedRoles: ["ADMIN","USER"]
     },
     {
       label: 'Reports',
       route: '/reports',
       icon: 'assessment',
-      allowedRoles: ['ADMIN']
+      allowedRoles: ["USER"]
     },
   ];
 

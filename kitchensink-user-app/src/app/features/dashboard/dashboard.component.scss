@@ -78,7 +78,7 @@ mat-sidenav-content {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   overflow-x: hidden; /* prevent horizontal scroll */
   background: #f5f7fa;
 }
@@ -113,8 +113,7 @@ mat-sidenav-content {
 .dashboard-main {
   flex-grow: 1;
   padding: 1.5rem 2rem;
-  overflow-y: auto;
-  overflow-x: hidden; /* prevent horizontal scroll */
+  overflow: auto;
   min-height: 0; /* allow flex scrolling */
 }
 
@@ -126,8 +125,8 @@ mat-sidenav-content {
   box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.1);
   font-size: 0.9rem;
   color: #666;
+  flex-shrink: 0;
 }
-
 /* Reset problematic negative margins in MDC list items */
 .mdc-list-item--with-two-lines .mdc-list-item__primary-text,
 .mdc-list-item--with-three-lines .mdc-list-item__primary-text {
@@ -141,4 +140,6 @@ mat-sidenav-content {
   margin-right: 0 !important;
 }
 
-
+.dashboard-footer {
+  flex-shrink: 0; // Keep footer height fixed
+}

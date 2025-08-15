@@ -41,14 +41,16 @@ public class DefaultDataConfig implements CommandLineRunner {
                     .roles(List.of("ADMIN"))
                     .active(true)
                     .createdAt(Instant.now())
+                    .accountVerificationPending(true)
                     .build();
             userRepository.save(adminUser);
             Profile adminProfile = Profile.builder()
-                    .name("Admin User")
+                    .firstName("Admin")
+                    .lastName("User")
                     .email(adminEmail)
                     .phoneNumber("000-000-0000")
                     .address(null)
-                    .userId(adminUser.getUsername())
+                    .username(adminUser.getUsername())
                     .build();
 
             profileRepository.save(adminProfile);

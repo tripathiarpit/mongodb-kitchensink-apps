@@ -10,8 +10,8 @@ import java.util.Optional;
 
 public interface ProfileRepository extends MongoRepository<Profile, String> {
 
-    Optional<Profile> findByUserId(String userId);
-    // Paginated city search
+    Optional<Profile> findByUsername(String username);
+    Optional<Profile> findByEmail(String emailId);
     Page<Profile> findByAddress_CityIgnoreCase(String city, Pageable pageable);
 
     Page<Profile> findByEmailIgnoreCase(String email, Pageable pageable);

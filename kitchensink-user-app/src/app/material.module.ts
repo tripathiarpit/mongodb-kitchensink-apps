@@ -11,6 +11,10 @@ import {MatStepper, MatStepperModule} from '@angular/material/stepper';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatListModule} from '@angular/material/list';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatSortModule} from '@angular/material/sort';
+import {MatChipSet} from '@angular/material/chips';
 
 @NgModule({
   exports: [
@@ -34,7 +38,10 @@ import {MatListModule} from '@angular/material/list';
     MatSelectModule,
     MatSidenavModule,
     MatToolbarModule,
-    MatListModule
+    MatListModule,
+    MatDialogModule,
+    MatTooltipModule,
+    MatSortModule
   ]
 })
 export class MaterialModule { }

@@ -2,6 +2,7 @@ package com.mongodb.kitchensink.controller;
 
 import com.mongodb.kitchensink.dto.RegistrationRequest;
 import com.mongodb.kitchensink.dto.RegistrationResponse;
+import com.mongodb.kitchensink.dto.UserDto;
 import com.mongodb.kitchensink.model.Profile;
 import com.mongodb.kitchensink.model.User;
 import com.mongodb.kitchensink.service.UserService;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -80,7 +82,8 @@ public class UserController {
             }
     )
     @GetMapping
-    public ResponseEntity<Page<User>> getAllUsers(
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<UserDto>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -93,19 +96,19 @@ public class UserController {
 
     @Operation(summary = "Get user by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
+    public ResponseEntity<UserDto> getUserById(@PathVariable String id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @Operation(summary = "Get user by email")
     @GetMapping("/email/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email) {
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
     @Operation(summary = "Search users by city (paginated)")
     @GetMapping("/city/{city}")
-    public ResponseEntity<Page<Profile>> getUsersByCity(
+    public ResponseEntity<Page<UserDto>> getUsersByCity(
             @PathVariable String city,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size

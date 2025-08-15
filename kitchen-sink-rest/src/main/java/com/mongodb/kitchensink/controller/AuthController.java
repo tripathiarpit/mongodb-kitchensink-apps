@@ -8,6 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import static com.mongodb.kitchensink.constants.ErrorMessageConstants.INVALID_OR_EXPIRED_SESSION;
 import static com.mongodb.kitchensink.constants.SuccessMessageConstants.*;
 
@@ -37,7 +41,7 @@ public class AuthController {
         if (!valid) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(INVALID_OR_EXPIRED_SESSION);
         }
-        return ResponseEntity.ok(SESSION_VALID);
+        return ResponseEntity.ok(valid);
     }
 
     @PostMapping("/forgot-password/request-otp")
@@ -61,5 +65,32 @@ public class AuthController {
         ApiResponse response =  forgotPasswordService.resetPassword(request.getEmail(), request.getNewPassword());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(response);
+    }
+    @GetMapping("/get-roles-by-email")
+    public ResponseEntity<List<String>> getUserRolesByEmail(@RequestHeader("Authorization") String email) {
+        List<String> roles = authService.getRolesByEmail(email);
+        if (roles== null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        return ResponseEntity.ok(roles);
+    }
+    @GetMapping("/get-roles-by-token")
+    public ResponseEntity<List<String>> getUserRolesByToken(@RequestHeader("Authorization") String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.emptyList());
+            }
+            List<String> roles = authService.getRolesFromToken(authHeader);
+
+            if (roles == null) {
+                roles = Collections.emptyList();
+            }
+
+            return ResponseEntity.ok(roles);
+
+        } catch (Exception e) {
+            e.printStackTrace(); // log the exact error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+        }
     }
 }

@@ -5,8 +5,9 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { routes } from './app.routes';
-import {JwtInterceptor} from './core/services/JwtInterceptor';
-import {BaseUrlInterceptor} from './core/services/BaseUrlInterceptor';
+import {BaseUrlInterceptor} from './core/interceptors/BaseUrlInterceptor';
+import {JwtInterceptor} from './core/interceptors/JwtInterceptor';
+import {AuthInterceptor} from './core/interceptors/AuthInterceptor';
 
 
 export const appConfig: ApplicationConfig = {
@@ -17,6 +18,7 @@ export const appConfig: ApplicationConfig = {
 
     provideHttpClient(withInterceptorsFromDi()),
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: BaseUrlInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: BaseUrlInterceptor, multi: true },
+    {provide: HTTP_INTERCEPTORS,useClass: AuthInterceptor,multi: true}
   ],
 };

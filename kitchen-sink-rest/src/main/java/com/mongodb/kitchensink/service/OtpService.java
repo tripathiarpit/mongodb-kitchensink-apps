@@ -1,6 +1,7 @@
 package com.mongodb.kitchensink.service;
 
-import org.springframework.data.redis.core.StringRedisTemplate;
+import com.mongodb.kitchensink.constants.RedisValue;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -9,45 +10,44 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class OtpService {
 
-    private final StringRedisTemplate redisTemplate;
-    private static final int OTP_LENGTH = 6;
-    private static final int OTP_EXPIRATION_MINUTES = 5;
-
+    private final RedisTemplate<String, Object> redisTemplate;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public OtpService(StringRedisTemplate redisTemplate) {
+    public OtpService(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
-    public String generateOtp(String email) {
-        String redisKey = buildRedisKey(email);
-        String existingOtp = redisTemplate.opsForValue().get(redisKey);
-        if (existingOtp != null) {
-            return existingOtp;
+    public String generateOtp(String email, String type, long ttlSeconds) {
+        String redisKey = buildRedisKey(email, type);
+
+        // Check existing OTP
+        RedisValue<String> existingValue = (RedisValue<String>) redisTemplate.opsForValue().get(redisKey);
+        if (existingValue != null && existingValue.isValid()) {
+            return existingValue.getValue();
         }
+
+        // Create new OTP
         String otp = String.format("%06d", secureRandom.nextInt(1_000_000));
-        redisTemplate.opsForValue().set(redisKey, otp, OTP_EXPIRATION_MINUTES, TimeUnit.MINUTES);
+        RedisValue<String> redisValue = new RedisValue<>(otp, ttlSeconds);
+
+        // Store with Redis TTL
+        redisTemplate.opsForValue().set(redisKey, redisValue, ttlSeconds, TimeUnit.SECONDS);
+
         return otp;
     }
 
-    public boolean validateOtp(String email, String otp) {
-        String key = buildRedisKey(email);
-        String storedOtp = redisTemplate.opsForValue().get(key);
+    public boolean verifyOtp(String email, String type, String otp) {
+        String redisKey = buildRedisKey(email, type);
+        RedisValue<String> storedValue = (RedisValue<String>) redisTemplate.opsForValue().get(redisKey);
 
-        if (storedOtp != null && storedOtp.equals(otp)) {
-            redisTemplate.delete(key);
-            return true;
-        }
-        return false;
+        return storedValue != null && storedValue.isValid() && storedValue.getValue().equals(otp);
     }
 
-    private String buildRedisKey(String email) {
-        return "OTP:" + email;
+    public void clearOtp(String email, String type) {
+        redisTemplate.delete(buildRedisKey(email, type));
     }
 
-
-    public void clearOtp(String email) {
-        String key = "otp:" + email;
-        redisTemplate.delete(key);
+    private String buildRedisKey(String email, String type) {
+        return String.format("OTP:%s:%s", type.toUpperCase(), email.toLowerCase());
     }
 }

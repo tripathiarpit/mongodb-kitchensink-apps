@@ -43,11 +43,14 @@ public class EmailServiceImpl implements EmailService {
             message.setFrom(new InternetAddress(username));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject(subject);
-            message.setText(body);
+
+            // Send as HTML instead of plain text
+            message.setContent(body, "text/html; charset=UTF-8");
 
             Transport.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email", e);
         }
     }
+
 }

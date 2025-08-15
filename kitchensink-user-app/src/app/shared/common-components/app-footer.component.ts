@@ -5,7 +5,7 @@ import {MaterialModule} from '../../material.module';
   selector: 'app-footer',
   template: `
     <mat-toolbar color="primary" class="dashboard-footer">
-      <span>© 2025 Your Company</span>
+      <span>© 2025 MongoDB</span>
     </mat-toolbar>
   `,
   styles: [`

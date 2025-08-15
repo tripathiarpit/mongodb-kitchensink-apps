@@ -1,4 +1,5 @@
-
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+/* or whichever theme you're using */
 
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
@@ -32,4 +33,14 @@ app-root {
 /* Optional: Make all elements use border-box sizing */
 *, *::before, *::after {
   box-sizing: inherit;
+}
+
+.cdk-overlay-container {
+  z-index: 3000 !important; /* make it above modals */
+}
+
+.p-dropdown-panel {
+  background-color: white !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
 }

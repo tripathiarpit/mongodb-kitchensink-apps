@@ -21,18 +21,19 @@ export class DashboardComponent implements OnInit {
   @ViewChild('sidenav') sidenav!: MatSidenav;
   isMobile = false;
   isOpened = true;
+  currentUserFullName: string | null ="";
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
     this.userRole = this.authService.getUserRole();
+    this.currentUserFullName = this.authService.getFullName();
     this.loadMenu();
   }
 
   loadMenu() {
-      // this.menuItems = NavigationMenu.menuItems.filter(item =>
-      //   this.authService.isAuthorized(item.allowedRoles)
-      // );
- this.menuItems  = NavigationMenu.menuItems;
+      this.menuItems = NavigationMenu.menuItems.filter(item =>
+        this.authService.isAuthorized(item.allowedRoles)
+      );
   }
 
   onMenuClick(route: string) {
@@ -53,4 +54,8 @@ export class DashboardComponent implements OnInit {
   logout(): void {
     this.authService.logout();
 }
+
+  gotoUserProfile(): void {
+    this.router.navigate(['dashboard/user-details', this.authService.getEmail()]);
+  }
 }

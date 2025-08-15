@@ -27,10 +27,10 @@
       <button mat-icon-button (click)="toggleSidenav()">
         <mat-icon>menu</mat-icon>
       </button>
-      <span class="page-title">Welcome !</span>
+      <span class="page-title">Welcome {{currentUserFullName}}</span>
       <span class="spacer"></span>
-      <button mat-button>
-        <mat-icon>account_circle</mat-icon>
+      <button mat-button (click)="gotoUserProfile()">
+        <mat-icon >account_circle</mat-icon>
         Profile
       </button>
     </mat-toolbar>

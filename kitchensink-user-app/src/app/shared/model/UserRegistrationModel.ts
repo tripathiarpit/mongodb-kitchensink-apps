@@ -9,7 +9,8 @@ export interface AddressRequest {
 
 
 export interface RegistrationRequest {
-  name: string;
+  firstName: string;
+  lastName:string;
   email: string;
   password: string;
   phoneNumber: string;

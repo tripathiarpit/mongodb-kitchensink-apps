@@ -8,14 +8,16 @@ public class LoginResponse {
     private String token;
     private String email;
     private String username;
+    private String fullName;
     private List<String> roles;
 
-    public LoginResponse(boolean success, String message, String token, String email, String username, List<String> roles) {
+    public LoginResponse(boolean success, String message, String token, String email, String username, String fullname, List<String> roles) {
         this.success = success;
         this.message = message;
         this.token = token;
         this.email = email;
         this.username = username;
+        this.fullName = fullname;
         this.roles = roles;
     }
 
@@ -61,6 +63,14 @@ public class LoginResponse {
 
     public List<String> getRoles() {
         return roles;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public void setRoles(List<String> roles) {

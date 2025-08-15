@@ -5,6 +5,7 @@ import {IdleTimeoutDialogComponent} from './shared/common-components/timeout-com
 import {IdleTimeoutService} from './core/services/IdleTimeoutService';
 import {AuthService} from './core/services/AuthService';
 import {Subscription} from 'rxjs';
+import {LoaderComponent} from './shared/common-components/loader/loader.component';
 
 @Component({
   selector: 'app-root',
@@ -25,10 +26,10 @@ import {Subscription} from 'rxjs';
     </div>
 
     <app-idle-timeout-dialog [visible]="showWarning" [countdown]="countdown"></app-idle-timeout-dialog>
-
+    <app-loader></app-loader>
   `,
  styleUrls: ['./app.component.scss'],
-  imports: [RouterOutlet, MaterialModule, IdleTimeoutDialogComponent]
+  imports: [RouterOutlet, MaterialModule, IdleTimeoutDialogComponent,LoaderComponent]
 })
 export class AppComponent implements  OnInit {
   showWarning = false;

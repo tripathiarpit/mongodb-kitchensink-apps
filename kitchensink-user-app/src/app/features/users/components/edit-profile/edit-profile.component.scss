@@ -1,0 +1,49 @@
+.section-title {
+  border-left: 4px solid #0d6efd;
+  padding-left: 10px;
+  margin-bottom: 15px;
+}
+
+.section-title h5 {
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+/* Card tweaks */
+.card {
+  background-color: #ffffff;
+}
+
+.card-header {
+  padding: 15px 20px;
+}
+
+/* Material form fields */
+mat-form-field {
+  margin-bottom: 1rem;
+}
+
+
+/* Action buttons */
+.action-buttons button {
+  min-width: 130px;
+}
+
+.action-buttons button:first-child {
+  border: 1px solid #6c757d;
+}
+
+/* Slide toggle alignment */
+mat-slide-toggle {
+  margin-top: 5px;
+}
+
+.status-active .mat-slide-toggle-content {
+  color: #28a745 !important;
+  font-weight: 600;
+}
+
+.status-inactive .mat-slide-toggle-content {
+  color: #dc3545 !important;
+  font-weight: 600;
+}

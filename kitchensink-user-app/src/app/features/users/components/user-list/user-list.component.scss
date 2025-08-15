@@ -1,0 +1,132 @@
+/* Row Styling */
+.styled-mat-table td.mat-cell {
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+
+/* Row Hover */
+.table-row-hover:hover {
+  background-color: rgba(25, 118, 210, 0.05);
+}
+
+/* Role Chips */
+.role-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 2px;
+  border-radius: 12px;
+  background-color: #e3f2fd;
+  color: #1565c0;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Actions Column */
+.actions-cell button {
+  margin: 0 4px;
+}
+
+/* Tooltip Styling */
+.mat-tooltip {
+  font-size: 12px;
+}
+
+/* Icon Hover Effect */
+.actions-cell button:hover mat-icon {
+  transform: scale(1.1);
+  transition: 0.2s;
+}
+
+/* Count Column */
+.mat-column-count {
+  width: 40px;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Table Header Styling */
+.styled-mat-table th.mat-header-cell {
+  background: linear-gradient(135deg, #1976d2, #42a5f5); /* Gradient Blue */
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #1565c0;
+  padding: 14px 12px;
+}
+
+/* Add shadow under the header row */
+.styled-mat-table tr.mat-header-row {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Sort header text size */
+.styled-mat-table th.mat-header-cell .mat-sort-header-content {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Table container styling */
+table-container {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 100%;
+}
+/* Table Container */
+.table-container {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+/* Header Row Styling */
+.header-row {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  color: white !important;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+:host ::ng-deep .mat-mdc-header-cell {
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  padding: 12px;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+:host ::ng-deep .mat-mdc-header-cell:last-child {
+  border-right: none;
+}
+
+.next-btn {
+  background: linear-gradient(45deg, #667eea, #764ba2) !important;
+  color: white !important;
+  text-transform: none;
+}
+
+
+.table-scroll {
+  overflow-x: auto;  // horizontal scroll
+  width: 100%;
+}
+
+.styled-mat-table {
+  min-width: 1000px; // set min-width based on total column width
+  table-layout: auto; // or fixed if you want equal width
+}
+
+.styled-mat-table th.mat-header-cell {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: #1976d2; // your header color
+}
+.p-dropdown-panel {
+  background-color: #fff !important;
+  border: 1px solid #ddd;
+}

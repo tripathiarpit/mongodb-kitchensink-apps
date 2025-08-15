@@ -14,43 +14,62 @@ public class Profile {
 
     @NotNull
     @Pattern(regexp = "^[A-Za-z ]+$", message = "Name must contain only letters and spaces")
-    private String name;
+    private String firstName;
+
+
+    @NotNull
+    @Pattern(regexp = "^[A-Za-z ]+$", message = "Name must contain only letters and spaces")
+    private String lastName;
 
     @NotNull
     @Email
     private String email;
 
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
     private String phoneNumber;
     private Address address;
-    private String userId; // link to User
+    private String username; // link to User
 
     public Profile() {}
 
-    public Profile(String id, String name, String email, String phoneNumber, Address address, String userId) {
+
+    public Profile(String id, String firstName, String lastName, String email, String phoneNumber, Address address, String userId) {
         this.id = id;
-        this.name = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.address = address;
-        this.userId = userId;
+        this.username = userId;
     }
-
 
     public static class Builder {
         private String id;
-        private String name;
+        private String firstName;
+        private String lastName;
         private String email;
         private String phoneNumber;
         private Address address;
-        private String userId;
+        private String username;
 
         public Builder id(String id) {
             this.id = id;
             return this;
         }
 
-        public Builder name(String name) {
-            this.name = name;
+        public Builder firstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+        public Builder lastName(String lastName) {
+            this.lastName = lastName;
             return this;
         }
 
@@ -69,13 +88,13 @@ public class Profile {
             return this;
         }
 
-        public Builder userId(String userId) {
-            this.userId = userId;
+        public Builder username(String username) {
+            this.username = username;
             return this;
         }
 
         public Profile build() {
-            return new Profile(id, name, email, phoneNumber, address, userId);
+            return new Profile(id, firstName, lastName,email, phoneNumber, address, username);
         }
     }
 
@@ -93,12 +112,12 @@ public class Profile {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public String getEmail() {
@@ -125,11 +144,11 @@ public class Profile {
         this.address = address;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

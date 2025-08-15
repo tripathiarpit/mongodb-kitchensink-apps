@@ -1,5 +1,10 @@
 package com.mongodb.kitchensink.util;
 
+import com.mongodb.kitchensink.constants.ErrorCodes;
+import com.mongodb.kitchensink.constants.ErrorMessageConstants;
+import com.mongodb.kitchensink.exception.InvalidOtpException;
+import com.mongodb.kitchensink.exception.JwtExpiredException;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -11,6 +16,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
+
+import static com.mongodb.kitchensink.constants.ErrorMessageConstants.INVALID_OR_EXPIRED_SESSION;
 
 @Component
 public class JwtTokenProvider {
@@ -38,12 +45,13 @@ public class JwtTokenProvider {
     }
 
 
-    public boolean validateToken(String token) {
+    public void validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
+        } catch (ExpiredJwtException ex) {
+            throw new JwtExpiredException(ErrorCodes.VALIDATION_ERROR, ErrorMessageConstants.TOKEN_EXPIRED);
         } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            throw new RuntimeException(INVALID_OR_EXPIRED_SESSION);
         }
     }
 

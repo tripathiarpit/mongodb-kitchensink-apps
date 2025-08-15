@@ -73,8 +73,8 @@ export class SignupComponent implements OnInit {
   initializeForms(): void {
     // Personal Information Form
     this.personalInfoForm = this.fb.group({
-      firstName: ['', [Validators.required, Validators.minLength(2)]],
-      lastName: ['', [Validators.required, Validators.minLength(2)]],
+      firstName: ['', [Validators.required, Validators.minLength(2),Validators.pattern(/^[A-Za-z]+$/)]],
+      lastName: ['', [Validators.required, Validators.minLength(2),Validators.pattern(/^[A-Za-z]+$/)]],
       password: ['', [Validators.required, Validators.minLength(8), this.passwordValidator]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
@@ -170,7 +170,8 @@ export class SignupComponent implements OnInit {
       this.errorMessage = undefined;
       this.successMessage = undefined;
       const request: RegistrationRequest = {
-        name: `${this.personalInfoForm.value.firstName} ${this.personalInfoForm.value.lastName}`,
+        firstName:this.personalInfoForm.value.firstName,
+        lastName:this.personalInfoForm.value.lastName,
         email: this.contactForm.value.email,
         password: this.personalInfoForm.value.password,
         phoneNumber: this.contactForm.value.phoneNumber,

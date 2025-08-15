@@ -10,17 +10,18 @@ import {
 import { AuthService } from '../../../core/services/AuthService';
 import {MatSnackBar, MatSnackBarRef} from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
-import { NgIf } from '@angular/common';
+import {AsyncPipe, NgIf} from '@angular/common';
 import { Router } from '@angular/router';
 import {MatStepper} from '@angular/material/stepper';
 import {interval, Subscription, take} from 'rxjs';
+import {SharedStateService} from '../../../core/services/SharedStateService';
 
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forget-password.component.scss'],
   standalone: true,
-  imports: [MaterialModule, ReactiveFormsModule, NgIf]
+  imports: [MaterialModule, ReactiveFormsModule, NgIf, AsyncPipe]
 })
 export class ForgotPasswordComponent implements OnInit, OnDestroy {
   emailForm!: FormGroup<{ email: FormControl<string> }>;
@@ -43,13 +44,14 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   countdown: number = 60; // 60 seconds
   private countdownSub!: Subscription;
   private matref!: MatSnackBarRef<EmbeddedViewRef<any>>;
+  showSIgnInLink: boolean = true;
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private snack: MatSnackBar,
     private router: Router,
+    public sharedState: SharedStateService
   ) {}
-
   ngOnInit(): void {
     this.emailForm = this.fb.nonNullable.group({
       email: ['', [Validators.required, Validators.email]],
@@ -71,6 +73,9 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
     },{ validators: this.passwordMatchValidator });
+    this.sharedState.showSignInLink$.subscribe(value => {
+      this.showSIgnInLink = value;
+    });
   }
 
   private showError(err: string, fallback = 'Something went wrong'): void {

@@ -6,8 +6,10 @@ import java.util.List;
 @Schema(description = "User registration request payload")
 public class RegistrationRequest {
 
-    @Schema(description = "Full name of the user", example = "John Doe")
-    private String name;
+    @Schema(description = "First Name of the user", example = "John")
+    private String firstName;
+    @Schema(description = "Last Name of the user", example = "Doe")
+    private String lastName;
 
     @Schema(description = "Email address (must be unique)", example = "john@example.com")
     private String email;
@@ -17,6 +19,14 @@ public class RegistrationRequest {
 
     @Schema(description = "Phone number", example = "9876543210")
     private String phoneNumber;
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
     @NotNull(message = "Address is required")
     private AddressRequest address;
@@ -38,12 +48,12 @@ public class RegistrationRequest {
         this.city = city;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public String getEmail() {

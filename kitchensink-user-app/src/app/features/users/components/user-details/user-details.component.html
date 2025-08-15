@@ -1,0 +1,230 @@
+<!-- Enhanced User Details Template -->
+<div class="user-details-dialog">
+  <h2 mat-dialog-title class="dialog-title">
+    <mat-icon class="title-icon">person</mat-icon>
+    User Details
+  </h2>
+
+  <mat-dialog-content class="user-details-content">
+    @if (!isLoading) {
+      <div class="container-fluid p-0">
+
+        <!-- User Profile Header Card -->
+        <mat-card class="profile-header-card mb-4">
+          <mat-card-content class="p-4">
+            <div class="row align-items-center">
+              <div class="col-md-2 text-center">
+                <div class="user-avatar">
+                  <mat-icon class="avatar-icon">account_circle</mat-icon>
+                </div>
+              </div>
+              <div class="col-md-7">
+                <h3 class="user-name mb-1">{{ user.username }}</h3>
+                <p class="user-email mb-2">
+                  <mat-icon class="inline-icon">email</mat-icon>
+                  {{ user.email }}
+                </p>
+                <div class="status-chips">
+                  <mat-chip-set>
+                    <mat-chip
+                      [class]="user.active ? 'status-active' : 'status-inactive'"
+                    >
+                      <mat-icon matChipAvatar>
+                        {{ user.active ? 'check_circle' : 'cancel' }}
+                      </mat-icon>
+                      {{ user.active ? 'Active' : 'Inactive' }}
+                    </mat-chip>
+
+                    <mat-chip
+                      *ngFor="let role of user.roles"
+                      class="role-chip"
+                    >
+                      <mat-icon matChipAvatar>security</mat-icon>
+                      {{ role }}
+                    </mat-chip>
+
+                    <mat-chip
+                      [class]="user.twoFAEnabled ? 'status-active' : 'status-inactive'"
+                    >
+                      <mat-label>2FA</mat-label>
+                      <mat-icon matChipAvatar>
+                        {{ user.twoFAEnabled ? 'check_circle' : 'cancel' }}
+                      </mat-icon>
+                      {{ user.twoFAEnabled ? 'Enabled' : 'Disabled' }}
+                    </mat-chip>
+                  </mat-chip-set>
+                </div>
+              </div>
+              <div class="col-md-3 text-end">
+                <button mat-icon-button [matMenuTriggerFor]="menu" class="options-btn">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu" class="custom-menu">
+                  <button mat-menu-item class="menu-item-custom edit-item" (click)="editUser(user)">
+                    <mat-icon class="menu-icon edit-icon">edit</mat-icon>
+                    <span class="menu-text">Edit Profile</span>
+
+                  </button>
+                  <mat-divider class="menu-divider"></mat-divider>
+                  <button mat-menu-item class="menu-item-custom reset-item" (click)="resetPassword(user)">
+                    <mat-icon class="menu-icon reset-icon">lock_reset</mat-icon>
+                    <span class="menu-text">Reset Password</span>
+
+                  </button>
+                  <mat-divider class="menu-divider"></mat-divider>
+                  <button mat-menu-item class="menu-item-custom danger-item">
+                    <mat-icon class="menu-icon danger-icon">delete_outline</mat-icon>
+                    <span class="menu-text">Delete Profile</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- User Information Cards -->
+        <div class="row g-4">
+
+          <!-- Basic Information Card -->
+          <div class="col-md-6">
+            <mat-card class="info-card">
+              <mat-card-header class="card-header">
+                <div mat-card-avatar class="card-avatar basic-info">
+                  <mat-icon>info</mat-icon>
+                </div>
+                <mat-card-title>Basic Information</mat-card-title>
+              </mat-card-header>
+              <mat-card-content class="p-3">
+                <div class="info-row">
+                </div>
+
+                <div class="info-row">
+                  <mat-icon class="info-icon">person_outline</mat-icon>
+                  <div class="info-content">
+                    <span class="info-label">First Name</span>
+                    <span class="info-value">{{ user.profile.firstName}}</span>
+                  </div>
+                </div>
+                <mat-divider class="my-2"></mat-divider>
+                <div class="info-row">
+                  <mat-icon class="info-icon">person_outline</mat-icon>
+                  <div class="info-content">
+                    <span class="info-label">Last Name</span>
+                    <span class="info-value">{{ user.profile.lastName}}</span>
+                  </div>
+                </div>
+                <mat-divider class="my-2"></mat-divider>
+                <div class="info-row">
+                  <mat-icon class="info-icon">schedule</mat-icon>
+                  <div class="info-content">
+                    <span class="info-label">Created At</span>
+                    <span class="info-value">{{ user.createdAt | date:'medium' }}</span>
+                  </div>
+                </div>
+                <mat-divider class="my-2"></mat-divider>
+
+              </mat-card-content>
+
+            </mat-card>
+          </div>
+
+          <!-- Contact Information Card -->
+          <div class="col-md-6">
+            <mat-card class="info-card">
+              <mat-card-header class="card-header">
+                <div mat-card-avatar class="card-avatar contact-info">
+                  <mat-icon>contact_phone</mat-icon>
+                </div>
+                <mat-card-title>Contact Information</mat-card-title>
+              </mat-card-header>
+              <mat-card-content class="p-3">
+                <div class="info-row">
+                  <mat-icon class="info-icon">phone</mat-icon>
+                  <div class="info-content">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">{{ user.profile.phoneNumber || 'Not provided' }}</span>
+                  </div>
+                </div>
+                <mat-divider class="my-2"></mat-divider>
+                <div class="info-row">
+                  <mat-icon class="info-icon">email</mat-icon>
+                  <div class="info-content">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{ user.email }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Address Information Card -->
+          <div class="col-12">
+            <mat-card class="info-card">
+              <mat-card-header class="card-header">
+                <div mat-card-avatar class="card-avatar address-info">
+                  <mat-icon>location_on</mat-icon>
+                </div>
+                <mat-card-title>Address Information</mat-card-title>
+              </mat-card-header>
+              <mat-card-content class="p-3">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="info-row">
+                      <mat-icon class="info-icon">home</mat-icon>
+                      <div class="info-content">
+                        <span class="info-label">Street</span>
+                        <span class="info-value">{{ user.profile.street || 'Not provided' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-row">
+                      <mat-icon class="info-icon">location_city</mat-icon>
+                      <div class="info-content">
+                        <span class="info-label">City</span>
+                        <span class="info-value">{{ user.profile.city || 'Not provided' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <mat-divider class="my-3"></mat-divider>
+
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="info-row">
+                      <mat-icon class="info-icon">map</mat-icon>
+                      <div class="info-content">
+                        <span class="info-label">State</span>
+                        <span class="info-value">{{ user.profile.state || 'Not provided' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="info-row">
+                      <mat-icon class="info-icon">public</mat-icon>
+                      <div class="info-content">
+                        <span class="info-label">Country</span>
+                        <span class="info-value">{{ user.profile.country || 'Not provided' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="info-row">
+                      <mat-icon class="info-icon">local_post_office</mat-icon>
+                      <div class="info-content">
+                        <span class="info-label">Pincode</span>
+                        <span class="info-value">{{ user.profile.pincode || 'Not provided' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </div>
+    }
+
+  </mat-dialog-content>
+</div>

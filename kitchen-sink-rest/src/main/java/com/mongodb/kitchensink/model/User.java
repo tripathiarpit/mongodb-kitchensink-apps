@@ -6,11 +6,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Document(collection = "users")
-public class User {
+public class User implements UserDetails {
+
     @Override
     public String toString() {
         return "User{" +
@@ -20,6 +27,7 @@ public class User {
                 ", passwordHash='" + passwordHash + '\'' +
                 ", roles=" + roles +
                 ", active=" + active +
+                ", accountVerificationPending=" + isAccountVerificationPending +
                 ", createdAt=" + createdAt +
                 '}';
     }
@@ -43,6 +51,16 @@ public class User {
     private List<String> roles; // e.g. ["USER", "ADMIN"]
 
     private boolean active = true;
+
+    public boolean isAccountVerificationPending() {
+        return isAccountVerificationPending;
+    }
+
+    public void setAccountVerificationPending(boolean accountVerificationPending) {
+        this.isAccountVerificationPending = accountVerificationPending;
+    }
+
+    private boolean isAccountVerificationPending;
 
     private Instant createdAt = Instant.now();
 
@@ -111,6 +129,31 @@ public class User {
         }
         return email; // fallback if no '@' found
     }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Add ROLE_ prefix for Spring Security
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getPassword() {
+        return passwordHash;
+    }
+
+
+    @Override
+    public boolean isAccountNonExpired() { return true; }
+
+    @Override
+    public boolean isAccountNonLocked() { return true; }
+
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
+
+    @Override
+    public boolean isEnabled() { return true; }
 
     public static Builder builder() {
         return new Builder();
@@ -124,6 +167,7 @@ public class User {
         private List<String> roles;
         private boolean active;
         private Instant createdAt;
+        private boolean isAccountVerificationPending;
 
         public Builder id(String id) {
             this.id = id;
@@ -160,6 +204,11 @@ public class User {
             this.createdAt = createdAt;
             return this;
         }
+        public Builder accountVerificationPending(boolean status) {
+            this.isAccountVerificationPending = status;
+            return this;
+        }
+
 
         public User build() {
             User user = new User();
@@ -170,6 +219,7 @@ public class User {
             user.roles = this.roles;
             user.active = this.active;
             user.createdAt = this.createdAt;
+            user.isAccountVerificationPending = this.isAccountVerificationPending;
             return user;
         }
 
@@ -191,6 +241,7 @@ public class User {
                     ", roles=" + roles +
                     ", active=" + active +
                     ", createdAt=" + createdAt +
+                    ", isAccountVerificationPending=" + isAccountVerificationPending +
                     '}';
         }
     }
