@@ -119,7 +119,7 @@ docker-compose ps
 
 | Service | URL | Description | Status Check |
 |---------|-----|-------------|--------------|
-| **🔵 Frontend** | http://localhost:4200 | Angular UI Application | Visit in browser |
+| **🔵 Frontend** | http://localhost:4200 | Angular UI Application | Visit in browser, login with admin@example.com Admin@123 |
 | **🟢 Backend API** | http://localhost:8080 | Spring Boot REST API | `curl http://localhost:8080/actuator/health` |
 | **📖 Swagger UI** | http://localhost:8080/swagger-ui | Interactive API Documentation | Visit in browser |
 | **🟡 MongoDB** | localhost:27017 | Database (internal) | Via application logs |
@@ -222,6 +222,9 @@ docker exec -it mongodb-kitchensink-apps_redis_1 redis-cli
 
 ### Application Properties
 Main configuration file: `kitchen-sink-rest/src/main/resources/application.properties`
+
+### Some users are created in the application, use below to access the application
+login with admin@example.com Admin@123
 
 ```properties
 # Database Configuration
