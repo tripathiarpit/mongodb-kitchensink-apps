@@ -327,22 +327,28 @@ textarea.mat-mdc-input-element {
   text-align: center;
 }
 
-/* Colorful gradient text */
-.rainbow-text {
+.rainbow-text  {
   font-weight: bold;
   background: linear-gradient(
       90deg,
-      #ff6f61,
-      #ffcc00,
-      #4caf50,
       #2196f3,
       #9c27b0
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: rainbow-flow 4s linear infinite;
-  background-size: 300% auto;
+  animation: gradient-flow 3s linear infinite;
+  background-size: 200% auto;
 }
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 100% center;
+  }
+}
+
 
 /* Animation for flowing colors */
 @keyframes rainbow-flow {

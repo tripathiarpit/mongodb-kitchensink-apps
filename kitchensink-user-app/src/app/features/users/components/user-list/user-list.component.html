@@ -45,6 +45,8 @@
       </mat-form-field>
 
 
+
+
       <div class="d-flex align-items-center gap-1">
         <span>Sort by:</span>
         <mat-form-field appearance="outline" style="width: 180px;">
@@ -63,7 +65,13 @@
           <mat-icon>{{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
         </button>
       </div>
+      <button mat-raised-button color="primary" (click)="download()" style="height: 48px; font-size: 16px;">
+        <mat-icon>download</mat-icon> Download Users CSV
+      </button>
     </div>
+    <div class="d-flex align-items-center gap-1">
+    </div>
+
     <div class="table-container mat-elevation-z8">
       <div class="table-scroll">
         <table mat-table [dataSource]="dataSource" matSort class="styled-mat-table">

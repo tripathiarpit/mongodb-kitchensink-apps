@@ -1,6 +1,7 @@
 package com.mongodb.kitchensink.controller;
 
 import com.mongodb.kitchensink.dto.*;
+import com.mongodb.kitchensink.service.DownloadFileService;
 import com.mongodb.kitchensink.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 /**
  * Controller for managing user-related operations.
@@ -38,10 +40,12 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final DownloadFileService downloadFileService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, DownloadFileService downloadFileService) {
         this.userService = userService;
+        this.downloadFileService = downloadFileService;
     }
 
     @Operation(
@@ -214,4 +218,19 @@ public class UserController {
     ) {
         return ResponseEntity.ok(userService.updateUser(emailId, request));
     }
+    @GetMapping("/download")
+    public ResponseEntity<byte[]> downloadUsers(@RequestParam(defaultValue = "0") int page,
+                                                @RequestParam(defaultValue = "50") int size,
+                                                @RequestParam(defaultValue = "createdAt") String sortBy,
+                                                @RequestParam(defaultValue = "asc") String direction) {
+
+        Pageable pageable = PageRequest.of(page, size,
+                direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
+
+        Page<UserDto> pages = userService.getAllUsers(pageable);
+        List<UserDto> users = pages.getContent();
+        return downloadFileService.generateUserExcel(users);
+    }
+
+
 }

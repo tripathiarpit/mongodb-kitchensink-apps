@@ -161,7 +161,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
       if (confirmed) {
         this.userService.deleteUser(user.email).subscribe({
           next: (res) => {
-            this.snackBar.open(res.message || 'User deleted successfully', 'Close', {duration: 3000});
+            this.snackBar.open(res.message || 'User deleted successfully', 'Close', {duration: 3000,  verticalPosition: 'top', });
             this.loadUsers();
           },
           error: (err) => {
@@ -336,5 +336,21 @@ export class UserListComponent implements OnInit, AfterViewInit {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.pageIndex = 0;
     this.applySort();
+  }
+  download() {
+    this.loaderService.show();
+    this.userService.downloadUsers(this.pageIndex, this.pageSize, this.sortBy, this.sortDirection).subscribe((blob: Blob) => {
+      this.loaderService.hide();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'users.csv'; // Set file name
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url); // Clean up
+    }, error => {
+      this.loaderService.hide();
+    });
   }
 }

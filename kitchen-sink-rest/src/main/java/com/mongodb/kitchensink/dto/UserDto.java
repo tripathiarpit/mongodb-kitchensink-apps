@@ -12,6 +12,16 @@ public class UserDto {
     private Instant createdAt;
     private Boolean isAccountVerificationPending;
     private Boolean isFirstLogin;
+    private String twoFactorSecret;
+    private boolean twoFactorEnabled = false;
+
+    public String getTwoFactorSecret() {
+        return twoFactorSecret;
+    }
+
+    public void setTwoFactorSecret(String twoFactorSecret) {
+        this.twoFactorSecret = twoFactorSecret;
+    }
 
     public Boolean getFirstLogin() {
         return isFirstLogin;
@@ -84,5 +94,13 @@ public class UserDto {
 
     public void setProfile(ProfileDto profile) {
         this.profile = profile;
+    }
+
+    public boolean isTwoFactorEnabled() {
+        return twoFactorEnabled;
+    }
+
+    public void setTwoFactorEnabled(boolean twoFactorEnabled) {
+        this.twoFactorEnabled = twoFactorEnabled;
     }
 }

@@ -5,6 +5,8 @@ import com.mongodb.kitchensink.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+
+import java.time.Instant;
 import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<User, String> {
@@ -15,4 +17,9 @@ public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByUsername(String username);
     Page<User> findByEmailContainingIgnoreCase(String email, Pageable pageable);
     Page<User> findByUsernameContainingIgnoreCase(String username, Pageable pageable);
+    long countByActiveTrue();
+    long countByIsAccountVerificationPendingTrue();
+    long countByIsFirstLoginTrue();
+    long countByRolesContaining(String role);
+    long countByCreatedAtAfter(Instant date);
 }

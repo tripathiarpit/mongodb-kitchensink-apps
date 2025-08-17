@@ -43,7 +43,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   otpVerifying = false;
   otpVerified = false;
   resendDisabled = true;
-  countdown: number = 5;
+  countdown: number = 30;
   private countdownSub!: Subscription;
   private matref!: MatSnackBarRef<EmbeddedViewRef<any>>;
   showSIgnInLink: boolean = true;
@@ -234,7 +234,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   populateSnackbarForRedirect(message: string): void {
     this.showSuccessSnack(message, "", 8000);
-    const countdownSeconds = 5;
+    const countdownSeconds = 2;
     let remaining = countdownSeconds;
 
 
@@ -259,12 +259,12 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   startCountdown() {
     this.resendDisabled = true;
-    this.countdown = 5;
+    this.countdown = 30;
 
     this.countdownSub?.unsubscribe();
 
     this.countdownSub = interval(1000)
-      .pipe(take(60))
+      .pipe(take(30))
       .subscribe(() => {
         this.countdown--;
         if (this.countdown === 0) {

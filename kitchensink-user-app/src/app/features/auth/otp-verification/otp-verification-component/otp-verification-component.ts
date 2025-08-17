@@ -20,7 +20,7 @@ export class OtpVerificationComponent implements OnInit, OnDestroy {
   @Output() resend = new EventEmitter<void>();
 
   otpForm!: FormGroup;
-  countdown: number = 3;
+  countdown: number = 30;
   resendDisabled = true;
   private countdownSub!: Subscription;
 
@@ -79,7 +79,7 @@ export class OtpVerificationComponent implements OnInit, OnDestroy {
     });
     this.resend.emit();
     this.resendDisabled = true;
-    this.countdown = 3;
+    this.countdown = 30;
     this.startCountdown();
   }
 

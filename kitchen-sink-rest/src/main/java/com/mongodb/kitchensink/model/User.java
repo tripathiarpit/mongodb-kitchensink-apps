@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 @Document(collection = "users")
 public class User implements UserDetails {
-
     @Override
     public String toString() {
         return "User{" +
@@ -25,9 +24,12 @@ public class User implements UserDetails {
                 ", email='" + email + '\'' +
                 ", username='" + username + '\'' +
                 ", passwordHash='" + passwordHash + '\'' +
+                ", isAccountVerificationPending=" + isAccountVerificationPending +
                 ", roles=" + roles +
                 ", active=" + active +
-                ", accountVerificationPending=" + isAccountVerificationPending +
+                ", isFirstLogin=" + isFirstLogin +
+                ", twoFactorSecret='" + twoFactorSecret + '\'' +
+                ", twoFactorEnabled=" + twoFactorEnabled +
                 ", createdAt=" + createdAt +
                 '}';
     }
@@ -50,8 +52,26 @@ public class User implements UserDetails {
     private Boolean isAccountVerificationPending= true;
     private List<String> roles;
     private boolean active = true;
-    private Boolean isFirstLogin = true;
 
+    public boolean isTwoFactorEnabled() {
+        return twoFactorEnabled;
+    }
+
+    public void setTwoFactorEnabled(boolean twoFactorEnabled) {
+        this.twoFactorEnabled = twoFactorEnabled;
+    }
+
+    public String getTwoFactorSecret() {
+        return twoFactorSecret;
+    }
+
+    public void setTwoFactorSecret(String twoFactorSecret) {
+        this.twoFactorSecret = twoFactorSecret;
+    }
+
+    private Boolean isFirstLogin = true;
+    private String twoFactorSecret;
+    private boolean twoFactorEnabled = false;
     public Boolean getFirstLogin() {
         return isFirstLogin;
     }
@@ -175,10 +195,15 @@ public class User implements UserDetails {
         private Instant createdAt;
         private Boolean isAccountVerificationPending;
         private Boolean isFirstLogin;
+        private  String twoFactorSecret;
+        private Boolean twoFactorEnabled;
 
-
-        public Builder id(String id) {
-            this.id = id;
+        public Builder twoFactorSecret(String twoFactorSecret) {
+            this.twoFactorSecret = twoFactorSecret;
+            return this;
+        }
+        public Builder twoFactorEnabled(boolean twoFactorEnabled) {
+            this.twoFactorEnabled = twoFactorEnabled;
             return this;
         }
 
@@ -223,6 +248,7 @@ public class User implements UserDetails {
 
 
 
+
         public User build() {
             User user = new User();
             user.id = this.id;
@@ -234,6 +260,8 @@ public class User implements UserDetails {
             user.createdAt = this.createdAt;
             user.isAccountVerificationPending = this.isAccountVerificationPending;
             user.isFirstLogin = this.isFirstLogin;
+            user.twoFactorEnabled = this.twoFactorEnabled;
+            user.twoFactorSecret = this.twoFactorSecret;
             return user;
         }
 
@@ -254,8 +282,10 @@ public class User implements UserDetails {
                     ", roles=" + roles +
                     ", active=" + active +
                     ", createdAt=" + createdAt +
-                    ", isFirstLogin=" + isFirstLogin +
                     ", isAccountVerificationPending=" + isAccountVerificationPending +
+                    ", isFirstLogin=" + isFirstLogin +
+                    ", twoFactorSecret='" + twoFactorSecret + '\'' +
+                    ", twoFactorEnabled=" + twoFactorEnabled +
                     '}';
         }
     }

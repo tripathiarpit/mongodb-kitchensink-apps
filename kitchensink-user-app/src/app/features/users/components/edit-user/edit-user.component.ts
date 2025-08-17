@@ -98,8 +98,6 @@ export class EditUserComponent implements OnInit {
   addRole(event: MatChipInputEvent) {
     const input = event.input;
     const value = event.value.trim().toUpperCase();
-
-    // Only add if value is allowed and not already in the form
     if ((value === 'USER' || value === 'ADMIN') && !this.userForm.value.roles.includes(value)) {
       const roles = [...this.userForm.value.roles, value];
       this.userForm.get('roles')?.setValue(roles);
@@ -127,7 +125,7 @@ export class EditUserComponent implements OnInit {
       const updatedUser = {
         id: formValue.id,
         username: formValue.username,
-        roles: this.roles,
+        roles: this.userForm.value.roles,
         active: formValue.active,
         twoFAEnabled:formValue.twoFAEnabled,
         profile: {

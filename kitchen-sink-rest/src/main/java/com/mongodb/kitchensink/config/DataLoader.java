@@ -49,7 +49,11 @@ public class DataLoader implements CommandLineRunner {
                     .username(usernameGeneratorService.generateUniqueUsername(email))
                     .active(true)
                     .createdAt(Instant.now())
-                    .isFirstLogin(true)
+                    .twoFactorEnabled(false)
+                    .isFirstLogin(false)
+                    .accountVerificationPending(false)
+                    .twoFactorEnabled(true)
+                    .twoFactorSecret(null)
                     .build();
 
             users.add(user);

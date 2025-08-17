@@ -40,9 +40,12 @@ public class DefaultDataConfig implements CommandLineRunner {
                     .passwordHash(passwordEncoder.encode(adminPassword))
                     .roles(List.of("ADMIN"))
                     .active(true)
+                    .twoFactorEnabled(false)
                     .createdAt(Instant.now())
                     .username("admin")
-                    .accountVerificationPending(true)
+                    .accountVerificationPending(false)
+                    .twoFactorEnabled(true)
+                    .twoFactorSecret(null)
                     .build();
             userRepository.save(adminUser);
             Profile adminProfile = Profile.builder()

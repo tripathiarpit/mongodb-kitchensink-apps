@@ -7,7 +7,6 @@ import {AuthService} from '../core/services/AuthService';
 import {Subscription} from 'rxjs';
 import {LoaderComponent} from '../shared/common-components/loader/loader.component';
 import {AppSettings, AppSettingsService} from '../core/services/AppSettingsService';
-import {AppFooterComponent} from '../shared/common-components/app-footer.component';
 
 @Component({
   selector: 'app-root',
@@ -21,7 +20,6 @@ export class AppComponent implements OnInit, OnDestroy {
   countdownInterval: any;
   private subs: Subscription[] = [];
 
-  // Add settings tracking
   currentSettings: AppSettings = {
     darkMode: false,
     primaryColor: 'indigo',
@@ -44,14 +42,12 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to settings changes
     this.subs.push(
       this.settingsService.getSettingsObservable().subscribe(settings => {
         this.currentSettings = settings;
       })
     );
 
-    // Start/stop watching based on login state
     this.subs.push(
       this.authService.isLoggedIn$.subscribe(isLoggedIn => {
         if (isLoggedIn) {
@@ -63,30 +59,27 @@ export class AppComponent implements OnInit, OnDestroy {
       })
     );
 
-    // When idleService requests a warning, show dialog and start countdown
+
     this.subs.push(
       this.idleService.warning$.subscribe(() => {
         this.showWarning = true;
-        this.countdown = 5; // warning duration in seconds
+        this.countdown = 30;
         this.startCountdown();
       })
     );
 
-    // When idleService emits final timeout, logout immediately
     this.subs.push(
       this.idleService.timeout$.subscribe(() => {
         this.performLogout();
       })
     );
 
-    // If user presses key or moves mouse while warning is shown, reset
     window.addEventListener('keydown', () => this.onUserActivityDuringWarning());
     window.addEventListener('mousemove', () => this.onUserActivityDuringWarning());
     window.addEventListener('click', () => this.onUserActivityDuringWarning());
     window.addEventListener('touchstart', () => this.onUserActivityDuringWarning());
   }
 
-  // Add navigation methods
   navigateToSettings() {
     this.router.navigate(['dashboard/settings']);
   }
@@ -106,12 +99,6 @@ export class AppComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/access-denied']);
     }
-  }
-
-  onProfileClick() {
-    // Example: Open profile dialog or navigate to profile
-    console.log('Profile clicked');
-    // You could navigate to a profile route: this.router.navigate(['/profile']);
   }
 
   private startCountdown() {
@@ -134,7 +121,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private onUserActivityDuringWarning() {
     if (!this.showWarning) return;
-    // hide UI and restart idle watch (this will cancel pending timeout in service)
     this.hideWarning();
     this.idleService.startWatching();
   }

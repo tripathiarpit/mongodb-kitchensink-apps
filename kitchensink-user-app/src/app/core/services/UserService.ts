@@ -80,4 +80,16 @@ export class UserService {
         .set('country', searchQuery)
     });
   }
+  downloadUsers(page: number, size: number, sortBy: string, direction: string) {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('direction', direction);
+
+    return this.http.get('http://localhost:8080/api/users/download', {
+      responseType: 'blob',
+      params: params
+    });
+  }
 }

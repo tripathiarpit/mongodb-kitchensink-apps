@@ -21,6 +21,8 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatSliderModule} from '@angular/material/slider';
 
+let CardModule;
+
 @NgModule({
   exports: [
     MatToolbarModule,
@@ -58,7 +60,8 @@ import {MatSliderModule} from '@angular/material/slider';
     MatSliderModule,
     MatListModule,
     MatToolbarModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatCardModule
   ]
 })
 export class MaterialModule { }

@@ -24,6 +24,7 @@ public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
@@ -44,8 +45,12 @@ public class SecurityConfig {
                                 "/api/users/register",
                                 "/api/auth/forgot-password/**",
                                 "/api/auth/account-verification/**",
-                                "/api/auth/get-login-response-after-otp-verification"
-
+                                "/api/auth/get-login-response-after-otp-verification",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "/actuator/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

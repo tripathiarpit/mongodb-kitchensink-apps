@@ -86,6 +86,8 @@ public class UserService {
                 .active(true)
                 .accountVerificationPending(true)
                 .isFirstLogin(true)
+                .twoFactorEnabled(true)
+                .twoFactorSecret(null)
                 .username(usernameGeneratorService.generateUniqueUsername(request.getEmail()))
                 .createdAt(Instant.now())
                 .build();
@@ -131,6 +133,19 @@ public class UserService {
         dto.setProfile(profile != null ? userMapper.toDto(profile) : null);
 
         return dto;
+    }
+    public User getUserByUserName(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(
+                        ErrorCodes.RESOURCE_NOT_FOUND,
+                        ErrorMessageConstants.ACCOUNT_NOT_FOUND_EMAIL
+                ));
+
+
+        return user;
+    }
+    public void saveUser(User user) {
+        userRepository.save(user);
     }
     public User getUserByEmailForVerification(String email) {
         return userRepository.findByEmail(email)
@@ -264,6 +279,9 @@ public class UserService {
             existingUser.setRoles(updateRequest.getRoles());
 
         existingUser.setActive(updateRequest.isActive());
+        if(updateRequest.getRoles() != null) {
+            existingUser.setRoles(updateRequest.getRoles());
+        }
         if (updateRequest.getFirstLogin() != null) existingUser.setFirstLogin(updateRequest.getFirstLogin());
         if (updateRequest.getAccountVerificationPending() != null)
             existingUser.setAccountVerificationPending(updateRequest.getAccountVerificationPending());
