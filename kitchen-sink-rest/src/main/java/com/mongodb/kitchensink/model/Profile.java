@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "profiles")
@@ -23,6 +24,7 @@ public class Profile {
 
     @NotNull
     @Email
+    @Indexed(unique = true)
     private String email;
 
     public String getLastName() {
