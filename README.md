@@ -1,113 +1,138 @@
-Full-stack application demonstrating MongoDB integration with Spring Boot REST API and Angular frontend
+# 🚀 **MongoDB Kitchensink Apps**
 
-🚀 Features
+This repository contains a **_full-stack web application_** built using **Spring Boot + Angular**, with secure **JWT Authentication**, **MongoDB** persistence, and **Redis** caching — all containerized using **Docker & Docker Compose**.  
 
-Spring Boot REST API with MongoDB and Redis caching
-Angular frontend for user interface
-Dockerized development environment
-Single configuration setup
+---
 
-📋 Prerequisites
-
-Docker
-Docker Compose
-Git
-
-⚡ Quick Start
-
-
-# Clone the repository
-git clone https://github.com/tripathiarpit/mongodb-kitchensink-apps.git
-
-# Navigate to project directory
-cd mongodb-kitchensink-apps
-
-# Start all services
-docker-compose up
-
-
-┌─────────────────┐    ┌─────────────────┐
-│   Angular UI    │    │  Spring Boot    │
-│ (Port: 4200)    │◄──►│   REST API      │
-└─────────────────┘    │ (Port: 8080)    │
-                       └─────────────────┘
-                              │
-                              ▼
-                       ┌─────────────────┐    ┌─────────────────┐
-                       │    MongoDB      │    │     Redis       │
-                       │  (Port: 27017)  │    │  (Port: 6379)   │
-                       └─────────────────┘    └─────────────────┘
-
-
-
-Service    Technology    Port        Description
-
-ui          Angular      4200        Frontend application
-
-api         Spring Boot  8080        REST API server
-
-mongodb      MongoDB     27017        Primary database
-redis        Redis       6379        Caching layer
-
+## 📂 **Project Structure**
 
 mongodb-kitchensink-apps/
-├── 📁 kitchen-sink-rest/           # Spring Boot REST API
-│   ├── src/
-│   ├── pom.xml
-│   └── Dockerfile
-├── 📁 kitchensink-user-app/        # Angular frontend
-│   ├── src/
-│   ├── package.json
-│   └── Dockerfile
-├── 📄 docker-compose.yml           # Docker orchestration
-└── 📄 README.md                    # This file
+│── kitchen-sink-rest 🟢 Spring Boot REST API (Backend)
+│── kitchensink-user-app 🔵 Angular UI (Frontend)
+│── docker-compose.yml 🟡 Orchestration for services
 
 
-🛠️ Development
-Available Scripts
 
 
-# Start all services
+---
+
+## ⚙️ **Components**
+
+### 🟢 **Backend (kitchen-sink-rest)**
+- Spring Boot REST API  
+- **Spring Security + JWT Authentication**  
+- MongoDB persistence  
+- Redis caching & session management  
+- Swagger/OpenAPI documentation  
+
+### 🔵 **Frontend (kitchensink-user-app)**
+- Angular-based UI  
+- Talks to REST APIs  
+- Runs on: `http://localhost:4200`  
+
+### 🟡 **Databases & Caching**
+- **MongoDB** → Primary data persistence  
+- **Redis** → Session & cache management  
+
+### 📖 **API Documentation**
+- Swagger UI available at: [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui)  
+- 🔑 Requires JWT token for accessing secured endpoints  
+
+---
+
+## 🛠️ **Technologies Used**
+
+- **Backend** → Spring Boot, Spring Security, JWT, MongoDB, Redis  
+- **Frontend** → Angular  
+- **Containerization** → Docker, Docker Compose  
+- **API Docs** → Swagger / OpenAPI  
+
+---
+
+## 📋 **Prerequisites**
+
+Before running the app, install:  
+
+- 🐳 [Docker](https://www.docker.com/)  
+- 🐙 [Docker Compose](https://docs.docker.com/compose/)  
+
+👉 *No need to install MongoDB/Redis manually — they are included as Docker images.*  
+
+---
+
+## 🚀 **Getting Started**
+
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/tripathiarpit/mongodb-kitchensink-apps.git
+cd mongodb-kitchensink-apps
+
+
+
+
+
+
+**2️⃣ Build & Run with Docker Compose**
+navigate to the root directory of the project that has two folder one of UI and iothe rof REST and execute
 docker-compose up --build
+**
+✅ This starts 4 containers:
 
-# Start in detached mode
-docker-compose up -d
+🟢 REST API → http://localhost:8080
 
-# Stop all services
-docker-compose down
+🔵 Angular UI → http://localhost:4200
 
-# View logs
-docker-compose logs [service-name]
+🟡 MongoDB
 
-# Rebuild images
-docker-compose up --build
+🔴 Redis
 
+3️⃣ Access Applications
 
-**Environment Configuration**
-Currently uses a single environment file located in the REST API project. Environment-specific configurations will be added in future releases.
-🔧 Configuration
-The application uses default configuration with:
+🌐 Frontend (UI): http://localhost:4200
 
-**MongoDB connection on port 27017**
+⚡ Backend (API): http://localhost:8080
 
-**Redis connection on port 6379**
-
-**Spring Boot API on port 8080**
+📖 Swagger UI: http://localhost:8080/swagger-ui**
 
 
-**Angular UI on port 4200**
+
+**🔑 Authentication with Swagger**
+
+Login via API/UI → obtain a JWT Token (check response header).
+
+Open Swagger UI.
+
+Click 🔒 Authorize → Paste your JWT token.
+
+🎉 Now you can test secured APIs directly from Swagger!
+
+**🐳 Docker Images Used**
+
+🟢 Spring Boot REST API (custom build)
+
+🔵 Angular UI (custom build)
+
+🟡 MongoDB (official image)
+
+🔴 Redis (official image)
+
+**⚡ Notes**
+
+Application properties (DB, Redis, JWT configs) are stored in:
+
+**kitchen-sink-rest/src/main/resources/application.properties**
 
 
-🤝 Contributing
+**Currently, only one environment configuration is used (no dev/test/prod profiles).**
 
-Fork the repository
-Create your feature branch (git checkout -b feature/AmazingFeature)
-Commit your changes (git commit -m 'Add some AmazingFeature')
-Push to the branch (git push origin feature/AmazingFeature)
-Open a Pull Request
+📌 Future Improvements
 
-📜 License
-This project is licensed under the MIT License - see the LICENSE file for details.
-👥 Authors
+🔧 Add environment-specific configuration files
 
-Arpit Tripathi - @tripathiarpit
+🏗️ CI/CD pipeline integration (GitHub Actions / Jenkins)
+
+📈 Scaling services with Kubernetes
+
+🌍 API Gateway + Service Mesh for microservice adoption
+
+
