@@ -13,7 +13,7 @@ import {AppFooterComponent} from '../shared/common-components/app-footer.compone
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [RouterOutlet, MaterialModule, IdleTimeoutDialogComponent, LoaderComponent, AppFooterComponent]
+  imports: [RouterOutlet, MaterialModule, IdleTimeoutDialogComponent, LoaderComponent]
 })
 export class AppComponent implements OnInit, OnDestroy {
   showWarning = false;

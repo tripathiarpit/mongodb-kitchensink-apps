@@ -41,6 +41,7 @@ public class DefaultDataConfig implements CommandLineRunner {
                     .roles(List.of("ADMIN"))
                     .active(true)
                     .createdAt(Instant.now())
+                    .username("admin")
                     .accountVerificationPending(true)
                     .build();
             userRepository.save(adminUser);

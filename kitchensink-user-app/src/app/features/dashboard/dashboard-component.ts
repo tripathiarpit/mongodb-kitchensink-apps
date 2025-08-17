@@ -14,7 +14,7 @@ import {Subject, takeUntil} from 'rxjs';
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  imports: [MaterialModule, RouterOutlet, AppFooterComponent, NgForOf, RouterLink, NgIf]
+  imports: [MaterialModule, RouterOutlet, AppFooterComponent, NgForOf, NgIf]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

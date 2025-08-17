@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   # MongoDB Database
   mongodb:
@@ -9,6 +11,16 @@ services:
     volumes:
       - mongodb_data:/data/db
       - ./mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - kitchensink-network
+
+  # Redis Cache
+  redis:
+    image: redis:7
+    container_name: kitchensink-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
     networks:
       - kitchensink-network
 
@@ -27,8 +39,11 @@ services:
       - SPRING_DATA_MONGODB_HOST=mongodb
       - SPRING_DATA_MONGODB_PORT=27017
       - SPRING_DATA_MONGODB_DATABASE=kitchensinkdb
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
     depends_on:
       - mongodb
+      - redis
     networks:
       - kitchensink-network
     healthcheck:

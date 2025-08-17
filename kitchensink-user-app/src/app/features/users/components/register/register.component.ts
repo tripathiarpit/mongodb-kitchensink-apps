@@ -10,6 +10,8 @@ import {Router} from '@angular/router';
 import {RegistrationRequest} from '../../../../shared/model/UserRegistrationModel';
 import {UserService} from '../../../../core/services/UserService';
 import {LoaderService} from '../../../../core/services/LoaderService';
+import {Country, CountryService} from '../../../../core/services/CountryService';
+import {CountryFilterPipe} from '../../../../core/pipe/CountryPipe';
 
 export interface Address {
   street: string;
@@ -29,7 +31,7 @@ export interface SignupData {
   selector: 'app-signup',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
-  imports: [MaterialModule, ReactiveFormsModule, CommonModule]
+  imports: [MaterialModule, ReactiveFormsModule, CommonModule, CountryFilterPipe]
 })
 export class SignupComponent implements OnInit {
   personalInfoForm!: FormGroup;
@@ -42,26 +44,16 @@ export class SignupComponent implements OnInit {
   hidePassword = true;
   hideConfirmPassword = true;
   isLinear = true;
-
-  // Country options - you can expand this list
-  countries = [
-    'India',
-    'United States',
-    'United Kingdom',
-    'Canada',
-    'Australia',
-    'Germany',
-    'France',
-    'Japan',
-    'Singapore'
-  ];
+  countries: string[] = [];
+  countryFilter: string = '';
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private breakpointObserver: BreakpointObserver,
     private userService: UserService,
-    private loader: LoaderService
+    private loader: LoaderService,
+    private countryService: CountryService,
   ) {
     this.stepperOrientation = breakpointObserver
       .observe('(min-width: 800px)')
@@ -70,6 +62,7 @@ export class SignupComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForms();
+    this.getCountriesFronPublicAPI();
   }
 
   initializeForms(): void {
@@ -92,7 +85,7 @@ export class SignupComponent implements OnInit {
       street: ['', [Validators.required, Validators.minLength(5)]],
       city: ['', [Validators.required, Validators.minLength(2)]],
       state: ['', [Validators.required, Validators.minLength(2)]],
-      pincode: ['', [Validators.required, Validators.pattern(/^\d{5}(-\d{4})?$/)]],
+      pincode: ['', [Validators.required, Validators.pattern(/^[A-Za-z0-9\s-]{3,10}$/)]],
       country: ['', [Validators.required]]
     });
   }
@@ -235,5 +228,11 @@ export class SignupComponent implements OnInit {
   onBack(): void {
     console.log('Navigate back');
 
+  }
+
+  private getCountriesFronPublicAPI() {
+    this.countryService.getCountries().subscribe(data => {
+      this.countries = data.map(c => c.name).sort();
+    });
   }
 }

@@ -68,7 +68,7 @@ export class EditUserComponent implements OnInit {
         city: [''],
         state: [''],
         country: [''],
-        pincode: ['', [Validators.pattern(/^\d{5,6}$/)]]
+        pincode: ['', [Validators.pattern(/^[A-Za-z0-9\s-]{3,10}$/)]]
       })
     });
   }

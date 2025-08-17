@@ -362,4 +362,6 @@ textarea.mat-mdc-input-element {
 :host ::ng-deep .mat-mdc-option {
   padding: 0.5rem 0.75rem !important;
 }
-
+.country-dropdown-panel {
+  max-height: 300px;
+}

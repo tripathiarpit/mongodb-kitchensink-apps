@@ -209,7 +209,6 @@
                           </mat-form-field>
                         </div>
 
-                        <!-- Country -->
                         <div class="col-md-6 mb-4">
                           <mat-form-field appearance="outline">
                             <mat-label>Country</mat-label>
@@ -217,7 +216,22 @@
                               formControlName="country"
                               placeholder="Select country"
                               panelClass="country-dropdown-panel">
-                              <mat-option *ngFor="let country of countries" [value]="country">
+
+                              <!-- Search input inside dropdown -->
+                              <mat-option>
+                                <input
+                                  matInput
+                                  type="text"
+                                  placeholder="Search country..."
+                                  [(ngModel)]="countryFilter"
+                                  (click)="$event.stopPropagation()"
+                                  (keyup)="$event.stopPropagation()" />
+                              </mat-option>
+
+                              <!-- Filtered countries -->
+                              <mat-option
+                                *ngFor="let country of countries | countryFilter:countryFilter"
+                                [value]="country">
                                 {{ country }}
                               </mat-option>
                             </mat-select>

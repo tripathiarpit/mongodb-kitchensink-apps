@@ -74,11 +74,11 @@ app-root {
 }
 
 .dark-theme {
-  --background-color: #1e1e2e;   // deep dark blue-gray
---surface-color: #2c2c3c;      // slightly lighter for cards/panels
---text-color: #e0e0e0;         // soft off-white
---text-secondary: #a0a0b0;     // muted secondary text
---border-color: #3a3a4a;       // subtle border
+  --background-color: #1e1e2e;
+--surface-color: #2c2c3c;
+--text-color: #e0e0e0;
+--text-secondary: #a0a0b0;
+--border-color: #3a3a4a;
 background-color: var(--background-color);
   color: var(--text-color);
 }

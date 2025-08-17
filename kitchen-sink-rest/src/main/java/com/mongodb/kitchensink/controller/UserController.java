@@ -1,8 +1,6 @@
 package com.mongodb.kitchensink.controller;
 
 import com.mongodb.kitchensink.dto.*;
-import com.mongodb.kitchensink.model.Profile;
-import com.mongodb.kitchensink.model.User;
 import com.mongodb.kitchensink.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
