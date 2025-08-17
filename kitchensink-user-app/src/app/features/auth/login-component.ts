@@ -8,8 +8,10 @@ import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {Router} from '@angular/router';
-import {AuthService} from '../../core/services/AuthService';
+import {AuthService, LoginResponse} from '../../core/services/AuthService';
 import {LoaderService} from '../../core/services/LoaderService';
+import {OtpVerificationComponent} from './otp-verification/otp-verification-component/otp-verification-component';
+import {UserService} from '../../core/services/UserService';
 
 @Component({
   selector: 'app-login',
@@ -24,19 +26,23 @@ import {LoaderService} from '../../core/services/LoaderService';
     ])
   ])
 ],
-    imports:[CommonModule, MatIconModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MaterialModule]
+    imports:[CommonModule, MatIconModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MaterialModule, OtpVerificationComponent]
 })
 export class LoginComponent {
   loginForm: FormGroup;
   hidePassword = true;
   errorMessage: string | null = null;
   isLoading = false;
+  isAccountVerificationPending: boolean = false;
+  isFirstLogin: boolean = false;
+  showOtpVerify: boolean = false;
+  currentLoggedInUserEmail:string='';
   constructor(private fb: FormBuilder ,
   private router: Router,
-              private authService: AuthService, private loaderService: LoaderService){
+              private authService: AuthService, private loaderService: LoaderService, private userService: UserService){
     this.loginForm = this.fb.group({
       email: ['admin@example.com', [Validators.required, Validators.email]],
-      password: ['admin', [Validators.required, Validators.minLength(2)]]
+      password: ['Admin@123', [Validators.required, Validators.minLength(2)]]
     });
   }
 
@@ -56,13 +62,23 @@ export class LoginComponent {
       next: (response) => {
         console.log('Login successful', response);
         this.isLoading = false;
-        this.authService.saveUserData(response);
-        // Navigation will happen automatically after successful login
-        // because AuthService updates the authentication state
-        setTimeout(() => {
+        this.currentLoggedInUserEmail = response.email;
+        this.isAccountVerificationPending = response.accountVerificationPending;
+        this.isFirstLogin = response.firstLogin;
+        if(this.isAccountVerificationPending) {
+          this.isLoading = false;
+          this.showOtpVerify = true;
+          this.loginForm.controls['email'].disable();
+          this.loginForm.controls['password'].disable();
           this.loaderService.hide();
-          this.router.navigate(['/dashboard']);
-        }, 1000);
+        }else {
+          this.authService.saveUserData(response);
+          setTimeout(() => {
+            this.loaderService.hide();
+            this.router.navigate(['/dashboard']);
+          }, 1000);
+        }
+
       },
       error: (error) => {
         console.error('Login failed', error);
@@ -100,4 +116,20 @@ export class LoginComponent {
     return this.loginForm.get('password')?.hasError('minlength') ? 'Password must be at least 6 characters' : '';
   }
 
+  isOtpVerificationSuccessful(isOtpSuccessfullyVerified:boolean) {
+    this.isAccountVerificationPending = isOtpSuccessfullyVerified;
+    this.authService.fetchLoginResponseAfterOtpVerification(this.currentLoggedInUserEmail).subscribe(response => {
+      this.loaderService.show();
+      this.authService.saveUserData(response);
+      this.navigateToDashboard();
+    })
+
+  }
+  navigateToDashboard():void{
+    setTimeout(() => {
+
+      this.router.navigate(['/dashboard']);
+    }, 3000);
+    this.loaderService.hide();
+  }
 }

@@ -47,20 +47,26 @@ public class User implements UserDetails {
 
     @NotNull
     private String passwordHash;
-
-    private List<String> roles; // e.g. ["USER", "ADMIN"]
-
+    private Boolean isAccountVerificationPending= true;
+    private List<String> roles;
     private boolean active = true;
+    private Boolean isFirstLogin = true;
 
-    public boolean isAccountVerificationPending() {
+    public Boolean getFirstLogin() {
+        return isFirstLogin;
+    }
+
+    public void setFirstLogin(Boolean firstLogin) {
+        isFirstLogin = firstLogin;
+    }
+
+    public Boolean getAccountVerificationPending() {
         return isAccountVerificationPending;
     }
 
-    public void setAccountVerificationPending(boolean accountVerificationPending) {
-        this.isAccountVerificationPending = accountVerificationPending;
+    public void setAccountVerificationPending(Boolean accountVerificationPending) {
+        isAccountVerificationPending = accountVerificationPending;
     }
-
-    private boolean isAccountVerificationPending;
 
     private Instant createdAt = Instant.now();
 
@@ -167,7 +173,9 @@ public class User implements UserDetails {
         private List<String> roles;
         private boolean active;
         private Instant createdAt;
-        private boolean isAccountVerificationPending;
+        private Boolean isAccountVerificationPending;
+        private Boolean isFirstLogin;
+
 
         public Builder id(String id) {
             this.id = id;
@@ -208,6 +216,11 @@ public class User implements UserDetails {
             this.isAccountVerificationPending = status;
             return this;
         }
+        public Builder isFirstLogin(boolean status) {
+            this.isFirstLogin = status;
+            return this;
+        }
+
 
 
         public User build() {
@@ -220,10 +233,10 @@ public class User implements UserDetails {
             user.active = this.active;
             user.createdAt = this.createdAt;
             user.isAccountVerificationPending = this.isAccountVerificationPending;
+            user.isFirstLogin = this.isFirstLogin;
             return user;
         }
 
-        // Static helper for builder
         private static String extractUsernameFromEmailStatic(String email) {
             if (email != null && email.contains("@")) {
                 return email.substring(0, email.indexOf("@"));
@@ -241,6 +254,7 @@ public class User implements UserDetails {
                     ", roles=" + roles +
                     ", active=" + active +
                     ", createdAt=" + createdAt +
+                    ", isFirstLogin=" + isFirstLogin +
                     ", isAccountVerificationPending=" + isAccountVerificationPending +
                     '}';
         }

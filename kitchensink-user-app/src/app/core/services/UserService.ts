@@ -26,13 +26,58 @@ export class UserService {
         .set('direction', direction)
     });
   }
-  deleteUser(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  deleteUser(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/delete`, { email });
   }
-  updateUser(id: string, user: Partial<User>): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/${id}`, user);
+  updateUser(emailId: string, user: any): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/${emailId}`, user);
   }
   gerUserByEmailId(email: string): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/email/${email}`);
+  }
+
+  getUserByName(searchQuery: string, page: number, size: number, sortBy: string, direction: string) : Observable<UserPage> {
+    return this.http.get<UserPage>('/api/users/getUserByName', {
+      params: new HttpParams()
+        .set('page', page)
+        .set('size', size)
+        .set('sortBy', sortBy)
+        .set('direction', direction)
+        .set('name', searchQuery)
+
+    });
+  }
+
+  getUserByCity(searchQuery: string, page: number, size: number, sortBy: string, direction: string) : Observable<UserPage> {
+    return this.http.get<UserPage>('/api/users/getUserByCity', {
+      params: new HttpParams()
+        .set('page', page)
+        .set('size', size)
+        .set('sortBy', sortBy)
+        .set('direction', direction)
+        .set('city', searchQuery)
+    });
+  }
+
+  searchByEmail(searchQuery: string,page: number, size: number, sortBy: string, direction: string) : Observable<UserPage> {
+    return this.http.get<UserPage>('/api/users/getUserByEmail', {
+      params: new HttpParams()
+        .set('page', page)
+        .set('size', size)
+        .set('sortBy', sortBy)
+        .set('direction', direction)
+        .set('email', searchQuery)
+    });
+  }
+
+  searchByCountry(searchQuery: string,page: number, size: number, sortBy: string, direction: string) : Observable<UserPage> {
+    return this.http.get<UserPage>('/api/users/getUserByCountry', {
+      params: new HttpParams()
+        .set('page', page)
+        .set('size', size)
+        .set('sortBy', sortBy)
+        .set('direction', direction)
+        .set('country', searchQuery)
+    });
   }
 }

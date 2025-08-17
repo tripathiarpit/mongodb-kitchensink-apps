@@ -9,7 +9,9 @@ public class SuccessMessageConstants {
     public static final String OTP_SENT_SUCCESS = "OTP sent successfully to";
     public static final String OTP_VERIFIED_SUCCESS = "OTP verified successfully";
     public static final String PASSWORD_RESET_SUCCESS = "Password reset successfully";
-
+    public static final String ACCOUNT_CREATED_SUCCESSFULLY = "Account created successfully and it's pending for verification.Please check your email.";
+    public static final String ACCOUNT_DELETED_SUCCESSFULLY = "Account has been deleted successfully";
+    public static final String LOGGED_OUT_SUCCESSFULLY = "Logged out successfully";
 
     public static final String PASSWORD_RESET_OTP_SUBJECT =
             "MongoDB Kitchensink - Password Reset OTP";

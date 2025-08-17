@@ -6,24 +6,73 @@ html, body {
   padding: 0;
 }
 
-/* Dashboard container uses flex to layout sidenav + content */
 .dashboard-container {
-  height: 100vh;
-  width: 100vw;
   display: flex;
+  flex-direction: row;
+  height: 100vh; /* full viewport height */
+  overflow: hidden; /* prevent whole-page scroll */
 }
 
 /* Fixed width sidenav */
 .dashboard-sidenav {
   width: 250px;
+  margin-top: 30px;
   flex-shrink: 0;
-  background: #3f51b5; /* Indigo */
-  color: white;
+  background: var(--header-bg);
+  background-color: var(--primary-color) !important;
   display: flex;
   flex-direction: column;
-  padding: 1rem 0;
+  padding: 4rem 0;
   box-shadow: 3px 0 8px rgba(0, 0, 0, 0.15);
-  height: 100vh;
+}
+
+.sidenav-footer {
+  padding: 16px 8px;
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+
+  .settings-btn {
+    width: 100%;
+    font-weight: 600;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    color: var(--text-color) !important;
+
+    &:hover {
+      background-color: rgba(var(--primary-color-rgb), 0.1);
+    }
+
+    &.compact {
+      min-width: 48px;
+      padding: 8px;
+    }
+
+    .menu-icon {
+      color: var(--text-secondary) !important;
+    }
+  }
+
+  .logout-btn {
+    width: 100%;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: rgba(244, 67, 54, 0.1);
+      color: #f44336;
+    }
+
+    &.compact {
+      min-width: 48px;
+      padding: 8px;
+
+      span {
+        display: none;
+      }
+    }
+  }
 }
 
 .dashboard-sidenav .nav-menu {
@@ -73,17 +122,98 @@ html, body {
   background: rgba(255, 64, 129, 0.2);
 }
 
-/* Sidenav content fills remaining space */
-mat-sidenav-content {
+
+.dashboard-header {
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--elevation-1);
+  color: var(--text-color);
+  padding: 8px 24px;
+  height: var(--dashboard-header-height);
+  min-height: var(--dashboard-header-height);
+  max-height: var(--dashboard-header-height);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+
+  .menu-toggle {
+    color: var(--text-color);
+    margin-right: 16px;
+  }
+
+  .page-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: calc(var(--base-font-size) + 4px);
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .title-icon {
+    color: var(--primary-color);
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  .toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .role-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(var(--primary-color-rgb), 0.15);
+    color: var(--primary-color);
+    padding: 4px 8px;
+    border-radius: 16px;
+    font-size: calc(var(--base-font-size) - 2px);
+    font-weight: 600;
+
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+}
+.dashboard-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-color);
+  height: 100%;
+  overflow: hidden;
+
+  // Override Material sidenav content
+  &.mat-sidenav-content {
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+}
+
+
+.mat-sidenav-content {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-x: hidden; /* prevent horizontal scroll */
+  overflow-x: hidden;
   background: #f5f7fa;
+  margin-top: 30px;
 }
 
-/* Top toolbar styling */
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
 .top-toolbar {
   position: sticky;
   top: 0;
@@ -109,14 +239,14 @@ mat-sidenav-content {
   flex: 1 1 auto;
 }
 
-/* Main content area scrolls vertically */
 .dashboard-main {
-  flex-grow: 1;
-  padding: 1.5rem 2rem;
-  overflow: auto;
-  min-height: 0; /* allow flex scrolling */
+  flex: 1;                 /* take remaining space */
+  display: flex;
+  flex-direction: column;
+  height: 100%;             /* fill container height */
+  overflow-y: auto;         /* enable vertical scrolling */
+  position: relative;       /* stays in place */
 }
-
 /* Footer styling */
 .dashboard-footer {
   background: white;
@@ -142,4 +272,53 @@ mat-sidenav-content {
 
 .dashboard-footer {
   flex-shrink: 0; // Keep footer height fixed
+}
+
+@media (max-width: 768px) {
+  :root {
+    --dashboard-header-height: 44px;
+    --sidenav-width: 250px;
+    --sidenav-collapsed-width: 60px;
+  }
+
+  .dashboard-header {
+    padding: 8px 16px;
+  }
+
+  .dashboard-main {
+    padding: 12px;
+  }
+
+  .toolbar-actions {
+    .profile-text {
+      display: none;
+    }
+
+    .role-badge {
+      font-size: calc(var(--base-font-size) - 3px);
+      padding: 2px 6px;
+    }
+  }
+
+  .page-title {
+    font-size: calc(var(--base-font-size) + 2px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-header {
+    padding: 8px 12px;
+  }
+
+  .dashboard-main {
+    padding: 8px;
+  }
+
+  .role-badge {
+    display: none;
+  }
+
+  .brand-text {
+    font-size: 14px;
+  }
 }

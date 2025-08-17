@@ -49,6 +49,7 @@ public class DataLoader implements CommandLineRunner {
                     .username(usernameGeneratorService.generateUniqueUsername(email))
                     .active(true)
                     .createdAt(Instant.now())
+                    .isFirstLogin(true)
                     .build();
 
             users.add(user);

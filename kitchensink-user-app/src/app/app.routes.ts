@@ -9,8 +9,10 @@ import { ForgotPasswordComponent } from './features/auth/reset-password/forgot-p
 import { UserDetailsComponent } from './features/users/components/user-details/user-details.component';
 import { EditUserComponent } from './features/users/components/edit-user/edit-user.component';
 import { AccessDeniedComponent } from './features/auth/access-denied/access-denied.component';
-import { AccessGaurd } from './core/services/AccessGaurd';
 import {EditProfileComponent} from './features/users/components/edit-profile/edit-profile.component';
+import {AccessGuard} from './core/services/AccessGaurd';
+import {AppSettingsComponent} from './shared/common-components/app-settings-component/app-settings-component';
+import {AdminDashboardComponent} from './features/dashboard-stats/dashboard-stat.component';
 
 export const routes: Routes = [
   {
@@ -41,7 +43,6 @@ export const routes: Routes = [
     title: 'Access Denied'
   },
 
-  // Protected routes
   {
     path: 'dashboard',
     component: DashboardComponent,
@@ -50,6 +51,18 @@ export const routes: Routes = [
     data: { allowedRoles: ['ADMIN','USER'] },
     children: [
       {
+        path: '',
+        redirectTo: 'admin',
+        pathMatch: 'full'
+      },
+      {
+        path: 'admin',
+        component: AdminDashboardComponent,
+        canActivate: [AccessGuard],
+        data: { allowedRoles: ['ADMIN'] },
+        title: 'Admin Dashboard'
+      },
+      {
         path: 'user-management',
         component: UserListComponent,
         title: 'User Management'
@@ -57,14 +70,28 @@ export const routes: Routes = [
       {
         path: 'edit-user/:email',
         component: EditUserComponent,
-        canActivate: [AccessGaurd],
+        canActivate: [AccessGuard],
+        data: { allowedRoles: ['ADMIN'] },
+        title: 'Edit User'
+      },
+      {
+        path: 'edit-user',
+        component: EditUserComponent,
+        canActivate: [AccessGuard],
         data: { allowedRoles: ['ADMIN'] },
         title: 'Edit User'
       },
       {
         path: 'edit-profile/:email',
         component: EditProfileComponent,
-        canActivate: [AccessGaurd],
+        canActivate: [AccessGuard],
+        data: { allowedRoles: ['ADMIN','USER'] },
+        title: 'Edit User'
+      },
+      {
+        path: 'edit-profile',
+        component: EditProfileComponent,
+        canActivate: [AccessGuard],
         data: { allowedRoles: ['ADMIN','USER'] },
         title: 'Edit User'
       },
@@ -74,10 +101,19 @@ export const routes: Routes = [
         title: 'User Details'
       },
       {
+        path: 'user-details',
+        component: UserDetailsComponent,
+        title: 'User Details'
+      },
+      {
         path: 'forgot-password',
         component: ForgotPasswordComponent,
         title: 'Forgot Password'
       },
+      {
+        path: 'settings',
+        component: AppSettingsComponent,
+      }
     ]
   },
 

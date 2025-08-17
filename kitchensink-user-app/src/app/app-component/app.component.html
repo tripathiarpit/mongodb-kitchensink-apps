@@ -1,0 +1,29 @@
+<mat-toolbar class="app-header">
+  <!-- Left: Logo or App Name -->
+  <div class="app-logo" (click)="goHome()">
+    <mat-icon class="app-logo-icon">dashboard</mat-icon>
+    <span class="app-title">
+      Kitchensink User App
+    </span>
+  </div>
+  <span class="spacer"></span>
+
+  <div class="app-actions">
+    <mat-label>Theme {{currentSettings.darkMode ? 'Dark' : 'Light'}}</mat-label>
+    <button mat-icon-button
+            matTooltip="Toggle Theme"
+            (click)="toggleTheme()"
+            class="action-btn">
+      <mat-icon>{{currentSettings.darkMode ? 'light_mode' : 'dark_mode'}}</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>
+
+<div class="app-content">
+  <div class="router-content">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+
+<app-idle-timeout-dialog [visible]="showWarning" [countdown]="countdown"></app-idle-timeout-dialog>
+<app-loader></app-loader>

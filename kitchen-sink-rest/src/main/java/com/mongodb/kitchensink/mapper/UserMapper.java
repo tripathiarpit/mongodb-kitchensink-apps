@@ -10,7 +10,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    @Mapping(target = "profile", ignore = true) // Set manually later
+    @Mapping(target = "profile", ignore = true)
+    @Mapping(source = "accountVerificationPending", target = "accountVerificationPending")
+    @Mapping(source = "firstLogin", target = "firstLogin")
     UserDto toDto(User user);
 
     @Mapping(source = "address.street", target = "street")
@@ -19,4 +21,6 @@ public interface UserMapper {
     @Mapping(source = "address.country", target = "country")
     @Mapping(source = "address.pincode", target = "pincode")
     ProfileDto toDto(Profile profile);
+
+    User toEntity(UserDto userDto);
 }

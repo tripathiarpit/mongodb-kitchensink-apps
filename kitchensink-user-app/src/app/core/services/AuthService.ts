@@ -4,14 +4,22 @@ import {Observable, throwError, BehaviorSubject, of} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {Router} from '@angular/router';
 import {ApiResponse} from '../../shared/model/ApiResponse';
-import {MatSnackBar, MatSnackBarRef} from '@angular/material/snack-bar';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {AppSnackbarComponent} from '../../shared/common-components/app-snackbar/app-snackbar';
 
 export interface LoginResponse {
   token: string;
   email: string;
   username: string;
   fullName: string;
+  accountVerificationPending: boolean;
+  firstLogin: boolean;
+  response:boolean;
   roles: string[];
+}
+export interface DeleteResponse {
+  success: boolean;
+  message: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -21,8 +29,7 @@ export class AuthService {
   private fullnameKey ='fullName';
   private emailKey ='user_email';
   isLoggedIn$ = new BehaviorSubject<boolean>(false);
-  private matref!: MatSnackBarRef<EmbeddedViewRef<any>>;
-  constructor(private http: HttpClient, private router: Router, private snack: MatSnackBar) { }
+  constructor(private http: HttpClient, private router: Router, private snackBar: MatSnackBar) { }
 
   isAuthorized(allowedRoles: string[]): boolean {
     const roleStr = this.getUserRole();
@@ -37,7 +44,7 @@ export class AuthService {
   hasAccessToPage(allowedRoles: string[]): Observable<boolean> {
     const token = localStorage.getItem(this.tokenKey);
     if (!token) {
-      this.snack.open(
+      this.snackBar.open(
         "You are not authorized to access this. Contact Administrator",
         undefined,
         { duration: 30000, panelClass: ['snackbar-error'] }
@@ -49,7 +56,7 @@ export class AuthService {
       map(roles => {
         const hasAccess = roles.some(role => allowedRoles.includes(role));
         if (!hasAccess) {
-          this.snack.open(
+          this.snackBar.open(
             "You are not authorized to access this. Contact Administrator",
             undefined,
             { duration: 30000, panelClass: ['snackbar-error'] }
@@ -62,7 +69,6 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     const token = localStorage.getItem(this.tokenKey);
-    // Optionally, check token expiration here
     return !!token;
   }
 
@@ -74,8 +80,25 @@ export class AuthService {
       })
     );
   }
+  logoutAndInvalidateToken(email: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>('/api/auth/ldsdsogout', { email }).pipe(
+      catchError(err => {
+        const errorMsg = err?.error?.message || 'logout failed';
+        return throwError(() => new Error(errorMsg));
+      })
+    );
+  }
 
   logout(): void {
+    let email= localStorage.getItem(this.emailKey as string);
+    this.logoutAndInvalidateToken(email as string).subscribe({
+      next: (response) => {
+        this.showMessage("You Are Successfully signed out");
+      },
+      error: (error) => {
+        throwError(() => new Error(error));
+      }
+    });
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userRoleKey);
     localStorage.removeItem(this.fullnameKey);
@@ -83,6 +106,14 @@ export class AuthService {
     sessionStorage.clear();
     this.isLoggedIn$.next(false);
     this.router.navigate(['/login']);
+  }
+  showMessage(message: string) {
+    this.snackBar.openFromComponent(AppSnackbarComponent, {
+      data: { message },
+      duration: 4000,
+      verticalPosition: 'top', // position at the top
+      panelClass: ['error-snackbar'] // custom CSS
+    });
   }
 
   getAuthToken(): string | null {
@@ -99,19 +130,28 @@ export class AuthService {
       if (payload.role) {
         return payload.role;
       }
-      return 'USER'; // fallback
+      return 'USER';
     } catch {
       return 'USER';
     }
   }
 
-  sendOtp(email: string): Observable<ApiResponse> {
+  requestForgotPasswordOtp(email: string): Observable<ApiResponse> {
     return this.http.post<ApiResponse>(`/api/auth/forgot-password/request-otp`, { email });
   }
 
-  verifyOtp(email: string, otp: string): Observable<ApiResponse> {
+  verifyForgotPasswordOtp(email: string, otp: string): Observable<ApiResponse> {
     return this.http.post<ApiResponse>(`/api/auth/forgot-password/verify-otp`, { email, otp });
   }
+  verifyAccountVerificationOtp(email: string, otp: string): Observable<ApiResponse> {
+    const payload = { email, otp }; // matches VerifyOtpRequest DTO
+    return this.http.post<ApiResponse>(`/api/auth/account-verification/verify-otp`, payload);
+  }
+  requestAccountVerificationOtp(email: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(`/api/auth/account-verification/request-otp`, { email });
+  }
+
+
 
   resetPassword(email: string, newPassword: string): Observable<ApiResponse> {
     return this.http.post<ApiResponse>(`/api/auth/forgot-password/reset`, { email, newPassword });
@@ -131,7 +171,7 @@ export class AuthService {
   }
   getRolesFromToken(authToken: string | null): Observable<string[]> {
     if (!authToken) {
-      return of([]); // return empty array if token is null
+      return of([]);
     }
 
     const headers = { Authorization: `Bearer ${authToken}` };
@@ -158,6 +198,12 @@ export class AuthService {
     );
   }
 
+  fetchLoginResponseAfterOtpVerification(email: string): Observable<LoginResponse> {
+    return this.http.get<LoginResponse>(`/api/auth/get-login-response-after-otp-verification`,
+      {
+        headers: { email }
+      });
+  }
 
 
 }

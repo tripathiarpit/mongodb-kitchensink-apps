@@ -1,6 +1,6 @@
 package com.mongodb.kitchensink.dto;
 
-public class VerifyOtpRequest {
+public class OtpRequest {
     private String email;
     private String otp;
 

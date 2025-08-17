@@ -9,6 +9,7 @@ import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {RegistrationRequest} from '../../../../shared/model/UserRegistrationModel';
 import {UserService} from '../../../../core/services/UserService';
+import {LoaderService} from '../../../../core/services/LoaderService';
 
 export interface Address {
   street: string;
@@ -60,6 +61,7 @@ export class SignupComponent implements OnInit {
     private router: Router,
     private breakpointObserver: BreakpointObserver,
     private userService: UserService,
+    private loader: LoaderService
   ) {
     this.stepperOrientation = breakpointObserver
       .observe('(min-width: 800px)')
@@ -90,12 +92,11 @@ export class SignupComponent implements OnInit {
       street: ['', [Validators.required, Validators.minLength(5)]],
       city: ['', [Validators.required, Validators.minLength(2)]],
       state: ['', [Validators.required, Validators.minLength(2)]],
-      pincode: ['', [Validators.required, Validators.pattern('^[0-9]{5,10}$')]],
+      pincode: ['', [Validators.required, Validators.pattern(/^\d{5}(-\d{4})?$/)]],
       country: ['', [Validators.required]]
     });
   }
 
-  // Custom password validator
   passwordValidator(control: any) {
     const value = control.value;
     if (!value) return null;
@@ -186,15 +187,14 @@ export class SignupComponent implements OnInit {
         pincode: this.addressForm.value.pincode,
         roles: ['USER'] // default role for signup
       };
-
-      console.log('Request payload:', request);
+      this.loader.show();
 
       this.userService.registerUser(request).subscribe({
         next: res => {
           if (res.success) {
             this.registrationSuccess = true;
             this.successMessage = res.message;
-
+            this.loader.hide();
             // Redirect after 3 seconds
             setTimeout(() => {
               this.router.navigate(['/login']);
@@ -202,10 +202,11 @@ export class SignupComponent implements OnInit {
           } else {
             this.registrationSuccess = false;
             this.errorMessage = res.message;
+            this.loader.hide();
           }
         },
         error: err => {
-
+          this.loader.hide();
         }
       });
 

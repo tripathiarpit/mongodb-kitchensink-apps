@@ -1,6 +1,7 @@
 package com.mongodb.kitchensink.service;
 
 import com.mongodb.kitchensink.constants.RedisValue;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,14 @@ import java.time.Duration;
 
 @Service
 public class SessionService {
+    @Value("${app.otp.length}")
+    private int otpLength;
 
+    @Value("${app.otp.expiration-seconds}")
+    private long otpExpirationSeconds;
+
+    @Value("${app.session.expiration-seconds}")
+    private long sessionExpirationSeconds;
     private final RedisTemplate<String, Object> redisTemplate;
 
     public SessionService(RedisTemplate<String, Object> redisTemplate) {
@@ -17,12 +25,8 @@ public class SessionService {
     }
     private final SecureRandom secureRandom = new SecureRandom();
 
-    private static final int OTP_LENGTH = 6;
-    private static final long OTP_EXPIRATION_SECONDS = 5 * 60; // 5 min
-    private static final long SESSION_EXPIRATION_SECONDS = 30 * 60; // 30 min
 
 
-    // Generate OTP for email
     public String generateOtp(String email) {
         String redisKey = "OTP:" + email;
         RedisValue<String> existing = (RedisValue<String>) redisTemplate.opsForValue().get(redisKey);
@@ -32,8 +36,8 @@ public class SessionService {
         }
 
         String otp = String.format("%06d", secureRandom.nextInt(1_000_000));
-        RedisValue<String> value = new RedisValue<>(otp, OTP_EXPIRATION_SECONDS);
-        redisTemplate.opsForValue().set(redisKey, value, Duration.ofSeconds(OTP_EXPIRATION_SECONDS));
+        RedisValue<String> value = new RedisValue<>(otp, otpExpirationSeconds);
+        redisTemplate.opsForValue().set(redisKey, value, Duration.ofSeconds(otpExpirationSeconds));
         return otp;
     }
 
@@ -47,8 +51,13 @@ public class SessionService {
 
     public void storeSessionToken(String email, String token) {
         String redisKey = "SESSION:" + email;
-        RedisValue<String> value = new RedisValue<>(token, SESSION_EXPIRATION_SECONDS);
-        redisTemplate.opsForValue().set(redisKey, value, Duration.ofSeconds(SESSION_EXPIRATION_SECONDS));
+        RedisValue<String> value = new RedisValue<>(token, sessionExpirationSeconds);
+        redisTemplate.opsForValue().set(redisKey, value, Duration.ofSeconds(sessionExpirationSeconds));
+    }
+
+    public void invalidateSessionToken(String email) {
+        String redisKey = "SESSION:" + email;
+        redisTemplate.delete(redisKey);
     }
 
     public boolean validateSessionToken(String email, String token) {
@@ -57,8 +66,8 @@ public class SessionService {
 
         if (value == null || value.isExpired()) return false;
 
-        value.refresh(SESSION_EXPIRATION_SECONDS);
-        redisTemplate.opsForValue().set(redisKey, value, Duration.ofSeconds(SESSION_EXPIRATION_SECONDS));
+        value.refresh(sessionExpirationSeconds);
+        redisTemplate.opsForValue().set(redisKey, value, Duration.ofSeconds(sessionExpirationSeconds));
         return value.getValue().equals(token);
     }
 

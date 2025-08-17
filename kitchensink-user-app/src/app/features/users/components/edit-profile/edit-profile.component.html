@@ -1,10 +1,15 @@
-<div class="edit-user-container container mt-4">
+<div *ngIf="showPasswordTemplate">
+  <app-forgot-password [changingOwnPassword]="true" [currentUserEmail]="emailId"></app-forgot-password>
+</div>
+
+<div *ngIf="!showPasswordTemplate" class="edit-user-container container mt-4">
   <div class="card shadow-sm border-0 rounded-3">
     <div class="card-header bg-primary text-white">
       <h3 class="mb-0">Edit Profile</h3>
     </div>
     <div class="card-body">
       <form [formGroup]="userForm">
+
         <!-- User Basic Info Section -->
         <div class="section-title">
           <h5>Your Basic Information</h5>
@@ -15,12 +20,19 @@
             <mat-form-field appearance="fill" class="w-100">
               <mat-label>Username</mat-label>
               <input matInput formControlName="username">
+              @if(userForm.get('username')?.hasError('required') && userForm.get('username')?.touched) {
+                <mat-error>
+                  Username is required
+                </mat-error>
+              }
+
             </mat-form-field>
           </div>
           <div class="col-md-6">
             <mat-form-field appearance="fill" class="w-100">
               <mat-label>Email</mat-label>
               <input matInput type="email" formControlName="email">
+
             </mat-form-field>
           </div>
         </div>
@@ -35,31 +47,24 @@
                   (removed)="removeRole(role)"
                   [removable]="false">
                   {{ role }}
-
                 </mat-chip-row>
-
-                <input
-                  placeholder="Add role..."
-                  #roleInput
-                  [matChipInputFor]="chipGrid"
-                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                  disabled="true"
-                  style="display: none"
-                  (matChipInputTokenEnd)="addRole($event)" />
+                <input placeholder="Add role..."
+                       #roleInput
+                       [matChipInputFor]="chipGrid"
+                       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                       disabled style="display: none"
+                       (matChipInputTokenEnd)="addRole($event)" />
               </mat-chip-grid>
             </mat-form-field>
           </div>
           <div class="col-md-6">
             <mat-slide-toggle
               formControlName="active"
-              [ngClass]="{
-      'status-active': userForm.get('active')?.value,
-      'status-inactive': !userForm.get('active')?.value
-    }">
+              [ngClass]="{'status-active': userForm.get('active')?.value, 'status-inactive': !userForm.get('active')?.value}">
               Active User
             </mat-slide-toggle>
-            <mat-slide-toggle style="padding-left: 2rem" formControlName="twoFAEnabled" class="mt-lg-5" >
-              2FA {{ isEnabledString}}
+            <mat-slide-toggle style="padding-left: 2rem" formControlName="twoFAEnabled" class="mt-lg-5">
+              2FA {{ isEnabledString }}
             </mat-slide-toggle>
           </div>
         </div>
@@ -75,12 +80,23 @@
               <mat-form-field appearance="fill" class="w-100">
                 <mat-label>First Name</mat-label>
                 <input matInput formControlName="firstName">
+                @if(this.userForm.get('profile.firstName')?.invalid && userForm.get('profile.firstName')?.touched) {
+                  <mat-error>
+                    First Name is required
+                  </mat-error>
+                }
               </mat-form-field>
             </div>
             <div class="col-md-6">
               <mat-form-field appearance="fill" class="w-100">
                 <mat-label>Last Name</mat-label>
                 <input matInput formControlName="lastName">
+                @if(this.userForm.get('profile.lastName')?.invalid && userForm.get('profile')?.touched) {
+                  <mat-error>
+                    Last Name is required
+                  </mat-error>
+                }
+
               </mat-form-field>
             </div>
           </div>
@@ -135,7 +151,6 @@
         <div class="section-title mt-4">
           <h5>Your System Related Information</h5>
         </div>
-
         <div class="row">
           <div class="col-md-6">
             <mat-form-field appearance="fill" class="w-100">
@@ -147,15 +162,14 @@
 
         <!-- Action Buttons -->
         <div class="action-buttons mt-4">
-          <button mat-button type="button" (click)="cancel()" class="me-2">
-            Cancel
-          </button>
+          <button mat-button type="button" (click)="cancel()" class="me-2">Cancel</button>
           <button mat-raised-button color="primary"
                   [disabled]="userForm.invalid"
                   (click)="save()">
             Save Changes
           </button>
         </div>
+
       </form>
     </div>
   </div>

@@ -18,4 +18,14 @@ private ErrorMessageConstants() {
     public static final String COUNTRY_REQUIRED = "Country is required";
     public static final String ADDRESS_REQUIRED = "Address is required";
     public static final String EMAIL_REQUIRED = "Email is required";
+    public static final String ACCOUNT_VERIFICATION_FAILED = "Account Verification Failed";
+    public static final String ACCOUNT_VERFIED = "Account Verification is already done";
+    public static final String USERS_NOT_FOUND_BY_NAME = "Users not found with name";
+    public static final String USERS_NOT_FOUND_BY_CITY = "Users not found with City";
+    public static final String USERS_NOT_FOUND_BY_COUNTRY = "Users not found with County";
+    public static final String USERS_NOT_FOUND_BY_EMAIL = "Users not found with Email";
+    public static final String USERS_NOT_FOUND_BY_PINCODE = "Users not found with PINCODE";
+    public static final String USERS_NOT_FOUND_BY_STATE = "Users not found with State";
+    public static final String USERS_NOT_FOUND_BY_USER_ID= "Users not found with UserID";
+    public static final String USERS_FOUND_BY_USER_ID= "There is an Existing account with this UserID.";
 }

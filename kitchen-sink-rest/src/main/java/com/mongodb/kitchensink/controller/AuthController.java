@@ -1,14 +1,13 @@
 package com.mongodb.kitchensink.controller;
 
-import com.mongodb.kitchensink.constants.ErrorCodes;
 import com.mongodb.kitchensink.dto.*;
 import com.mongodb.kitchensink.service.AuthService;
 import com.mongodb.kitchensink.service.ForgotPasswordService;
+import com.mongodb.kitchensink.service.OtpService;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,15 +23,22 @@ public class AuthController {
 
     private final ForgotPasswordService forgotPasswordService;
 
-    public AuthController(AuthService authService, ForgotPasswordService forgotPasswordService) {
+
+
+    public AuthController(AuthService authService, ForgotPasswordService forgotPasswordService, OtpService otpService) {
         this.authService = authService;
         this.forgotPasswordService = forgotPasswordService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody @NotNull LoginRequest loginRequest) throws Exception {
         LoginResponse loginResponse = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
         return ResponseEntity.ok(loginResponse);
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse> logout(@RequestBody @NotNull LoginRequest loginRequest) throws Exception {
+        authService.logout(loginRequest.getEmail());
+        return ResponseEntity.ok(new ApiResponse(LOGGED_OUT_SUCCESSFULLY, true));
     }
 
     @GetMapping("/validate-session")
@@ -50,10 +56,23 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(response);
     }
+    @PostMapping("/account-verification/request-otp")
+    public ResponseEntity<ApiResponse> requestOtp(@RequestBody OtpRequest otpRequest) throws Exception {
+        authService.sendOtpForAccountVerification(otpRequest.getEmail());
+        ApiResponse response=  new ApiResponse(OTP_SENT_SUCCESS+ " : "+ otpRequest.getEmail()+ ".", true);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(response);
+    }
+    @PostMapping("/account-verification/verify-otp")
+    public ResponseEntity<ApiResponse> verify(@RequestBody @NotNull OtpRequest request) throws Exception {
+        ApiResponse response=   authService.verifyOtpForAccountVerification(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(response);
+    }
 
 
     @PostMapping("/forgot-password/verify-otp")
-    public ResponseEntity<ApiResponse> verifyOtp(@RequestBody VerifyOtpRequest request) {
+    public ResponseEntity<ApiResponse> verifyOtp(@RequestBody OtpRequest request) {
         ApiResponse response =  forgotPasswordService.verifyOtp(request.getEmail(), request.getOtp());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(response);
@@ -92,5 +111,10 @@ public class AuthController {
             e.printStackTrace(); // log the exact error
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
         }
+    }
+    @GetMapping("/get-login-response-after-otp-verification")
+    public ResponseEntity<LoginResponse>getLoginResponse(@RequestHeader("email") String email) {
+        LoginResponse loginResponse = authService.getLoginResponse(email);
+        return ResponseEntity.ok(loginResponse);
     }
 }

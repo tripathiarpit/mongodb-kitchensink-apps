@@ -1,4 +1,4 @@
-import {Component, EmbeddedViewRef, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {Component, EmbeddedViewRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import { MaterialModule } from '../../../material.module';
 import {
   FormBuilder,
@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 import {MatStepper} from '@angular/material/stepper';
 import {interval, Subscription, take} from 'rxjs';
 import {SharedStateService} from '../../../core/services/SharedStateService';
+import {LoaderService} from '../../../core/services/LoaderService';
 
 @Component({
   selector: 'app-forgot-password',
@@ -34,27 +35,32 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   @ViewChild('stepper') stepper!: MatStepper;
   hidePassword = true;
   hideConfirmPassword = true;
+  @Input('changingOwnPassword') changingOwnPassword!: boolean;
+  @Input('currentUserEmail') email:string ='';
 
-  // New control variables
-  otpSending = false;   // true when sending OTP
-  otpSent = false;      // true when OTP has been sent successfully
-  otpVerifying = false; // true when verifying OTP
-  otpVerified = false;  // true when OTP verified successfully
-  resendDisabled = true; // disable initially
-  countdown: number = 60; // 60 seconds
+  otpSending = false;
+  otpSent = false;
+  otpVerifying = false;
+  otpVerified = false;
+  resendDisabled = true;
+  countdown: number = 60;
   private countdownSub!: Subscription;
   private matref!: MatSnackBarRef<EmbeddedViewRef<any>>;
   showSIgnInLink: boolean = true;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private snack: MatSnackBar,
     private router: Router,
-    public sharedState: SharedStateService
-  ) {}
+    public sharedState: SharedStateService,
+    private loaderService: LoaderService
+  ) {
+  }
+
   ngOnInit(): void {
     this.emailForm = this.fb.nonNullable.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: [{ value: this.email, disabled: this.changingOwnPassword },[Validators.required, Validators.email]],
     });
 
     this.otpForm = this.fb.nonNullable.group({
@@ -70,18 +76,18 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     });
 
     this.passwordForm = this.fb.group({
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
+      newPassword: ['', [Validators.required, Validators.minLength(8), this.passwordValidator]],
       confirmPassword: ['', [Validators.required]],
-    },{ validators: this.passwordMatchValidator });
+    }, {validators: this.passwordMatchValidator});
     this.sharedState.showSignInLink$.subscribe(value => {
       this.showSIgnInLink = value;
     });
   }
 
   private showError(err: string, fallback = 'Something went wrong'): void {
-    const msg = err? err: fallback;
+    const msg = err ? err : fallback;
     this.snack.openFromTemplate(this.customSnack, {
-      data: { message: msg },
+      data: {message: msg},
       duration: 40000,
       horizontalPosition: 'center',
       verticalPosition: 'top',
@@ -90,9 +96,9 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   }
 
   private showSuccessSnack(err: string, fallback = 'Action Success', duration: number): void {
-    const msg = err? err: fallback;
+    const msg = err ? err : fallback;
     this.matref = this.snack.openFromTemplate(this.customSnack, {
-      data: { message: msg },
+      data: {message: msg},
       duration: duration,
       horizontalPosition: 'center',
       verticalPosition: 'top',
@@ -110,7 +116,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     this.otpSending = true;
     this.startCountdown();
     this.otpSent = false;
-    this.authService.sendOtp(email).subscribe({
+    this.authService.requestForgotPasswordOtp(email).subscribe({
       next: (response) => {
         if (response.success) {
           this.showSuccessSnack(response.message, "", 8000);
@@ -134,20 +140,20 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   }
 
   verifyOtp(): void {
-    const { email } = this.emailForm.getRawValue();
-    const { otp } = this.otpForm.getRawValue();
+    const {email} = this.emailForm.getRawValue();
+    const {otp} = this.otpForm.getRawValue();
     if (!email || !otp) {
-      this.snack.open('Enter email and OTP', 'Close', { duration: 3000 });
+      this.snack.open('Enter email and OTP', 'Close', {duration: 3000});
       return;
     }
 
     this.otpVerifying = true;
     this.otpVerified = false;
-    this.authService.verifyOtp(email, otp).subscribe({
+    this.authService.verifyForgotPasswordOtp(email, otp).subscribe({
       next: (res: { success: boolean; code: any; message: string }) => {
         if (res.success) {
           this.otpVerified = true;
-          this.showSuccessSnack(res.message,"", 8000);
+          this.showSuccessSnack(res.message, "", 8000);
           this.stepper.next();
         } else {
           this.otpVerified = false;
@@ -163,38 +169,41 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   }
 
   resetPassword(): void {
-    const { email } = this.emailForm.getRawValue();
-    const { newPassword, confirmPassword } = this.passwordForm.getRawValue();
+    const {email} = this.emailForm.getRawValue();
+    const {newPassword, confirmPassword} = this.passwordForm.getRawValue();
 
     if (!email || !newPassword || !confirmPassword) {
-      this.snack.open('Fill all fields', 'Close', { duration: 3000 });
+      this.snack.open('Fill all fields', 'Close', {duration: 3000});
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      this.snack.open('Passwords do not match', 'Close', { duration: 3000 });
+      this.snack.open('Passwords do not match', 'Close', {duration: 3000});
       return;
     }
-
+    this.loaderService.show();
     this.authService.resetPassword(email, newPassword).subscribe({
       next: (res: { success: boolean; code: any; message: string }) => {
-
         this.emailForm.reset();
         this.otpForm.reset();
         this.passwordForm.reset();
         this.otpSent = false;
         this.otpVerified = false;
         this.populateSnackbarForRedirect(res.message);
-
+        this.loaderService.hide();
+        this.passwordForm.disable();
       },
-      error: (err) => this.showError(err, 'Password reset failed'),
+      error: (err) => {
+        this.showError(err, 'Password reset failed')
+        this.loaderService.hide();
+      },
     });
   }
+
   populateSnackbarForRedirect(message: string): void {
-    this.showSuccessSnack(message,"", 8000);
+    this.showSuccessSnack(message, "", 8000);
     const countdownSeconds = 5;
     let remaining = countdownSeconds;
-
 
 
     // Update snackbar message every second
@@ -210,10 +219,12 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       this.onBackToLogin();
     }, countdownSeconds * 1000);
   }
+
   onBackToLogin(): void {
     this.router.navigate(['/login']);
   }
-// Start or restart countdown
+
+
   startCountdown() {
     this.resendDisabled = true;
     this.countdown = 60;
@@ -229,15 +240,16 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
         }
       });
   }
+
   passwordMatchValidator(group: FormGroup) {
     const passwordControl = group.get('newPassword');
     const confirmPasswordControl = group.get('confirmPassword');
 
     if (passwordControl?.value !== confirmPasswordControl?.value) {
-      confirmPasswordControl?.setErrors({ ...confirmPasswordControl.errors, passwordMismatch: true });
+      confirmPasswordControl?.setErrors({...confirmPasswordControl.errors, passwordMismatch: true});
     } else {
       if (confirmPasswordControl?.hasError('passwordMismatch')) {
-        const errors = { ...confirmPasswordControl.errors };
+        const errors = {...confirmPasswordControl.errors};
         delete errors['passwordMismatch'];
         confirmPasswordControl.setErrors(Object.keys(errors).length ? errors : null);
       }
@@ -245,6 +257,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
     return null;
   }
+
   getPersonalInfoErrorMessage(fieldName: string): string {
     const field = this.passwordForm.get(fieldName);
     if (field?.hasError('required')) return `${fieldName} is required`;
@@ -254,8 +267,23 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     if (field?.hasError('invalidPassword')) return 'Password must contain uppercase, lowercase, number and special character';
     return '';
   }
+
   ngOnDestroy() {
     this.countdownSub?.unsubscribe();
     this.snack.ngOnDestroy();
+  }
+
+  passwordValidator(control: any) {
+    const value = control.value;
+    if (!value) return null;
+
+    const hasUpperCase = /[A-Z]+/.test(value);
+    const hasLowerCase = /[a-z]+/.test(value);
+    const hasNumeric = /[0-9]+/.test(value);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]+/.test(value);
+
+    const valid = hasUpperCase && hasLowerCase && hasNumeric && hasSpecial;
+    return valid ? null : {invalidPassword: true};
+
   }
 }

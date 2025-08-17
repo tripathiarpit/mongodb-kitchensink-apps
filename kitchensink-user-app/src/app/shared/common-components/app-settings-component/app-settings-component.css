@@ -1,0 +1,108 @@
+.settings-container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.5rem;
+}
+
+.settings-section {
+  margin: 24px 0;
+}
+
+.settings-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: var(--primary-color, #1976d2);
+  font-weight: 500;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 8px 0;
+}
+
+.setting-label {
+  font-weight: 500;
+  flex: 1;
+}
+
+.theme-select {
+  min-width: 140px;
+}
+
+mat-form-field {
+  width: 140px;
+}
+
+.font-slider {
+  width: 120px;
+  margin-right: 16px;
+}
+
+.font-size-display {
+  min-width: 40px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+mat-card-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+mat-card-actions button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+mat-divider {
+  margin: 24px 0;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .settings-container {
+    margin: 10px;
+    padding: 16px;
+  }
+
+  .setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .setting-label {
+    margin-bottom: 8px;
+  }
+
+  mat-card-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  mat-card-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Dark theme adjustments */
+.dark-theme .font-size-display {
+  color: #ccc;
+}

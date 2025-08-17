@@ -1,8 +1,6 @@
 package com.mongodb.kitchensink.controller;
 
-import com.mongodb.kitchensink.dto.RegistrationRequest;
-import com.mongodb.kitchensink.dto.RegistrationResponse;
-import com.mongodb.kitchensink.dto.UserDto;
+import com.mongodb.kitchensink.dto.*;
 import com.mongodb.kitchensink.model.Profile;
 import com.mongodb.kitchensink.model.User;
 import com.mongodb.kitchensink.service.UserService;
@@ -23,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -115,5 +115,78 @@ public class UserController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(userService.getUsersByCity(city, pageable));
+    }
+
+    @Operation(summary = "Delete user by email")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/delete")
+    public ResponseEntity<ResourceDeleteResponse> deleteUserByEmail(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        ResourceDeleteResponse response = userService.deleteUserByEmail(email);
+        return ResponseEntity.ok(response);
+    }
+    @Operation(summary = "Search users by name (paginated)")
+    @GetMapping("/getUserByName")
+    public ResponseEntity<Page<UserDto>> getUserByName(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size,
+                direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
+        return ResponseEntity.ok(userService.getUsersByName(name, pageable));
+    }
+
+    @Operation(summary = "Search users by city (paginated)")
+    @GetMapping("/getUserByCity")
+    public ResponseEntity<Page<UserDto>> getUserByCity(
+            @RequestParam String city,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size,
+                direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
+        return ResponseEntity.ok(userService.getUsersByCity(city, pageable));
+    }
+
+    @Operation(summary = "Search users by email (paginated)")
+    @GetMapping("/getUserByEmail")
+    public ResponseEntity<Page<UserDto>> getUserByEmail(
+            @RequestParam String email,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size,
+                direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
+        return ResponseEntity.ok(userService.getUsersByEmail(email, pageable));
+    }
+
+    @Operation(summary = "Search users by country (paginated)")
+    @GetMapping("/getUserByCountry")
+    public ResponseEntity<Page<UserDto>> getUserByCountry(
+            @RequestParam String country,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size,
+                direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending());
+        return ResponseEntity.ok(userService.getUsersByCountry(country, pageable));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(
+            @PathVariable("id") String emailId,
+            @RequestBody UserDto request
+    ) {
+        UserDto updatedUser = userService.updateUser(emailId, request);
+        return ResponseEntity.ok(updatedUser);
     }
 }

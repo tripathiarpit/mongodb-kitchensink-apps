@@ -15,6 +15,11 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSortModule} from '@angular/material/sort';
 import {MatChipSet} from '@angular/material/chips';
+import {FormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatSliderModule} from '@angular/material/slider';
 
 @NgModule({
   exports: [
@@ -41,7 +46,19 @@ import {MatChipSet} from '@angular/material/chips';
     MatListModule,
     MatDialogModule,
     MatTooltipModule,
-    MatSortModule
+    MatSortModule,
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatSlideToggleModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    MatSliderModule,
+    MatListModule,
+    MatToolbarModule,
+    MatFormFieldModule
   ]
 })
 export class MaterialModule { }

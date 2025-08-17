@@ -1,0 +1,27 @@
+<div class="otp-container">
+  <p>Enter the OTP sent to <b>{{ email }}</b></p>
+
+  <form [formGroup]="otpForm" (ngSubmit)="submitOtp()">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>OTP</mat-label>
+      <input matInput formControlName="otp" maxlength="6" autocomplete="off">
+      @if (otpForm.getError('otp')?.hasError('required')){
+        <mat-error >OTP is required</mat-error>
+      }
+
+      @if (otpForm.getError('otp')?.hasError('requirpatterned')){
+        <mat-error>6 Digit OTP is required</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="otp-actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="otpForm.invalid">
+        Verify OTP
+      </button>
+
+      <button mat-button type="button" (click)="resendOtp()" [disabled]="resendDisabled">
+        Resend OTP <span *ngIf="resendDisabled">({{ countdown }}s)</span>
+      </button>
+    </div>
+  </form>
+</div>

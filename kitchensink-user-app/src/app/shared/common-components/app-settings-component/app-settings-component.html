@@ -1,0 +1,207 @@
+<mat-card class="settings-container">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>settings</mat-icon>
+          App Settings
+        </mat-card-title>
+        <mat-card-subtitle>Customize your application experience</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Theme Settings -->
+        <div class="settings-section">
+          <h3>
+            <mat-icon>palette</mat-icon>
+            Appearance
+          </h3>
+
+          <div class="setting-item">
+            <span class="setting-label">Dark Mode</span>
+            <mat-slide-toggle
+              name="darkMode"
+              [(ngModel)]="settings.darkMode"
+              (change)="onDarkModeChange($event)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+
+          <div class="setting-item">
+            <span class="setting-label">Theme Color</span>
+            <mat-form-field appearance="fill">
+              <mat-label>Primary Color</mat-label>
+              <mat-select
+                name="primaryColor"
+                [(value)]="settings.primaryColor"
+                (selectionChange)="onPrimaryColorChange($event.value)">
+
+                <mat-option *ngFor="let color of settings.colorClassList" [value]="color">
+                  {{ color | titlecase }}
+                </mat-option>
+
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="setting-item">
+            <span class="setting-label">Font Size</span>
+            <mat-slider min="12" max="20" step="1" discrete>
+              <input matSliderThumb [(ngModel)]="settings.fontSize">
+            </mat-slider>
+            <span class="font-size-display">{{ settings.fontSize }}px</span>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Language & Localization -->
+        <div class="settings-section">
+          <h3>
+            <mat-icon>language</mat-icon>
+            Language & Region
+          </h3>
+
+          <div class="setting-item">
+            <span class="setting-label">Language</span>
+            <mat-form-field appearance="outline">
+              <mat-select
+                name="language"
+                [(value)]="settings.language"
+                (selectionChange)="onLanguageChange($event.value)">
+                <mat-option value="en">English</mat-option>
+                <mat-option value="es">Español</mat-option>
+                <mat-option value="fr">Français</mat-option>
+                <mat-option value="de">Deutsch</mat-option>
+                <mat-option value="it">Italiano</mat-option>
+                <mat-option value="ja">日本語</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="setting-item">
+            <span class="setting-label">Date Format</span>
+            <mat-form-field appearance="outline">
+              <mat-select
+                name="dateFormat"
+                [(value)]="settings.dateFormat"
+                (selectionChange)="onDateFormatChange($event.value)">
+                <mat-option value="MM/dd/yyyy">MM/DD/YYYY</mat-option>
+                <mat-option value="dd/MM/yyyy">DD/MM/YYYY</mat-option>
+                <mat-option value="yyyy-MM-dd">YYYY-MM-DD</mat-option>
+                <mat-option value="dd.MM.yyyy">DD.MM.YYYY</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Notifications -->
+        <div class="settings-section">
+          <h3>
+            <mat-icon>notifications</mat-icon>
+            Notifications
+          </h3>
+
+          <div class="setting-item">
+            <span class="setting-label">Push Notifications</span>
+            <mat-slide-toggle
+              name="pushNotifications"
+              [(ngModel)]="settings.notifications.push"
+              (change)="onNotificationChange('push', $event)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+
+          <div class="setting-item">
+            <span class="setting-label">Email Notifications</span>
+            <mat-slide-toggle
+              name="emailNotifications"
+              [(ngModel)]="settings.notifications.email"
+              (change)="onNotificationChange('email', $event)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+
+          <div class="setting-item">
+            <span class="setting-label">Sound Effects</span>
+            <mat-slide-toggle
+              name="soundNotifications"
+              [(ngModel)]="settings.notifications.sound"
+              (change)="onNotificationChange('sound', $event)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Performance -->
+        <div class="settings-section">
+          <h3>
+            <mat-icon>speed</mat-icon>
+            Performance
+          </h3>
+
+          <div class="setting-item">
+            <span class="setting-label">Animations</span>
+            <mat-slide-toggle
+              name="animations"
+              [(ngModel)]="settings.animations"
+              (change)="onAnimationsChange($event)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+
+          <div class="setting-item">
+            <span class="setting-label">Auto-save</span>
+            <mat-slide-toggle
+              name="autoSave"
+              [(ngModel)]="settings.autoSave"
+              (change)="onAutoSaveChange($event)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Data & Privacy -->
+        <div class="settings-section">
+          <h3>
+            <mat-icon>security</mat-icon>
+            Data & Privacy
+          </h3>
+
+          <div class="setting-item">
+            <span class="setting-label">Analytics</span>
+            <mat-slide-toggle
+              name="analytics"
+              [(ngModel)]="settings.analytics"
+              (change)="onAnalyticsChange($event)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+
+          <div class="setting-item">
+            <span class="setting-label">Remember Login</span>
+            <mat-slide-toggle
+              name="rememberLogin"
+              [(ngModel)]="settings.rememberLogin"
+              (change)="onRememberLoginChange($event)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="saveSettings()">
+          <mat-icon>save</mat-icon>
+          Save Settings
+        </button>
+        <button mat-button (click)="resetSettings()">
+          <mat-icon>refresh</mat-icon>
+          Reset to Default
+        </button>
+      </mat-card-actions>
+    </mat-card>

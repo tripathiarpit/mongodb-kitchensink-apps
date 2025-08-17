@@ -42,7 +42,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/users/register",
-                                "/api/auth/forgot-password/**"
+                                "/api/auth/forgot-password/**",
+                                "/api/auth/account-verification/**",
+                                "/api/auth/get-login-response-after-otp-verification"
+
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {MatChip, MatChipGrid, MatChipInput, MatChipInputEvent, MatChipRow} from '@angular/material/chips';
 import {User, UserPage} from '../../../../shared/model/UserModel';
@@ -9,12 +9,16 @@ import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UserService} from '../../../../core/services/UserService';
 import {AuthService} from '../../../../core/services/AuthService';
+import {ForgotPasswordComponent} from '../../../auth/reset-password/forgot-password-component';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {LoaderService} from '../../../../core/services/LoaderService';
+import {AppSnackbarComponent} from '../../../../shared/common-components/app-snackbar/app-snackbar';
 
 @Component({
   selector: 'app-edit-profile',
   templateUrl: './edit-profile.component.html',
   styleUrls: ['./edit-profile.component.scss'],
-  imports: [MaterialModule, CommonModule, MatChipInput, MatSlideToggle, ReactiveFormsModule, MatChipGrid, MatChipRow]
+  imports: [MaterialModule, CommonModule, MatChipInput, MatSlideToggle, ReactiveFormsModule, MatChipGrid, MatChipRow,ForgotPasswordComponent]
 })
 export class EditProfileComponent implements OnInit {
   userData: User | undefined;
@@ -24,13 +28,26 @@ export class EditProfileComponent implements OnInit {
   separatorKeysCodes: number[] = [ENTER, COMMA];
   allowedRoles: string[] = ['USER', 'ADMIN'];
   isEnabledString: string = '';
+  protected showPasswordTemplate: boolean = false;
+  currentUserRole='';
   constructor(private fb: FormBuilder, private route: ActivatedRoute,
-              private userService: UserService, private router: Router,private authService: AuthService,) {}
+              private userService: UserService, private router: Router,private authService: AuthService,private snackBar: MatSnackBar,private loaderService: LoaderService) {
+    const nav = this.router.getCurrentNavigation();
+    this.emailId = nav?.extras.state?.['email'] ?? '';
+  }
 
   ngOnInit(): void {
     this.initializeForm();
-    this.emailId = this.route.snapshot.paramMap.get('email')!;
-    if(this.authService.getEmail() == this.emailId) {
+    const roleString = this.authService.getUserRole();
+    let roles = undefined
+    if (roleString != null) {
+       roles = JSON.parse(roleString);
+    }
+
+    if(this.authService.getEmail() == this.emailId || roles?.includes("ADMIN")) {
+      if(roles?.includes("ADMIN")) {
+        this.userForm.controls['active'].enable();
+      }
       this.userService.gerUserByEmailId(this.emailId).subscribe((user: User | undefined) => {
         this.userData = user;
         this.populateForm(this.userData as User);
@@ -48,8 +65,8 @@ export class EditProfileComponent implements OnInit {
 
   initializeForm(): void {
     this.userForm = this.fb.group({
-      username: new FormControl({value: "", disabled: true}),
-      email: ['', [Validators.required, Validators.email]],
+      username: new FormControl({value: "", disabled: false}, Validators.required),
+      email: [{ value: "", disabled: true } ,[Validators.required, Validators.email]],
       roles: [[]],
       active: new FormControl({value: true, disabled: true}),
       twoFAEnabled:[false],
@@ -62,7 +79,7 @@ export class EditProfileComponent implements OnInit {
         city: [''],
         state: [''],
         country: [''],
-        pincode: ['', [Validators.pattern(/^\d{5,6}$/)]]
+        pincode: ['', [Validators.pattern(/^\d{5}(-\d{4})?$/)]]
       })
     });
   }
@@ -71,7 +88,6 @@ export class EditProfileComponent implements OnInit {
     this.roles = [...userData.roles];
 
     this.userForm.patchValue({
-      id: userData.id,
       username: userData.username,
       email: userData.email,
       roles: userData.roles,
@@ -92,14 +108,6 @@ export class EditProfileComponent implements OnInit {
     this.isEnabledString = userData.twoFAEnabled? 'Enabled':'Disabled';
   }
 
-  // addRole(event: MatChipInputEvent): void {
-  //   const value = (event.value || '').trim();
-  //   if (value) {
-  //     this.roles.push(value);
-  //     this.userForm.get('roles')?.setValue([...this.roles]);
-  //   }
-  //   event.chipInput!.clear();
-  // }
   addRole(event: MatChipInputEvent) {
     const input = event.input;
     const value = event.value.trim().toUpperCase();
@@ -126,19 +134,15 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
+
   save(): void {
     if (this.userForm.valid) {
       const formValue = this.userForm.value;
-
-      // Prepare UserDto object
-      const updatedUser: User = {
-        id: formValue.id,
+      const updatedUser = {
         username: formValue.username,
-        email: formValue.email,
         roles: this.roles,
-        active: formValue.active,
-        twoFAEnabled: formValue.twoFAEnabled,
-        createdAt: this.userData?.createdAt || new Date().toISOString(),
+        active: this.userForm.controls['active'].value,
+        twoFAEnabled:formValue.twoFAEnabled? formValue.twoFAEnabled: false,
         profile: {
           firstName: formValue.profile.firstName,
           lastName: formValue.profile.lastName,
@@ -151,18 +155,26 @@ export class EditProfileComponent implements OnInit {
         }
       };
 
-      // Emit or call service to save the user
-      console.log('Saving user:', updatedUser);
-      // this.userService.updateUser(updatedUser).subscribe(...);
+      this.loaderService.show();
+
+      this.userService.updateUser(this.emailId, updatedUser).subscribe({
+        next: (data) => {
+          this.loaderService.hide();
+          this.showMessage("User updated successfully");
+        },
+        error: (err) => {
+          this.loaderService.hide();
+          this.showMessage("Failed to update user");
+        }
+      });
+
     } else {
-      console.log('Form is invalid');
       this.markFormGroupTouched();
     }
   }
-
   cancel(): void {
-    this.userForm.reset();
-    this.router.navigate(['dashboard/user-management']);
+   this.userForm.reset();
+   this.router.navigate(['/dashboard/user-details'], { state: { email: this.authService.getEmail() } });
   }
 
   private markFormGroupTouched(): void {
@@ -175,6 +187,14 @@ export class EditProfileComponent implements OnInit {
           (control as FormGroup).get(nestedKey)?.markAsTouched();
         });
       }
+    });
+  }
+  showMessage(message: string) {
+    this.snackBar.openFromComponent(AppSnackbarComponent, {
+      data: { message },
+      duration: 3000,
+      verticalPosition: 'top', // position at the top
+      panelClass: ['error-snackbar'] // custom CSS
     });
   }
 }

@@ -16,6 +16,11 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage(), ex.getErrorCode().getStatus());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
         ErrorCodes errorCode = ErrorCodes.RESOURCE_NOT_FOUND;
@@ -39,13 +44,7 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(errorMessages.toString(), errorCode.getStatus()));
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
-        ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
-        return ResponseEntity
-                .status(errorCode.getStatus())
-                .body(new ErrorResponse(errorCode.getMessage(), errorCode.getStatus()));
-    }
+
     @ExceptionHandler(UserAuthException.class)
     public ResponseEntity<ErrorResponse> handleUserAuthException(UserAuthException ex) {
         ErrorResponse response = new ErrorResponse(ex.getMessage(), ex.getErrorCode().getStatus());
@@ -67,6 +66,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+
+
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAuthorizationDeniedDetailed(
             AuthorizationDeniedException ex) {
@@ -85,5 +86,11 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
-
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
+        ErrorCodes errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(new ErrorResponse(ex.getMessage(), errorCode.getStatus()));
+    }
 }

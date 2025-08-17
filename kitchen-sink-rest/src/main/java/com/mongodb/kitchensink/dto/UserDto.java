@@ -10,17 +10,26 @@ public class UserDto {
     private List<String> roles;
     private boolean active;
     private Instant createdAt;
+    private Boolean isAccountVerificationPending;
+    private Boolean isFirstLogin;
 
-    public boolean isAccountVerificationPending() {
+    public Boolean getFirstLogin() {
+        return isFirstLogin;
+    }
+
+    public void setFirstLogin(Boolean firstLogin) {
+        isFirstLogin = firstLogin;
+    }
+
+    public Boolean getAccountVerificationPending() {
         return isAccountVerificationPending;
     }
 
-    public void setAccountVerificationPending(boolean accountVerificationPending) {
+    public void setAccountVerificationPending(Boolean accountVerificationPending) {
         isAccountVerificationPending = accountVerificationPending;
     }
 
     private ProfileDto profile;
-    private boolean isAccountVerificationPending;
     public String getId() {
         return id;
     }

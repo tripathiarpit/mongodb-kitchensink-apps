@@ -10,8 +10,18 @@ public class LoginResponse {
     private String username;
     private String fullName;
     private List<String> roles;
+    private boolean accountVerificationPending;
+    private boolean isFirstLogin;
 
-    public LoginResponse(boolean success, String message, String token, String email, String username, String fullname, List<String> roles) {
+    public boolean isFirstLogin() {
+        return isFirstLogin;
+    }
+
+    public void setFirstLogin(boolean firstLogin) {
+        isFirstLogin = firstLogin;
+    }
+
+    public LoginResponse(boolean success, String message, String token, String email, String username, String fullname, List<String> roles, boolean accountVerificationPending, boolean isFirstLogin) {
         this.success = success;
         this.message = message;
         this.token = token;
@@ -19,6 +29,8 @@ public class LoginResponse {
         this.username = username;
         this.fullName = fullname;
         this.roles = roles;
+        this.accountVerificationPending = accountVerificationPending;
+        this.isFirstLogin = isFirstLogin;
     }
 
     public boolean isSuccess() {
@@ -71,6 +83,14 @@ public class LoginResponse {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public boolean isAccountVerificationPending() {
+        return accountVerificationPending;
+    }
+
+    public void setAccountVerificationPending(boolean accountVerificationPending) {
+        this.accountVerificationPending = accountVerificationPending;
     }
 
     public void setRoles(List<String> roles) {

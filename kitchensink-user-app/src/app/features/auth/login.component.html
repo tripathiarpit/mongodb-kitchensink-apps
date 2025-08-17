@@ -21,7 +21,7 @@
                   <input matInput
                          type="email"
                          formControlName="email"
-                         placeholder="Enter your email">
+                         placeholder="Enter your email" [disabled]="showOtpVerify">
                   <mat-icon matSuffix>email</mat-icon>
                   <mat-error *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
                     {{getEmailErrorMessage()}}
@@ -42,7 +42,7 @@
                           type="button"
                           (click)="togglePasswordVisibility()"
                           [attr.aria-label]="'Hide password'"
-                          [attr.aria-pressed]="hidePassword">
+                          [attr.aria-pressed]="hidePassword" [disabled]="showOtpVerify">
                     <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
                   </button>
                   <mat-error *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
@@ -59,10 +59,13 @@
                         color="primary"
                         type="submit"
                         class="login-btn"
-                        [disabled]="loginForm.invalid">
+                        [disabled]="loginForm.invalid || showOtpVerify">
                   Sign In
                 </button>
               </div>
+              @if (isAccountVerificationPending && showOtpVerify) {
+                <app-otp-verification  [email]="currentLoggedInUserEmail" (verified)="isOtpVerificationSuccessful($event)"></app-otp-verification>
+              }
 
               <!-- Links -->
               <div class="text-center">

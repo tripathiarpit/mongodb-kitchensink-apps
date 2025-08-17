@@ -44,3 +44,172 @@ app-root {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 6px;
 }
+
+/* Global Theme Styles - Add this to your styles.css */
+
+:root {
+  --base-font-size: 14px;
+  --primary-color: #3f51b5;
+  --background-color: #fafafa;
+  --surface-color: #ffffff;
+  --text-color: #212121;
+  --text-secondary: #757575;
+  --border-color: #e0e0e0;
+}
+
+/* Base font size application */
+* {
+  font-size: var(--base-font-size) !important;
+}
+
+/* Light Theme */
+.light-theme {
+  --background-color: #fafafa;
+  --surface-color: #ffffff;
+  --text-color: #212121;
+  --text-secondary: #757575;
+  --border-color: #e0e0e0;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.dark-theme {
+  --background-color: #1e1e2e;   // deep dark blue-gray
+--surface-color: #2c2c3c;      // slightly lighter for cards/panels
+--text-color: #e0e0e0;         // soft off-white
+--text-secondary: #a0a0b0;     // muted secondary text
+--border-color: #3a3a4a;       // subtle border
+background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Theme Color Variations */
+.theme-indigo {
+  --primary-color: #3f51b5;
+}
+
+.theme-pink {
+  --primary-color: #e91e63;
+}
+
+.theme-purple {
+  --primary-color: #9c27b0;
+}
+
+.theme-deep-purple {
+  --primary-color: #673ab7;
+}
+
+.theme-blue {
+  --primary-color: #2196f3;
+}
+
+.theme-teal {
+  --primary-color: #009688;
+}
+
+.theme-green {
+  --primary-color: #4caf50;
+}
+
+.theme-orange {
+  --primary-color: #ff9800;
+}
+
+/* Animation control */
+.no-animations *,
+.no-animations *::before,
+.no-animations *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0.01ms !important;
+}
+
+/* Material theme integration */
+.mat-app-background {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Custom card styling to respect theme */
+.mat-mdc-card {
+  background-color: var(--surface-color) !important;
+  color: var(--text-color) !important;
+}
+
+/* Custom toolbar styling */
+.mat-toolbar {
+  background-color: var(--primary-color) !important;
+}
+
+/* Dark theme specific Material overrides */
+.dark-theme .mat-mdc-form-field {
+  color: var(--text-color) !important;
+}
+
+.dark-theme .mat-mdc-select-value {
+  color: var(--text-color) !important;
+}
+
+.dark-theme .mat-mdc-option {
+  color: var(--text-color) !important;
+}
+
+.dark-theme .mat-mdc-list-item {
+  color: var(--text-color) !important;
+}
+
+/* Responsive font sizes */
+@media (max-width: 768px) {
+  :root {
+    --base-font-size: calc(var(--base-font-size) * 0.9);
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --base-font-size: calc(var(--base-font-size) * 0.8);
+  }
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.no-animations * {
+  transition: none !important;
+}
+
+/* Focus indicators that respect theme */
+.mat-mdc-button:focus,
+.mat-mdc-raised-button:focus,
+.mat-mdc-fab:focus,
+.mat-mdc-mini-fab:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: #000000;
+  }
+
+  .dark-theme {
+    --border-color: #ffffff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0.01ms !important;
+  }
+}
