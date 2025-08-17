@@ -6,10 +6,10 @@ This repository contains a **_full-stack web application_** built using **Spring
 
 ## 📂 **Project Structure**
 
-mongodb-kitchensink-apps/
-│── kitchen-sink-rest 🟢 Spring Boot REST API (Backend)
-│── kitchensink-user-app 🔵 Angular UI (Frontend)
-│── docker-compose.yml 🟡 Orchestration for services
+- 🟢 **kitchen-sink-rest** → Spring Boot REST API (Backend)  
+- 🔵 **kitchensink-user-app** → Angular UI (Frontend)  
+- 🟡 **docker-compose.yml** → Orchestration for services  
+
 
 
 
