@@ -68,7 +68,7 @@ Available Scripts
 
 
 # Start all services
-docker-compose up
+docker-compose up --build
 
 # Start in detached mode
 docker-compose up -d
@@ -83,15 +83,19 @@ docker-compose logs [service-name]
 docker-compose up --build
 
 
-Environment Configuration
+**Environment Configuration**
 Currently uses a single environment file located in the REST API project. Environment-specific configurations will be added in future releases.
 🔧 Configuration
 The application uses default configuration with:
 
-MongoDB connection on port 27017
-Redis connection on port 6379
-Spring Boot API on port 8080
-Angular UI on port 4200
+**MongoDB connection on port 27017**
+
+**Redis connection on port 6379**
+
+**Spring Boot API on port 8080**
+
+
+**Angular UI on port 4200**
 
 
 🤝 Contributing
