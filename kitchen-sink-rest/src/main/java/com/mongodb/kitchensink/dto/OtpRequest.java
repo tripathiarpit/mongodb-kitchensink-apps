@@ -1,8 +1,18 @@
 package com.mongodb.kitchensink.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
 public class OtpRequest {
+    @NotBlank(message = "Email cannot be blank")
+    @Email(message = "Invalid email format")
     private String email;
+
+    @NotBlank(message = "OTP cannot be blank")
+    @Pattern(regexp = "\\d{6}", message = "OTP must be 6 digits")
     private String otp;
+
 
     public String getEmail() {
         return email;

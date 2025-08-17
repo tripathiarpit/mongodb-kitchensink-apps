@@ -81,7 +81,7 @@ export class AuthService {
     );
   }
   logoutAndInvalidateToken(email: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>('/api/auth/ldsdsogout', { email }).pipe(
+    return this.http.post<LoginResponse>('/api/auth/logout', { email }).pipe(
       catchError(err => {
         const errorMsg = err?.error?.message || 'logout failed';
         return throwError(() => new Error(errorMsg));

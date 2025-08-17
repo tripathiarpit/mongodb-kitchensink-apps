@@ -10,6 +10,12 @@ import {MatMenu, MatMenuTrigger} from '@angular/material/menu';
 import {SharedStateService} from '../../../../core/services/SharedStateService';
 import {ForgotPasswordComponent} from '../../../auth/reset-password/forgot-password-component';
 import {LoaderService} from '../../../../core/services/LoaderService';
+import {
+  ConfirmDialogComponent
+} from '../../../../shared/common-components/confirm-dialog.component/confirm-dialog.component';
+import {AppSnackbarComponent} from '../../../../shared/common-components/app-snackbar/app-snackbar';
+import {AuthService} from '../../../../core/services/AuthService';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-user-details',
@@ -30,7 +36,9 @@ export class UserDetailsComponent implements OnInit , OnDestroy{
     private snackBar: MatSnackBar,
     private changeDetectorRef: ChangeDetectorRef,
     private sharedState: SharedStateService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private authService: AuthService,
+    private dialog: MatDialog
   ) {
     const nav = this.router.getCurrentNavigation();
     this.email = nav?.extras?.state?.['email'] ?? history.state['email'] ?? '';
@@ -69,5 +77,32 @@ export class UserDetailsComponent implements OnInit , OnDestroy{
   resetPassword(user: User) {
     this.showPasswordTemplate = true;
     this.sharedState.setShowSignInLink(false);
+  }
+
+  deleteUser(user: any): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '350px',
+      data: {title: 'Confirm Delete', message: `Are you sure you want to delete ${user.email}?`}
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.userService.deleteUser(user.email).subscribe({
+          next: (res) => {
+            this.snackBar.open(res.message || 'User deleted successfully', 'Close', {duration: 3000});
+            this.authService.logout();
+          },
+          error: (err) => {
+            let errorMessage = err.error.message ;
+            this.snackBar.openFromComponent(AppSnackbarComponent, {
+              data: { errorMessage },
+              duration: 3000,
+              verticalPosition: 'top', // position at the top
+              panelClass: ['error-snackbar'] // custom CSS
+            });
+          }
+        });
+      }
+    });
   }
 }

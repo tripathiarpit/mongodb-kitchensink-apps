@@ -21,11 +21,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-
+/**
+ * Controller for managing user-related operations.
+ * <p>
+ * This includes registration, retrieval, search, update, and deletion of users.
+ * All endpoints support JSON request/response.
+ * </p>
+ *
+ * @author Arpit Tripathi
+ * @version 1.0
+ * @since 2025-08-17
+ */
 @RestController
 @RequestMapping("/api/users")
-@Tag(name = "User Management", description = "Operations related to user registration and lookup")
+@Tag(name = "User Management", description = "Operations related to user registration, retrieval, and management")
 public class UserController {
+
     private final UserService userService;
 
     @Autowired
@@ -35,31 +46,31 @@ public class UserController {
 
     @Operation(
             summary = "Register a new user",
-            description = "Creates a new user account and profile. Admins can assign roles; public signups get USER role.",
+            description = "Creates a new user account and profile. Public users are assigned the USER role by default; Admins can assign multiple roles.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
                     content = @Content(
                             schema = @Schema(implementation = RegistrationRequest.class),
                             examples = @ExampleObject(value = """
-                            {
-                              "name": "John Doe",
-                              "email": "john@example.com",
-                              "password": "P@ssw0rd",
-                              "phoneNumber": "9876543210",
-                              "address": {
-                                "street": "123 Main Street",
-                                "city": "New York",
-                                "state": "NY",
-                                "pincode": "10001",
-                                "country": "USA"
-                              },
-                              "roles": ["USER"]
-                            }
-                            """)
+                                    {
+                                      "name": "John Doe",
+                                      "email": "john@example.com",
+                                      "password": "P@ssw0rd",
+                                      "phoneNumber": "9876543210",
+                                      "address": {
+                                        "street": "123 Main Street",
+                                        "city": "New York",
+                                        "state": "NY",
+                                        "pincode": "10001",
+                                        "country": "USA"
+                                      },
+                                      "roles": ["USER"]
+                                    }
+                                    """)
                     )
             ),
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Registration successful"),
+                    @ApiResponse(responseCode = "200", description = "User registration successful"),
                     @ApiResponse(responseCode = "400", description = "Email already exists")
             }
     )
@@ -72,11 +83,15 @@ public class UserController {
 
     @Operation(
             summary = "Get all registered users (paginated)",
+            description = "Admin-only endpoint to retrieve a paginated list of all registered users. Supports sorting by any user attribute.",
             parameters = {
-                    @Parameter(name = "page", example = "0"),
-                    @Parameter(name = "size", example = "50"),
-                    @Parameter(name = "sortBy", example = "createdAt"),
-                    @Parameter(name = "direction", example = "asc")
+                    @Parameter(name = "page", description = "Page number starting from 0", example = "0"),
+                    @Parameter(name = "size", description = "Number of users per page", example = "50"),
+                    @Parameter(name = "sortBy", description = "Field to sort the results by", example = "createdAt"),
+                    @Parameter(name = "direction", description = "Sort direction (asc or desc)", example = "asc")
+            },
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Paginated list of users")
             }
     )
     @GetMapping
@@ -92,13 +107,25 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers(pageable));
     }
 
-    @Operation(summary = "Get user by ID")
+    @Operation(
+            summary = "Get user by ID",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User retrieved successfully"),
+                    @ApiResponse(responseCode = "404", description = "User not found")
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable String id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    @Operation(summary = "Get user by email")
+    @Operation(
+            summary = "Get user by email",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User retrieved successfully"),
+                    @ApiResponse(responseCode = "404", description = "User not found")
+            }
+    )
     @GetMapping("/email/{email}")
     public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email) {
         return ResponseEntity.ok(userService.getUserByEmail(email));
@@ -115,14 +142,14 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsersByCity(city, pageable));
     }
 
-    @Operation(summary = "Delete user by email")
+    @Operation(summary = "Delete user by email (Admin only)")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete")
     public ResponseEntity<ResourceDeleteResponse> deleteUserByEmail(@RequestBody Map<String, String> request) {
         String email = request.get("email");
-        ResourceDeleteResponse response = userService.deleteUserByEmail(email);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userService.deleteUserByEmail(email));
     }
+
     @Operation(summary = "Search users by name (paginated)")
     @GetMapping("/getUserByName")
     public ResponseEntity<Page<UserDto>> getUserByName(
@@ -137,7 +164,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsersByName(name, pageable));
     }
 
-    @Operation(summary = "Search users by city (paginated)")
+    @Operation(summary = "Search users by city with pagination and sorting")
     @GetMapping("/getUserByCity")
     public ResponseEntity<Page<UserDto>> getUserByCity(
             @RequestParam String city,
@@ -151,7 +178,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsersByCity(city, pageable));
     }
 
-    @Operation(summary = "Search users by email (paginated)")
+    @Operation(summary = "Search users by email with pagination and sorting")
     @GetMapping("/getUserByEmail")
     public ResponseEntity<Page<UserDto>> getUserByEmail(
             @RequestParam String email,
@@ -165,7 +192,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsersByEmail(email, pageable));
     }
 
-    @Operation(summary = "Search users by country (paginated)")
+    @Operation(summary = "Search users by country with pagination and sorting")
     @GetMapping("/getUserByCountry")
     public ResponseEntity<Page<UserDto>> getUserByCountry(
             @RequestParam String country,
@@ -179,12 +206,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsersByCountry(country, pageable));
     }
 
+    @Operation(summary = "Update user details by email/ID")
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> updateUser(
             @PathVariable("id") String emailId,
             @RequestBody UserDto request
     ) {
-        UserDto updatedUser = userService.updateUser(emailId, request);
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(userService.updateUser(emailId, request));
     }
 }

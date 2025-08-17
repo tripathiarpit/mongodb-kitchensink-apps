@@ -43,7 +43,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   otpVerifying = false;
   otpVerified = false;
   resendDisabled = true;
-  countdown: number = 60;
+  countdown: number = 5;
   private countdownSub!: Subscription;
   private matref!: MatSnackBarRef<EmbeddedViewRef<any>>;
   showSIgnInLink: boolean = true;
@@ -121,7 +121,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
         if (response.success) {
           this.showSuccessSnack(response.message, "", 8000);
           this.otpSent = true;
-
           this.stepper.next();
           this.otpForm.reset();
         } else {
@@ -138,6 +137,39 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  reSendOtp(): void {
+    const {email} = this.emailForm.getRawValue();
+    if (!email) {
+      this.snack.open('Please enter a valid email', 'Close', {duration: 3000});
+      return;
+    }
+
+    this.otpSending = true;
+    this.startCountdown();
+    this.otpSent = false;
+    this.authService.requestForgotPasswordOtp(email).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.showSuccessSnack(response.message, "", 8000);
+          this.otpSent = true;
+          this.otpForm.reset();
+        } else {
+          this.showError(response.message || 'Failed to send OTP');
+          this.otpSent = false;
+        }
+      },
+      error: (err) => {
+        this.showError(err.error.message, 'Failed to send OTP');
+        this.otpSent = false;
+      },
+      complete: () => {
+        this.otpSending = false;
+      }
+    });
+  }
+
+
 
   verifyOtp(): void {
     const {email} = this.emailForm.getRawValue();
@@ -227,7 +259,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   startCountdown() {
     this.resendDisabled = true;
-    this.countdown = 60;
+    this.countdown = 5;
 
     this.countdownSub?.unsubscribe();
 

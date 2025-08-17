@@ -130,6 +130,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   pageChange(event: any) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
+    this.onSearch();
   }
   resetTable(): void {
     this.dataSource.data = [];

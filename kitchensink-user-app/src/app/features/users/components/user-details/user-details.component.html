@@ -73,11 +73,14 @@
                       <span class="menu-text">Reset Password</span>
 
                     </button>
-                    <mat-divider class="menu-divider"></mat-divider>
-                    <button mat-menu-item class="menu-item-custom danger-item">
-                      <mat-icon class="menu-icon danger-icon">delete_outline</mat-icon>
-                      <span class="menu-text">Delete Profile</span>
-                    </button>
+                    @if (user.roles.indexOf('ADMIN')!=-1) {
+                      <mat-divider class="menu-divider"></mat-divider>
+                      <button mat-menu-item class="menu-item-custom danger-item">
+                        <mat-icon class="menu-icon danger-icon">delete_outline</mat-icon>
+                        <span class="menu-text" (click)="deleteUser(user)">Delete Profile</span>
+                      </button>
+                    }
+
                   </mat-menu>
                 </div>
               </div>
