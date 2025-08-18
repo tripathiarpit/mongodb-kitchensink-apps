@@ -56,7 +56,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'user-details', // Keep the redirect for direct dashboard access
+        redirectTo: 'user-details',
         pathMatch: 'full'
       },
       {
@@ -88,39 +88,39 @@ export const routes: Routes = [
       {
         path: 'edit-user',
         component: EditUserComponent,
-        canActivate: [AccessGuard],
+        canActivate: [AuthGuard, AccessGuard],
         data: { allowedRoles: ['ADMIN'] },
         title: 'Edit User',
       },
       {
         path: 'edit-profile/:email',
         component: EditProfileComponent,
-        canActivate: [AccessGuard],
+        canActivate: [AuthGuard],
         data: { allowedRoles: ['ADMIN', 'USER'] },
         title: 'Edit Profile',
       },
       {
         path: 'edit-profile',
         component: EditProfileComponent,
-        canActivate: [AccessGuard],
+        canActivate: [AuthGuard],
         data: { allowedRoles: ['ADMIN', 'USER'] },
         title: 'Edit Profile',
       },
       {
         path: 'user-details',
         component: UserDetailsComponent,
+        canActivate: [AuthGuard],
         title: 'My Profile'
       },
       {
         path: 'user-details/:id',
         component: UserDetailsComponent,
+        canActivate: [AuthGuard],
         title: 'User Details'
       },
       {
         path: 'settings',
         component: AppSettingsComponent,
-        canActivate: [AccessGuard],
-        data: { allowedRoles: ['ADMIN', 'USER'] },
         title: 'App Settings',
       },
     ],

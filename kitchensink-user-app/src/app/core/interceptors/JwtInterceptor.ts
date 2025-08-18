@@ -36,6 +36,7 @@ export class JwtInterceptor implements HttpInterceptor {
       '/api/auth/account-verification/verify-otp',
       '/api/auth/account-verification/reset',
       '/api/auth/get-login-response-after-otp-verification',
+      '/api/auth/logout'
     ].some((path) => url.includes(path));
   }
 
@@ -53,13 +54,21 @@ export class JwtInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401 && !this.isLoggingOut) {
+        // Check for 401 Unauthorized or a specific 400 error message
+        const isSessionExpiredError =
+          (error.status === 401) ||
+          (error.status === 400 && error.error?.message?.includes("Session has been expired"));
+
+        if (isSessionExpiredError && !this.isLoggingOut) {
+          this.loader.hide();
           this.isLoggingOut = true;
           this.auth.logout();
           this.showMessage('Your session has expired. Please log in again.');
           this.router.navigate(['/login']);
           return EMPTY;
         }
+
+        // For other errors, re-throw them for component-level handling
         return throwError(() => error);
       })
     );

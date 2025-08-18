@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { ApiResponse } from '../../shared/model/ApiResponse';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AppSnackbarComponent } from '../../shared/common-components/app-snackbar/app-snackbar';
+import {LoaderService} from './LoaderService';
 
 export interface LoginResponse {
   token: string;
@@ -30,7 +31,7 @@ export class AuthService {
   private emailKey = 'user_email';
   isLoggedIn$ = new BehaviorSubject<boolean>(false);
 
-  constructor(private http: HttpClient, private router: Router, private snackBar: MatSnackBar) { }
+  constructor(private http: HttpClient, private router: Router, private snackBar: MatSnackBar,private loader: LoaderService) { }
 
   /**
    * Checks if the current user is authorized based on roles stored in local storage.
@@ -140,11 +141,15 @@ export class AuthService {
    */
   logout(): void {
     let email = localStorage.getItem(this.emailKey as string);
-
+    if (!email) {
+      this.router.navigate(['/login']);
+      return
+    }
     // Ensure the logout API call completes before clearing local storage and navigating.
     // `finalize` ensures this block runs regardless of success or error of the API call.
     this.logoutAndInvalidateToken(email as string).pipe(
       finalize(() => {
+        this.loader.hide();
         localStorage.removeItem(this.tokenKey);
         localStorage.removeItem(this.userRoleKey);
         localStorage.removeItem(this.fullnameKey);
@@ -346,4 +351,5 @@ export class AuthService {
         headers: { email }
       });
   }
+
 }

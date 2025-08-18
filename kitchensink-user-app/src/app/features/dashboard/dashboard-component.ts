@@ -117,7 +117,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.router.navigate(['/dashboard/user-details'], { state: { email: this.authService.getEmail() } });
     });
   }
-
   toggleCollapse() {
     this.isCollapsed = !this.isCollapsed;
   }

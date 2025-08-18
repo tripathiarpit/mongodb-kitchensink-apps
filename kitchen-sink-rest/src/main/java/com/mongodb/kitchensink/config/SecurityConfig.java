@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/login",
+                                "api/auth/logout",
                                 "/api/users/register",
                                 "/api/auth/forgot-password/**",
                                 "/api/auth/account-verification/**",
@@ -62,7 +63,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();

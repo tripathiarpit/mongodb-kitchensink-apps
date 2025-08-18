@@ -1,5 +1,5 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router'; // Import ActivatedRoute
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {UserService} from '../../../../core/services/UserService';
 import {User} from '../../../../shared/model/UserModel';
@@ -16,6 +16,7 @@ import {
 import {AppSnackbarComponent} from '../../../../shared/common-components/app-snackbar/app-snackbar';
 import {AuthService} from '../../../../core/services/AuthService';
 import {MatDialog} from '@angular/material/dialog';
+import {finalize} from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-details',
@@ -30,7 +31,7 @@ export class UserDetailsComponent implements OnInit , OnDestroy{
   protected showPasswordTemplate: boolean = false;
 
   constructor(
-    private route: ActivatedRoute, // Inject ActivatedRoute
+    private route: ActivatedRoute,
     private router: Router,
     private userService: UserService,
     private snackBar: MatSnackBar,
@@ -40,32 +41,23 @@ export class UserDetailsComponent implements OnInit , OnDestroy{
     private authService: AuthService,
     private dialog: MatDialog
   ) {
-    // Remove the logic that relies on navigation state in the constructor.
-    // It's not reliable for direct URL access or page refreshes.
-    // this.email = nav?.extras?.state?.['email'] ?? history.state['email'] ?? '';
   }
 
   ngOnDestroy(): void {
+    this.loaderService.hide();
     this.sharedState.setShowSignInLink(true);
   }
 
   ngOnInit(): void {
     this.loaderService.show();
 
-    // Check if an 'id' parameter exists in the URL
     const userIdParam = this.route.snapshot.paramMap.get('id');
 
     if (userIdParam) {
-      // If an ID is present, it means we are viewing a specific user's details
-      // You should fetch user by ID here, if your backend supports it.
-      // For now, we'll use the email derived from the ID, but ideally, you'd fetch by ID.
-      // Or, if your backend uses email as ID in the URL, then use userIdParam as email.
-      this.email = userIdParam; // Assuming ID here means email if that's how your route is structured
+      this.email = userIdParam;
       this.fetchUserDetails(this.email);
 
     } else {
-      // If no ID parameter is present, it means the logged-in user is viewing their own profile.
-      // Get the email directly from AuthService.
       this.email = this.authService.getEmail();
       if (this.email) {
         this.fetchUserDetails(this.email);
@@ -73,30 +65,31 @@ export class UserDetailsComponent implements OnInit , OnDestroy{
         this.loaderService.hide();
         this.snackBar.open('User email not found. Please log in again.', 'Close', { duration: 5000 });
         this.isLoading = false;
-        // Optionally, redirect to login if email is not found
         this.router.navigate(['/login']);
       }
     }
   }
 
   private fetchUserDetails(email: string): void {
-    this.userService.gerUserByEmailId(email).subscribe({
-      next: (res) => {
+    this.userService.gerUserByEmailId(email).pipe(
+      finalize(() => {
+        // This will be called on both success and error
         this.loaderService.hide();
+        this.isLoading = false; // It's good practice to set isLoading here as well
+      })
+    ).subscribe({
+      next: (res) => {
         this.user = res;
-        this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       },
-      error: () => {
-        this.loaderService.hide();
+      error: (err) => {
         this.snackBar.open('Error fetching user details', 'Close', { duration: 3000 });
-        this.isLoading = false;
+        // The loader and isLoading state are handled in finalize, so no need to repeat here
       }
     });
   }
 
   editUser(user: User) {
-    // Removed navigateByUrl and skipLocationChange for cleaner navigation
     this.router.navigate(['dashboard/edit-profile'], { state: { email:  user.email} });
   }
 
@@ -123,8 +116,8 @@ export class UserDetailsComponent implements OnInit , OnDestroy{
             this.snackBar.openFromComponent(AppSnackbarComponent, {
               data: { errorMessage },
               duration: 3000,
-              verticalPosition: 'top', // position at the top
-              panelClass: ['error-snackbar'] // custom CSS
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
             });
           }
         });

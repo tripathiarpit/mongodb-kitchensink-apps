@@ -4,7 +4,8 @@ import {MaterialModule} from '../../material.module';
 import {DashboardService} from '../../core/services/DashboardService';
 import {DashboardStats} from '../../shared/model/DashboardStatsModel';
 import {LoaderService} from '../../core/services/LoaderService';
-import { CommonModule } from '@angular/common'; // Import CommonModule for Angular pipes
+import { CommonModule } from '@angular/common';
+import {finalize} from 'rxjs/operators'; // Import CommonModule for Angular pipes
 
 interface User {
   id: string;
@@ -357,23 +358,29 @@ export class AdminDashboardComponent implements OnInit {
     this.loadDashboardStats();
   }
 
-  loadDashboardStats() {
-    this.loader.show();
-    this.dashboardService.getDashboardStats().subscribe({
-      next: (data) => {
-        this.stats = data;
-        this.loading = false;
-        this.loader.hide();
-      },
-      error: (err) => {
-        console.error('Failed to load dashboard stats:', err);
-        this.loader.hide();
-      },
-      complete: () => {
-        console.log('Dashboard stats request completed');
-      }
-    });
-  }
+
+loadDashboardStats() {
+  this.loader.show();
+  this.dashboardService.getDashboardStats().pipe(
+    finalize(() => {
+      this.loader.hide();
+    })
+  ).subscribe({
+    next: (data) => {
+      this.stats = data;
+      this.loading = false;
+      // No need to call this.loader.hide() here
+    },
+    error: (err) => {
+      console.error('Failed to load dashboard stats:', err);
+      // No need to call this.loader.hide() here
+    },
+    complete: () => {
+      console.log('Dashboard stats request completed');
+      // No need to call this.loader.hide() here
+    }
+  });
+}
 
   refreshStats() {
     this.loadDashboardStats();

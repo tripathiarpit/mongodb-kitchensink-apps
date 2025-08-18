@@ -59,6 +59,15 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    if (this.changingOwnPassword) {
+      this.authService.validateSession().subscribe(isValid => {
+        if (isValid) {
+          this.emailForm.get('email')?.disable();
+        } else {
+          this.emailForm.get('email')?.enable();
+        }
+      });
+    }
     this.emailForm = this.fb.nonNullable.group({
       email: [{ value: '', disabled: this.changingOwnPassword },[Validators.required, Validators.email]],
     });

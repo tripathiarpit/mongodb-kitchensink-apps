@@ -52,9 +52,15 @@ export class EditProfileComponent implements OnInit {
       if(roles?.includes("ADMIN")) {
         this.userForm.controls['active'].enable();
       }
-      this.userService.gerUserByEmailId(this.emailId).subscribe((user: User | undefined) => {
-        this.userData = user;
-        this.populateForm(this.userData as User);
+      this.userService.gerUserByEmailId(this.emailId).subscribe({
+        next: (user: User | undefined) => {
+          this.loaderService.hide();
+          this.userData = user;
+          this.populateForm(this.userData as User);
+        },
+        error: (err) => {
+          this.loaderService.hide();
+        }
       });
       this.userForm.get('twoFAEnabled')?.valueChanges.subscribe((enabled: boolean) => {
         this.isEnabledString = enabled ? 'Enabled' : 'Disabled';

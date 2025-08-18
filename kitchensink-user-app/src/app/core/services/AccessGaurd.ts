@@ -40,7 +40,7 @@ export class AccessGuard implements CanActivate {
             undefined,
             { duration: 3000, panelClass: ['snackbar-error'] }
           );
-          return this.router.createUrlTree(['/access-denied']);
+          return this.router.createUrlTree(['/logout']);
         }
       }),
       catchError(() => {
@@ -50,7 +50,7 @@ export class AccessGuard implements CanActivate {
           undefined,
           { duration: 3000, panelClass: ['snackbar-error'] }
         );
-        return of(this.router.createUrlTree(['/access-denied']));
+        return of(this.router.createUrlTree(['/logout']));
       })
     );
   }
