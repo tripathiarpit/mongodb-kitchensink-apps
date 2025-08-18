@@ -6,13 +6,6 @@
                class="dashboard-sidenav"
                [class.collapsed]="isCollapsed">
 
-    <div class="sidenav-header">
-      <div class="brand-container" (click)="toggleCollapse()">
-        <mat-icon class="brand-icon">dashboard</mat-icon>
-        <span class="brand-text" *ngIf="!isCollapsed">Kitchen Sink</span>
-      </div>
-    </div>
-
     <mat-nav-list class="nav-menu">
       <a mat-list-item
          *ngFor="let item of menuItems"
@@ -57,11 +50,6 @@
 
       <span class="spacer"></span>
       <div class="toolbar-actions">
-        <div class="role-badge" *ngIf="userRole">
-          <mat-icon>admin_panel_settings</mat-icon>
-          <span>{{ userRole }}</span>
-        </div>
-
         <button mat-button (click)="gotoUserProfile()" class="profile-btn">
           <mat-icon>account_circle</mat-icon>
           <span class="profile-text">Profile</span>
@@ -71,9 +59,6 @@
 
     <div class="dashboard-main" [class]="contentClass">
       <div class="main-content-wrapper">
-        <div class="welcome-section" *ngIf="showWelcome">
-          <mat-card class="welcome-card"></mat-card>
-        </div>
         <div class="router-outlet-wrapper">
           <router-outlet></router-outlet>
         </div>

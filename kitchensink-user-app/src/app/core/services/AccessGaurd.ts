@@ -1,9 +1,16 @@
-import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
-import {Injectable} from '@angular/core';
-import {AuthService} from './AuthService';
-import {MatSnackBar} from '@angular/material/snack-bar';
+// src/app/core/services/AccessGaurd.ts
 
-@Injectable({ providedIn: 'root' })
+import { Injectable } from '@angular/core';
+import { CanActivate, ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { AuthService } from './AuthService';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { of } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
 export class AccessGuard implements CanActivate {
   constructor(
     private authService: AuthService,
@@ -13,33 +20,38 @@ export class AccessGuard implements CanActivate {
 
   canActivate(
     route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot,
-  ): boolean {
-    const allowedRoles = route.data['allowedRoles'] as Array<string>;
+    state: RouterStateSnapshot
+  ): Observable<boolean | UrlTree> {
+    const allowedRoles = route.data['allowedRoles'] as string[];
 
-    try {
-      const hasAccess = this.authService.hasAccessToPage(allowedRoles);
-
-      if (!hasAccess) {
-        this.snack.open(
-          "You are not authorized to access this. Contact Administrator",
-          undefined,
-          { duration: 30000, panelClass: ['snackbar-error'] }
-        );
-        this.router.navigate(['/access-denied']);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error checking access:', error);
-      this.snack.open(
-        "Error verifying access. Contact Administrator",
-        undefined,
-        { duration: 30000, panelClass: ['snackbar-error'] }
-      );
-      this.router.navigate(['/access-denied']);
-      return false;
+    // If no roles are defined on the route, allow access (or adjust as needed)
+    if (!allowedRoles || allowedRoles.length === 0) {
+      return of(true);
     }
+
+    // Check if the logged-in user has the required roles
+    return this.authService.hasAccessToPage(allowedRoles).pipe(
+      map(hasAccess => {
+        if (hasAccess) {
+          return true;
+        } else {
+          this.snack.open(
+            "You are not authorized to access this. Contact Administrator",
+            undefined,
+            { duration: 3000, panelClass: ['snackbar-error'] }
+          );
+          return this.router.createUrlTree(['/access-denied']);
+        }
+      }),
+      catchError(() => {
+        // In case of an API error getting roles, deny access
+        this.snack.open(
+          "Error verifying access. Contact Administrator",
+          undefined,
+          { duration: 3000, panelClass: ['snackbar-error'] }
+        );
+        return of(this.router.createUrlTree(['/access-denied']));
+      })
+    );
   }
 }

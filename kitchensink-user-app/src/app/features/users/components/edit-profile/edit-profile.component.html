@@ -10,7 +10,6 @@
     <div class="card-body">
       <form [formGroup]="userForm">
 
-        <!-- User Basic Info Section -->
         <div class="section-title">
           <h5>Your Basic Information</h5>
         </div>
@@ -25,14 +24,12 @@
                   Username is required
                 </mat-error>
               }
-
             </mat-form-field>
           </div>
           <div class="col-md-6">
             <mat-form-field appearance="fill" class="w-100">
               <mat-label>Email</mat-label>
-              <input matInput type="email" formControlName="email">
-
+              <input matInput type="email" formControlName="email" [readonly]="true">
             </mat-form-field>
           </div>
         </div>
@@ -64,12 +61,11 @@
               Active User
             </mat-slide-toggle>
             <mat-slide-toggle style="padding-left: 2rem" formControlName="twoFAEnabled" class="mt-lg-5">
-              2FA {{ isEnabledString }}
+              2FA {{ userForm.get('twoFAEnabled')?.value ? 'Enabled' : 'Disabled' }}
             </mat-slide-toggle>
           </div>
         </div>
 
-        <!-- Profile Section -->
         <div class="section-title mt-4">
           <h5>Your Profile Information</h5>
         </div>
@@ -80,7 +76,7 @@
               <mat-form-field appearance="fill" class="w-100">
                 <mat-label>First Name</mat-label>
                 <input matInput formControlName="firstName">
-                @if(this.userForm.get('profile.firstName')?.invalid && userForm.get('profile.firstName')?.touched) {
+                @if(userForm.get('profile.firstName')?.hasError('required') && userForm.get('profile.firstName')?.touched) {
                   <mat-error>
                     First Name is required
                   </mat-error>
@@ -91,12 +87,11 @@
               <mat-form-field appearance="fill" class="w-100">
                 <mat-label>Last Name</mat-label>
                 <input matInput formControlName="lastName">
-                @if(this.userForm.get('profile.lastName')?.invalid && userForm.get('profile')?.touched) {
+                @if(userForm.get('profile.lastName')?.hasError('required') && userForm.get('profile.lastName')?.touched) {
                   <mat-error>
                     Last Name is required
                   </mat-error>
                 }
-
               </mat-form-field>
             </div>
           </div>
@@ -106,12 +101,22 @@
               <mat-form-field appearance="fill" class="w-100">
                 <mat-label>Phone Number</mat-label>
                 <input matInput type="tel" formControlName="phoneNumber">
+                @if(userForm.get('profile.phoneNumber')?.hasError('pattern') && userForm.get('profile.phoneNumber')?.touched) {
+                  <mat-error>
+                    Invalid phone number format
+                  </mat-error>
+                }
               </mat-form-field>
             </div>
             <div class="col-md-6">
               <mat-form-field appearance="fill" class="w-100">
                 <mat-label>Street</mat-label>
                 <input matInput formControlName="street">
+                @if(userForm.get('profile.street')?.hasError('required') && userForm.get('profile.street')?.touched) {
+                  <mat-error>
+                    Street is required
+                  </mat-error>
+                }
               </mat-form-field>
             </div>
           </div>
@@ -121,33 +126,77 @@
               <mat-form-field appearance="fill" class="w-100">
                 <mat-label>City</mat-label>
                 <input matInput formControlName="city">
+                @if(userForm.get('profile.city')?.hasError('required') && userForm.get('profile.city')?.touched) {
+                  <mat-error>
+                    City is required
+                  </mat-error>
+                }
               </mat-form-field>
             </div>
             <div class="col-md-6">
               <mat-form-field appearance="fill" class="w-100">
                 <mat-label>State</mat-label>
                 <input matInput formControlName="state">
+                @if(userForm.get('profile.state')?.hasError('required') && userForm.get('profile.state')?.touched) {
+                  <mat-error>
+                    State is required
+                  </mat-error>
+                }
               </mat-form-field>
             </div>
           </div>
 
           <div class="row">
-            <div class="col-md-6">
-              <mat-form-field appearance="fill" class="w-100">
+            <div class="col-md-6 mb-4">
+              <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Country</mat-label>
-                <input matInput formControlName="country">
+                <mat-select
+                  formControlName="country"
+                  placeholder="Select country"
+                  panelClass="country-dropdown-panel">
+
+                  <mat-option class="select-search-option">
+                    <input
+                      matInput
+                      type="text"
+                      placeholder="Search country..."
+                      [(ngModel)]="countryFilter"
+                      [ngModelOptions]="{standalone: true}"
+                      (click)="$event.stopPropagation()"
+                      (keydown)="$event.stopPropagation()"
+                      class="select-search-input" />
+                  </mat-option>
+
+                  <mat-option
+                    *ngFor="let country of countries | countryFilter:countryFilter"
+                    [value]="country"
+                    class="select-country-option">
+                    {{ country }}
+                  </mat-option>
+
+                </mat-select>
+                <mat-icon matSuffix>public</mat-icon>
+                @if(userForm.get('profile.country')?.hasError('required') && userForm.get('profile.country')?.touched) {
+                  <mat-error>
+                    Country is required
+                  </mat-error>
+                }
               </mat-form-field>
             </div>
             <div class="col-md-6">
               <mat-form-field appearance="fill" class="w-100">
                 <mat-label>Pincode</mat-label>
                 <input matInput formControlName="pincode">
+                @if(userForm.get('profile.pincode')?.hasError('required') && userForm.get('profile.pincode')?.touched) {
+                  <mat-error>
+                    Pincode is required
+                  </mat-error>
+                }
               </mat-form-field>
             </div>
           </div>
         </div>
 
-        <!-- Read-only fields -->
         <div class="section-title mt-4">
           <h5>Your System Related Information</h5>
         </div>
@@ -160,7 +209,6 @@
           </div>
         </div>
 
-        <!-- Action Buttons -->
         <div class="action-buttons mt-4">
           <button mat-button type="button" (click)="cancel()" class="me-2">Cancel</button>
           <button mat-raised-button color="primary"

@@ -1,6 +1,6 @@
 
 import {Component, OnInit, ViewChild, OnDestroy, inject} from '@angular/core';
-import {Router, RouterLink, RouterOutlet} from '@angular/router';
+import {NavigationEnd, Router, RouterLink, RouterOutlet} from '@angular/router';
 import {AuthService} from '../../core/services/AuthService';
 import {NavigationMenu, NavItem} from '../../shared/model/NaigationModel';
 import {MaterialModule} from '../../material.module';
@@ -8,7 +8,8 @@ import {AppFooterComponent} from '../../shared/common-components/app-footer.comp
 import {NgForOf, NgIf} from '@angular/common';
 import {MatSidenav} from '@angular/material/sidenav';
 import {AppSettings, AppSettingsService} from '../../core/services/AppSettingsService';
-import {Subject, takeUntil} from 'rxjs';
+import {filter, Subject, takeUntil} from 'rxjs';
+import {Title} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,6 +30,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   currentUserFullName: string | null ="";
   isCollapsed = false;
   showWelcome = true;
+  pageTitle = '';
   currentSettings: AppSettings = {
     darkMode: false,
     primaryColor: 'indigo',
@@ -43,7 +45,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     colorClassList:[]
   };
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private titleService: Title) {}
 
   ngOnInit() {
     this.userRole = this.authService.getUserRole();
@@ -61,6 +63,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       // fallback for unknown role
       this.router.navigate(['/access-denied']);
     }
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((data) => {
+        this.pageTitle = this.titleService.getTitle()
+        console.log('Page title:', this.pageTitle);
+      });
   }
 
   ngOnDestroy() {
@@ -123,7 +131,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   get themeClass() {
-    return this.currentSettings.darkMode ? 'dark-theme' : 'light-theme';
+    return this.currentSettings.darkMode ? 'virbrant' : 'light-theme';
   }
 
   // Helper method to get current time for welcome section

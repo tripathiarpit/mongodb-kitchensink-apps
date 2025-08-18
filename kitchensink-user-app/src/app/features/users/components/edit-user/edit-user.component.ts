@@ -12,12 +12,14 @@ import {AuthService} from '../../../../core/services/AuthService';
 import {LoaderService} from '../../../../core/services/LoaderService';
 import {AppSnackbarComponent} from '../../../../shared/common-components/app-snackbar/app-snackbar';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {CountryService} from '../../../../core/services/CountryService';
+import {CountryFilterPipe} from '../../../../core/pipe/CountryPipe';
 
 @Component({
   selector: 'app-edit-user',
   templateUrl: './edit-user.component.html',
   styleUrls: ['./edit-user.component.scss'],
-  imports: [MaterialModule, CommonModule, MatChipInput, MatSlideToggle, ReactiveFormsModule, MatChipGrid, MatChipRow]
+  imports: [MaterialModule, CommonModule, MatChipInput, MatSlideToggle, ReactiveFormsModule, MatChipGrid, MatChipRow, CountryFilterPipe]
 })
 export class EditUserComponent implements OnInit {
   userData: User | undefined;
@@ -25,8 +27,10 @@ export class EditUserComponent implements OnInit {
   userForm!: FormGroup;
   roles: string[] = [];
   separatorKeysCodes: number[] = [ENTER, COMMA];
+  countries: string[] = [];
+  countryFilter: string = '';
   allowedRoles: string[] = ['USER', 'ADMIN'];
-  constructor(private fb: FormBuilder, private route: ActivatedRoute,
+  constructor(private fb: FormBuilder, private route: ActivatedRoute,private countryService: CountryService,
               private userService: UserService, private router: Router,private authService: AuthService,   private snackBar: MatSnackBar,private loaderService: LoaderService) {
     const nav = this.router.getCurrentNavigation();
     this.emailId = nav?.extras.state?.['email'] ?? '';
@@ -63,13 +67,19 @@ export class EditUserComponent implements OnInit {
       profile: this.fb.group({
         firstName: ['', Validators.required],
         lastName: ['', Validators.required],
-        phoneNumber: ['', [Validators.pattern(/^\+?[\d\s-()]+$/)]],
-        street: [''],
-        city: [''],
-        state: [''],
-        country: [''],
-        pincode: ['', [Validators.pattern(/^[A-Za-z0-9\s-]{3,10}$/)]]
+        phoneNumber: ['', [Validators.required,Validators.pattern(/^\+?[\d\s-()]+$/)]],
+        street: ['',[Validators.required]],
+        city: ['',[Validators.required]],
+        state: ['',[Validators.required]],
+        country: ['',[Validators.required]],
+        pincode: ['', [Validators.required,Validators.pattern(/^[A-Za-z0-9\s-]{3,10}$/)]]
       })
+    });
+    this.getCountriesFronPublicAPI();
+  }
+  private getCountriesFronPublicAPI() {
+    this.countryService.getCountries().subscribe(data => {
+      this.countries = data.map(c => c.name).sort();
     });
   }
 

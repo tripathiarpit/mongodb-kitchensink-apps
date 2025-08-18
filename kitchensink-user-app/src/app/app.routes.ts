@@ -9,51 +9,60 @@ import { ForgotPasswordComponent } from './features/auth/reset-password/forgot-p
 import { UserDetailsComponent } from './features/users/components/user-details/user-details.component';
 import { EditUserComponent } from './features/users/components/edit-user/edit-user.component';
 import { AccessDeniedComponent } from './features/auth/access-denied/access-denied.component';
-import {EditProfileComponent} from './features/users/components/edit-profile/edit-profile.component';
-import {AccessGuard} from './core/services/AccessGaurd';
-import {AppSettingsComponent} from './shared/common-components/app-settings-component/app-settings-component';
-import {AdminDashboardComponent} from './features/dashboard-stats/dashboard-stat.component';
+import { EditProfileComponent } from './features/users/components/edit-profile/edit-profile.component';
+import { AccessGuard } from './core/services/AccessGaurd';
+import { AppSettingsComponent } from './shared/common-components/app-settings-component/app-settings-component';
+import { AdminDashboardComponent } from './features/dashboard-stats/dashboard-stat.component';
+import { PublicGuard } from './core/services/PublicGuard';
+import {AdminDashboardGuard} from './core/services/AdminDashboardGuard';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
-    pathMatch: 'full'
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
   },
 
-  // Public routes
+  // Public routes, protected by PublicGuard to prevent authenticated users from navigating back.
   {
     path: 'login',
     component: LoginComponent,
-    title: 'Login Page'
+    title: 'Login Page',
+    canActivate: [PublicGuard],
   },
   {
     path: 'signup',
     component: SignupComponent,
-    title: 'Signup Page'
+    title: 'Signup Page',
+    canActivate: [PublicGuard],
   },
   {
     path: 'forgot-password',
     component: ForgotPasswordComponent,
-    title: 'Forgot Password'
+    title: 'Forgot Password',
+    canActivate: [PublicGuard],
   },
   {
     path: 'access-denied',
     component: AccessDeniedComponent,
-    title: 'Access Denied'
+    title: 'Access Denied',
   },
 
+  // Protected Dashboard route and its children. AuthGuard checks for session.
   {
     path: 'dashboard',
     component: DashboardComponent,
     canActivate: [AuthGuard],
-    title: 'Dashboard',
-    data: { allowedRoles: ['ADMIN','USER'] },
     children: [
       {
         path: '',
-        redirectTo: 'admin',
+        redirectTo: 'user-details', // Keep the redirect for direct dashboard access
         pathMatch: 'full'
+      },
+      {
+        path: 'admin-landing',
+        canActivate: [AdminDashboardGuard],
+        component: AdminDashboardComponent
       },
       {
         path: 'admin',
@@ -65,6 +74,8 @@ export const routes: Routes = [
       {
         path: 'user-management',
         component: UserListComponent,
+        canActivate: [AccessGuard],
+        data: { allowedRoles: ['ADMIN'] },
         title: 'User Management'
       },
       {
@@ -72,28 +83,33 @@ export const routes: Routes = [
         component: EditUserComponent,
         canActivate: [AccessGuard],
         data: { allowedRoles: ['ADMIN'] },
-        title: 'Edit User'
+        title: 'Edit User',
       },
       {
         path: 'edit-user',
         component: EditUserComponent,
         canActivate: [AccessGuard],
         data: { allowedRoles: ['ADMIN'] },
-        title: 'Edit User'
+        title: 'Edit User',
       },
       {
         path: 'edit-profile/:email',
         component: EditProfileComponent,
         canActivate: [AccessGuard],
-        data: { allowedRoles: ['ADMIN','USER'] },
-        title: 'Edit User'
+        data: { allowedRoles: ['ADMIN', 'USER'] },
+        title: 'Edit Profile',
       },
       {
         path: 'edit-profile',
         component: EditProfileComponent,
         canActivate: [AccessGuard],
-        data: { allowedRoles: ['ADMIN','USER'] },
-        title: 'Edit User'
+        data: { allowedRoles: ['ADMIN', 'USER'] },
+        title: 'Edit Profile',
+      },
+      {
+        path: 'user-details',
+        component: UserDetailsComponent,
+        title: 'My Profile'
       },
       {
         path: 'user-details/:id',
@@ -101,26 +117,19 @@ export const routes: Routes = [
         title: 'User Details'
       },
       {
-        path: 'user-details',
-        component: UserDetailsComponent,
-        title: 'User Details'
-      },
-      {
-        path: 'forgot-password',
-        component: ForgotPasswordComponent,
-        title: 'Forgot Password'
-      },
-      {
         path: 'settings',
         component: AppSettingsComponent,
-      }
-    ]
+        canActivate: [AccessGuard],
+        data: { allowedRoles: ['ADMIN', 'USER'] },
+        title: 'App Settings',
+      },
+    ],
   },
 
-  // 404 fallback
+  // 404 fallback - Must be the very last route in the array.
   {
     path: '**',
     component: PageNotFoundComponent,
-    title: 'Page Not Found'
-  }
+    title: 'Page Not Found',
+  },
 ];

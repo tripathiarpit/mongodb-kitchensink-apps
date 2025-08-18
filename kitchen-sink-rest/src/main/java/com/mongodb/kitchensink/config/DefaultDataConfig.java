@@ -52,7 +52,7 @@ public class DefaultDataConfig implements CommandLineRunner {
                     .firstName("Admin")
                     .lastName("User")
                     .email(adminEmail)
-                    .phoneNumber("000-000-0000")
+                    .phoneNumber("12345678")
                     .address(null)
                     .username(adminUser.getUsername())
                     .build();

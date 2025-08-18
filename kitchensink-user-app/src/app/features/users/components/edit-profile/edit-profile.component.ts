@@ -13,12 +13,14 @@ import {ForgotPasswordComponent} from '../../../auth/reset-password/forgot-passw
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {LoaderService} from '../../../../core/services/LoaderService';
 import {AppSnackbarComponent} from '../../../../shared/common-components/app-snackbar/app-snackbar';
+import {CountryService} from '../../../../core/services/CountryService';
+import {CountryFilterPipe} from '../../../../core/pipe/CountryPipe';
 
 @Component({
   selector: 'app-edit-profile',
   templateUrl: './edit-profile.component.html',
   styleUrls: ['./edit-profile.component.scss'],
-  imports: [MaterialModule, CommonModule, MatChipInput, MatSlideToggle, ReactiveFormsModule, MatChipGrid, MatChipRow,ForgotPasswordComponent]
+  imports: [MaterialModule, CommonModule, MatChipInput, MatSlideToggle, ReactiveFormsModule, MatChipGrid, MatChipRow, ForgotPasswordComponent, CountryFilterPipe]
 })
 export class EditProfileComponent implements OnInit {
   userData: User | undefined;
@@ -28,9 +30,11 @@ export class EditProfileComponent implements OnInit {
   separatorKeysCodes: number[] = [ENTER, COMMA];
   allowedRoles: string[] = ['USER', 'ADMIN'];
   isEnabledString: string = '';
+  countries: string[] = [];
+  countryFilter: string = '';
   protected showPasswordTemplate: boolean = false;
   currentUserRole='';
-  constructor(private fb: FormBuilder, private route: ActivatedRoute,
+  constructor(private fb: FormBuilder, private route: ActivatedRoute, private countryService: CountryService,
               private userService: UserService, private router: Router,private authService: AuthService,private snackBar: MatSnackBar,private loaderService: LoaderService) {
     const nav = this.router.getCurrentNavigation();
     this.emailId = nav?.extras.state?.['email'] ?? '';
@@ -74,13 +78,19 @@ export class EditProfileComponent implements OnInit {
       profile: this.fb.group({
         firstName: ['', Validators.required],
         lastName: ['', Validators.required],
-        phoneNumber: ['', [Validators.pattern(/^\+?[\d\s-()]+$/)]],
-        street: [''],
-        city: [''],
-        state: [''],
-        country: [''],
-        pincode: ['', [Validators.pattern(/^[A-Za-z0-9\s-]{3,10}$/)]]
+        phoneNumber: ['', [Validators.required,Validators.pattern(/^\+?[\d\s-()]+$/)]],
+        street: ['',[Validators.required]],
+        city: ['',[Validators.required]],
+        state: ['',[Validators.required]],
+        country: ['',[Validators.required]],
+        pincode: ['', [Validators.required,Validators.pattern(/^[A-Za-z0-9\s-]{3,10}$/)]]
       })
+    });
+    this.getCountriesFronPublicAPI();
+  }
+  private getCountriesFronPublicAPI() {
+    this.countryService.getCountries().subscribe(data => {
+      this.countries = data.map(c => c.name).sort();
     });
   }
 
@@ -132,6 +142,13 @@ export class EditProfileComponent implements OnInit {
     } catch {
       return instant;
     }
+  }
+  getAddressErrorMessage(fieldName: string): string {
+    const field = this.userForm.get(fieldName);
+    if (field?.hasError('required')) return `${fieldName} is required`;
+    if (field?.hasError('minlength')) return `${fieldName} is too short`;
+    if (field?.hasError('pattern')) return 'Please enter a valid pincode';
+    return '';
   }
 
 

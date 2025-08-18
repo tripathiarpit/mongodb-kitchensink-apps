@@ -73,7 +73,7 @@ public class DataLoader implements CommandLineRunner {
                     .firstName(faker.name().firstName())
                     .lastName(faker.name().lastName())
                     .email(user.getEmail())
-                    .phoneNumber(faker.phoneNumber().cellPhone())
+                    .phoneNumber("233456789")
                     .address(address)
                     .username(user.getUsername())
                     .build();

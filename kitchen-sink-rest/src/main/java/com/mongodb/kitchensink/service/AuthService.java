@@ -7,6 +7,7 @@ import com.mongodb.kitchensink.model.User;
 import com.mongodb.kitchensink.util.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -17,7 +18,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -52,17 +55,16 @@ public class AuthService {
     @Value("${otp.forgotPassword.ttlSeconds}")
     private long forgotPasswordTtl;
 
-    public LoginResponse login(String email, String password) throws UserAuthException, UserNotFoundException, Exception {
-        UserDto user = userService.getUserByEmail(email);
-        Authentication auth;
+    public LoginResponse login(LoginRequest loginRequest) throws UserAuthException, UserNotFoundException, Exception {
+        validateLoginRequest(loginRequest);
+        String email = loginRequest.getEmail();
+        String password = loginRequest.getPassword();
         try {
-            auth = authenticationManager.authenticate(
+
+            UserDto user = userService.getUserByEmail(email);
+            Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password)
             );
-        } catch (BadCredentialsException | DisabledException e) {
-            throw mapAuthException(e);
-        }
-
         List<String> roles = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
@@ -78,6 +80,31 @@ public class AuthService {
         }
         return new LoginResponse(true, "Login successful", token, email, auth.getName(),
                 fullName, roles, user.getAccountVerificationPending(), user.getFirstLogin());
+        }
+        catch (BadCredentialsException | DisabledException e) {
+            throw mapAuthException(e);
+        } catch (UserNotFoundException e) {
+            throw e;
+        }catch (Exception e) {
+            throw new RuntimeException("Unexpected error", e);
+        }
+
+    }
+    public void validateLoginRequest(LoginRequest loginRequest) throws InvalidRequestException, BadRequestException {
+        if (loginRequest.getPassword() == null || loginRequest.getPassword().isBlank()) {
+            throw new BadRequestException(ErrorCodes.VALIDATION_ERROR, REQ_PASSWORD);
+        }
+
+        if (loginRequest.getEmail() == null || loginRequest.getEmail().isBlank()) {
+            throw new BadRequestException(ErrorCodes.VALIDATION_ERROR, REQ_EMAIL);
+        }
+
+        if (!loginRequest.getEmail().matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")) {
+            throw new BadRequestException(ErrorCodes.VALIDATION_ERROR, INVALID_REQUEST);
+        }
+    }
+    public LoginResponse login(String email, String password) throws UserAuthException, UserNotFoundException, Exception {
+        return this.login(new LoginRequest(email, password));
     }
     public void logout(String email) throws UserAuthException, UserNotFoundException, Exception {
         UserDto user = userService.getUserByEmail(email);
@@ -194,6 +221,15 @@ public class AuthService {
                 String.format(ACCOUNT_VERIFICATION_BODY_TEMPLATE,userDto.getProfile().getFirstName()+" "+userDto.getProfile().getLastName(), otp));
     }
     public ApiResponse verifyOtpForAccountVerification(OtpRequest request) throws UserAuthException, Exception {
+        if(request== null) {
+            throw new InvalidOtpException(ErrorCodes.ACCOUNT_VERIFICATION_FAILED);
+        }
+        if(request.getEmail() == null || request.getEmail().isEmpty()) {
+            throw new InvalidOtpException(ErrorCodes.ACCOUNT_VERIFICATION_FAILED);
+        }
+        if(request.getOtp() == null || request.getOtp().isEmpty()) {
+            throw new InvalidOtpException(ErrorCodes.ACCOUNT_VERIFICATION_FAILED);
+        }
         boolean valid = otpService.verifyOtp(request.getEmail(), "ACCOUNT_VERIFICATION", request.getOtp());
         if (!valid) {
             throw new InvalidOtpException(ErrorCodes.ACCOUNT_VERIFICATION_FAILED);
@@ -201,6 +237,7 @@ public class AuthService {
         userService.activateAccount(request.getEmail(), true);
         return new ApiResponse(OTP_VERIFIED_SUCCESS, true);
     }
+
     public LoginResponse getLoginResponse(String email) {
         UserDto userDto = userService.getUserByEmail(email);
         if(!userDto.getAccountVerificationPending() && !userDto.getFirstLogin()) {

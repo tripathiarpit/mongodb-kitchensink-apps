@@ -2,6 +2,8 @@ package com.mongodb.kitchensink.constants;
 public class ErrorMessageConstants {
 private ErrorMessageConstants() {
 }
+    public static final String REQ_PASSWORD = "Password is required";
+    public static final String REQ_EMAIL = "Email is required";
     public static final String INVALID_REQUEST = "Request is invalid, try again";
     public static final String INVALID_OR_EXPIRED_SESSION = "Invalid or expired session";
     public static final String ACCOUNT_NOT_FOUND_EMAIL = "Account with this email does not exist";

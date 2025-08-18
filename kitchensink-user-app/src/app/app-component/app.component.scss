@@ -1,177 +1,112 @@
-/* CSS Variables for theming */
-:root {
-  /* Light theme variables */
-  --header-height: 56px;
-  --footer-height: 60px;
-
-  /* Colors - Light theme */
-  --primary-color: #3f51b5;
-  --primary-color-rgb: 63, 81, 181;
-  --accent-color: #ff4081;
-  --background-color: #fafafa;
-  --surface-color: #ffffff;
-  --text-color: #212121;
-  --text-secondary: #757575;
-  --border-color: #e0e0e0;
-  --header-bg: var(--primary-color);
-  --header-text: #ffffff;
-  --footer-bg: var(--surface-color);
-  --footer-text: var(--text-color);
-
-  /* Shadows */
-  --header-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --footer-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-
-  /* Spacing */
-  --content-padding: 16px;
-  --header-padding: 0 16px;
-  --footer-padding: 12px 24px;
-}
-
-/* Dark theme variables */
-.dark-theme {
-  --background-color: #121212;
-  --surface-color: #1e1e1e;
-  --text-color: #ffffff;
-  --text-secondary: #aaaaaa;
-  --border-color: #333333;
-  --header-bg: #1e1e1e;
-  --header-text: #ffffff;
-  --footer-bg: #1e1e1e;
-  --footer-text: #ffffff;
-  --header-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  --footer-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* Reset and base styles */
+/* Base layout */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
   font-family: 'Roboto', sans-serif;
+  background: var(--background-color);
+  color: var(--text-color);
+  overflow: hidden;
 }
 
-/* Host container - full viewport layout */
 :host, app-root {
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background-color: var(--background-color);
+  background: var(--background-color);
   color: var(--text-color);
 }
 
-/* Fixed Header */
+/* ===== HEADER ===== */
 .app-header {
-  position: sticky !important;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 1000;
-  height: var(--header-height) !important;
-  min-height: var(--header-height) !important;
-  max-height: var(--header-height) !important;
+  height: var(--header-height);
+  min-height: var(--header-height);
+  max-height: var(--header-height);
   line-height: var(--header-height);
-  padding: var(--header-padding) !important;
-
+  padding: var(--header-padding);
   background: var(--header-bg);
-  color: var(--header-text) !important;
+  color: var(--header-text);
   box-shadow: var(--header-shadow);
-
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-
-
-/* Header content */
+/* Logo / title */
 .app-logo {
   display: flex;
   align-items: center;
   cursor: pointer;
+  gap: 8px;
   transition: opacity 0.3s ease;
 }
-
-.app-logo:hover {
-  opacity: 0.8;
-}
-
-.app-logo-icon {
-  margin-right: 8px;
-  color: var(--header-text);
-}
-
+.app-logo:hover { opacity: 0.85; }
+.app-logo-icon { color: var(--header-text); }
 .app-title {
   font-weight: 600;
-  font-size: 20px;
-  letter-spacing: 1px;
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
   color: var(--header-text);
 }
 
-.spacer {
-  flex: 1;
-}
+.spacer { flex: 1; }
 
+/* Header actions */
 .app-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
-
 .action-btn {
   color: var(--header-text) !important;
   transition: background-color 0.3s ease;
+  border-radius: 50%;
 }
-
 .action-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.15);
 }
 
-/* Main content area - constrained between header and footer */
+/* ===== MAIN CONTENT ===== */
 .app-content {
-  margin-top: var(--header-height);
-  margin-bottom: var(--footer-height);
-  padding-top: 20px;
-  height: calc(100vh - 64px);
-  box-sizing: border-box;
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: var(--background-color);
-  min-height: calc(100vh - var(--header-height) - var(--footer-height));
-  max-height: calc(100vh - var(--header-height) - var(--footer-height));
-  overflow: hidden;
+  margin-top: var(--header-height);
+  margin-bottom: var(--footer-height);
+  background: var(--background-color);
+  height: calc(100vh - var(--header-height) - var(--footer-height));
 }
-/* Router content with controlled scrolling */
+
 .router-content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--content-padding);
-  background-color: var(--background-color);
-}
-
-/* Custom scrollbar for webkit browsers */
-.router-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.router-content::-webkit-scrollbar-track {
   background: var(--background-color);
 }
 
+/* Custom scrollbar */
+.router-content::-webkit-scrollbar {
+  width: 8px;
+}
+.router-content::-webkit-scrollbar-track {
+  background: var(--background-color);
+}
 .router-content::-webkit-scrollbar-thumb {
   background: var(--border-color);
   border-radius: 4px;
 }
-
 .router-content::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
 }
 
-/* Fixed Footer */
+/* ===== FOOTER ===== */
 .app-footer {
-  position: fixed !important;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -179,20 +114,49 @@ html, body {
   height: var(--footer-height);
   min-height: var(--footer-height);
   max-height: var(--footer-height);
-
-  background-color: var(--footer-bg);
+  background: var(--footer-bg);
   color: var(--footer-text);
   border-top: 1px solid var(--border-color);
   box-shadow: var(--footer-shadow);
   padding: var(--footer-padding);
-
-  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.9rem;
 }
 
-/* Responsive design */
+/* ===== STATES & UTILITIES ===== */
+.fade-in { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.loading-content, .error-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+.loading-content { color: var(--text-secondary); }
+.error-content {
+  flex-direction: column;
+  color: #f44336;
+  text-align: center;
+}
+.error-content mat-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.text-center { text-align: center; }
+.text-primary { color: var(--primary-color) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.bg-surface { background: var(--surface-color) !important; }
+.border-bottom { border-bottom: 1px solid var(--border-color); }
+.border-top { border-top: 1px solid var(--border-color); }
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   :root {
     --header-height: 48px;
@@ -201,99 +165,16 @@ html, body {
     --header-padding: 0 12px;
     --footer-padding: 8px 16px;
   }
-
-  .app-title {
-    font-size: 16px !important;
-  }
-
-  .app-content {
-    margin-top: var(--header-height);
-    margin-bottom: var(--footer-height);
-    min-height: calc(100vh - var(--header-height) - var(--footer-height));
-    max-height: calc(100vh - var(--header-height) - var(--footer-height));
-  }
+  .app-title { font-size: 1rem !important; }
 }
-
 @media (max-width: 480px) {
   :root {
     --content-padding: 8px;
     --header-padding: 0 8px;
   }
-
   .app-title {
-    font-size: 14px !important;
-    letter-spacing: 0.5px;
+    font-size: 0.9rem !important;
+    letter-spacing: 0.3px;
   }
-
-  .app-actions {
-    gap: 4px;
-  }
-}
-
-/* Animation classes */
-.fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Loading state */
-.loading-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  color: var(--text-secondary);
-}
-
-/* Error state */
-.error-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  color: #f44336;
-  text-align: center;
-}
-
-.error-content mat-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 16px;
-}
-
-/* Utility classes */
-.text-center {
-  text-align: center;
-}
-
-.text-primary {
-  color: var(--primary-color) !important;
-}
-
-.text-secondary {
-  color: var(--text-secondary) !important;
-}
-
-.bg-surface {
-  background-color: var(--surface-color) !important;
-}
-
-.border-bottom {
-  border-bottom: 1px solid var(--border-color);
-}
-
-.border-top {
-  border-top: 1px solid var(--border-color);
+  .app-actions { gap: 4px; }
 }

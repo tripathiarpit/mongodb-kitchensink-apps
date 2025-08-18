@@ -73,16 +73,16 @@ app-root {
   color: var(--text-color);
 }
 
-.dark-theme {
-  --background-color: #1e1e2e;
---surface-color: #2c2c3c;
---text-color: #e0e0e0;
---text-secondary: #a0a0b0;
---border-color: #3a3a4a;
-background-color: var(--background-color);
+.virbrant-theme {
+  --background-color: burlywood;
+  --surface-color: cadetblue;       /* Darker blue for cards */
+  --text-color: #ffffff;          /* Pure white */
+  --text-secondary: #ff6ec7;      /* Neon pink for accents */
+  --border-color: #9d4edd;        /* Purple border */
+
+  background-color: var(--background-color);
   color: var(--text-color);
 }
-
 /* Theme Color Variations */
 .theme-indigo {
   --primary-color: #3f51b5;
@@ -141,22 +141,23 @@ background-color: var(--background-color);
 /* Custom toolbar styling */
 .mat-toolbar {
   background-color: var(--primary-color) !important;
+  color: var(--text-color) !important;
 }
 
 /* Dark theme specific Material overrides */
-.dark-theme .mat-mdc-form-field {
+.virbrant .mat-mdc-form-field {
   color: var(--text-color) !important;
 }
 
-.dark-theme .mat-mdc-select-value {
+.virbrant .mat-mdc-select-value {
   color: var(--text-color) !important;
 }
 
-.dark-theme .mat-mdc-option {
+.virbrant .mat-mdc-option {
   color: var(--text-color) !important;
 }
 
-.dark-theme .mat-mdc-list-item {
+.virbrant .mat-mdc-list-item {
   color: var(--text-color) !important;
 }
 
@@ -197,7 +198,7 @@ background-color: var(--background-color);
     --border-color: #000000;
   }
 
-  .dark-theme {
+  .virbrant {
     --border-color: #ffffff;
   }
 }

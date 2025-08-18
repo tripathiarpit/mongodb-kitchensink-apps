@@ -1,5 +1,5 @@
 @if (showPasswordTemplate) {
-  <app-forgot-password [changingOwnPassword]="true" [currentUserEmail]="email"></app-forgot-password>
+  <app-forgot-password [changingOwnPassword]="true" [currentUserEmail]="email ? email : ''"></app-forgot-password>
 } @else {
   <div class="user-details-dialog">
     <h2 mat-dialog-title class="dialog-title">

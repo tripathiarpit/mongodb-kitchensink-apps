@@ -13,7 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
-import static com.mongodb.kitchensink.constants.ErrorMessageConstants.INVALID_OR_EXPIRED_SESSION;
+
+import static com.mongodb.kitchensink.constants.ErrorMessageConstants.*;
 import static com.mongodb.kitchensink.constants.SuccessMessageConstants.*;
 
 /**
@@ -42,8 +43,9 @@ public class AuthController {
 
     @Operation(summary = "Login user", description = "Authenticates user with email and password and returns login response including token")
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) throws Exception {
-        return ResponseEntity.ok(authService.login(loginRequest.getEmail(), loginRequest.getPassword()));
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) throws Exception {
+        authService.validateLoginRequest(loginRequest);
+        return ResponseEntity.ok(authService.login(loginRequest));
     }
 
     @Operation(summary = "Logout user", description = "Logs out the user by invalidating their session")
@@ -106,7 +108,8 @@ public class AuthController {
 
     @Operation(summary = "Get user roles by token", description = "Extracts user roles from the JWT token provided in the Authorization header")
     @GetMapping("/get-roles-by-token")
-    public ResponseEntity<List<String>> getUserRolesByToken(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<List<String>> getUserRolesByToken(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.emptyList());
@@ -115,7 +118,7 @@ public class AuthController {
             return ResponseEntity.ok(roles != null ? roles : Collections.emptyList());
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.emptyList());
         }
     }
 

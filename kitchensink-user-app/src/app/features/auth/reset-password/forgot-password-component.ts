@@ -60,7 +60,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.emailForm = this.fb.nonNullable.group({
-      email: [{ value: this.email, disabled: this.changingOwnPassword },[Validators.required, Validators.email]],
+      email: [{ value: 'arpittripathijan92@gmail.com', disabled: this.changingOwnPassword },[Validators.required, Validators.email]],
     });
 
     this.otpForm = this.fb.nonNullable.group({
@@ -237,8 +237,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     const countdownSeconds = 2;
     let remaining = countdownSeconds;
 
-
-    // Update snackbar message every second
     interval(1000)
       .pipe(take(countdownSeconds))
       .subscribe(() => {
@@ -253,7 +251,11 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   }
 
   onBackToLogin(): void {
-    this.router.navigate(['/login']);
+    if(this.authService.isLoggedIn()) {
+      this.router.navigate([this.authService.getDashboardUrl()]);
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 
 

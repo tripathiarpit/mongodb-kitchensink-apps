@@ -10,13 +10,13 @@ export class NavigationMenu {
   static menuItems: NavItem[] = [
     {
       label: 'Dashboard',
-      route: '',
+      route: 'admin-landing', // Change the route to a specific handler
       icon: 'dashboard',
-      allowedRoles: ["ADMIN"]
+      allowedRoles: ["ADMIN", "USER"] // All users can click on a dashboard link
     },
     {
       label: 'User Management',
-      route: '/user-management',
+      route: 'user-management',
       icon: 'admin_panel_settings',
       allowedRoles: ["ADMIN"]
     }

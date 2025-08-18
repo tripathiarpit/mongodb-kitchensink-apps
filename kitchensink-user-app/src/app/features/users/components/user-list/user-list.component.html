@@ -7,7 +7,7 @@
       <!-- Dropdown for search type -->
       <mat-form-field appearance="outline" style="width: 150px;">
         <mat-label>Search by</mat-label>
-        <mat-select [(value)]="searchBy">
+        <mat-select [(value)]="searchBy" (selectionChange)="onSearchSelect()">
           <mat-option value="all">All</mat-option>
           <mat-option value="name">Name</mat-option>
           <mat-option value="email">Email</mat-option>

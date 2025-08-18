@@ -13,8 +13,19 @@ public class LoginRequest {
         return password;
     }
 
+    public LoginRequest(String email) {
+        this.email = email;
+    }
+
     public String getEmail() {
         return email;
+    }
+    public LoginRequest() {
+
+    }
+    public LoginRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
     }
 
     public void setEmail(String email) {

@@ -130,7 +130,13 @@ export class UserListComponent implements OnInit, AfterViewInit {
   pageChange(event: any) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.onSearch();
+    if(this.searchQuery?.length > 0) {
+      this.onSearch();
+    } else{
+      this.pageSize = 5;
+      this.loadUsers()
+    }
+
   }
   resetTable(): void {
     this.dataSource.data = [];
@@ -178,6 +184,9 @@ export class UserListComponent implements OnInit, AfterViewInit {
     });
   }
   onSearch(): void {
+    if( this.searchBy !=='all')
+    this.pageSize = this.searchQuery.length == 0 ? 5: 100;
+
     switch (this.searchBy) {
       case 'name':
         this.searchByName();
@@ -200,7 +209,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   searchByName() {
     this.loaderService.show();
     this.resetTable();
-    this.userService.getUserByName(this.searchQuery, 0, 100, this.sortBy, this.sortDirection).subscribe({
+    this.userService.getUserByName(this.searchQuery, 0,  this.pageSize , this.sortBy, this.sortDirection).subscribe({
       next: (res) => {
         if(res?.content?.length>0) {
           this.dataSource.data = res.content;
@@ -208,7 +217,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
           this.table.renderRows();
         } else {
           this.dataSource.data = [];
-          this.showMessage("No results found");
+          this.showMessage("No results found with "+ this.searchBy+ " and value ="+ this.searchQuery);
         }
         this.loaderService.hide();
       },
@@ -224,14 +233,14 @@ export class UserListComponent implements OnInit, AfterViewInit {
   searchByCity() {
     this.loaderService.show();
     this.dataSource = new MatTableDataSource<User>();
-    this.userService.getUserByCity(this.searchQuery, 0, 100, this.sortBy, this.sortDirection).subscribe({
+    this.userService.getUserByCity(this.searchQuery, 0, this.pageSize, this.sortBy, this.sortDirection).subscribe({
       next: (res) => {
         if(res?.content?.length>0) {
           this.dataSource.data = res.content;
           this.totalRecords = res.totalElements as number;
           this.table.renderRows();
         } else {
-          this.showMessage("No results found");
+          this.showMessage("No results found with "+ this.searchBy+ " and value ="+ this.searchQuery);
         }
         this.loaderService.hide();
       },
@@ -239,21 +248,21 @@ export class UserListComponent implements OnInit, AfterViewInit {
         this.loaderService.hide();
         this.dataSource.data = [];
         let errorMessage = err.error.message ;
-        this.showMessage(errorMessage + ":"+this.searchQuery);
+        this.showMessage("No results found with "+ this.searchBy+ " and value ="+ this.searchQuery);
       }
     });
   }
   searchByEmail() {
     this.loaderService.show();
     this.resetTable();
-    this.userService.searchByEmail(this.searchQuery,0, 100, this.sortBy, this.sortDirection).subscribe({
+    this.userService.searchByEmail(this.searchQuery,0, this.pageSize, this.sortBy, this.sortDirection).subscribe({
       next: (res) => {
         if(res?.content?.length>0) {
           this.dataSource.data = res.content;
           this.totalRecords = res.totalElements as number;
           this.table.renderRows();
         } else {
-          this.showMessage("No results found with this email: "+ this.searchQuery);
+          this.showMessage("No results found with "+ this.searchBy+ " and value ="+ this.searchQuery);
         }
         this.loaderService.hide();
       },
@@ -267,14 +276,14 @@ export class UserListComponent implements OnInit, AfterViewInit {
   searchByCountry() {
     this.loaderService.show();
     this.resetTable();
-    this.userService.searchByCountry(this.searchQuery, 0, 100, this.sortBy, this.sortDirection).subscribe({
+    this.userService.searchByCountry(this.searchQuery, 0, this.pageSize, this.sortBy, this.sortDirection).subscribe({
       next: (res) => {
         if(res?.content?.length>0) {
           this.dataSource.data = res.content;
           this.totalRecords = res.totalElements as number;
           this.table.renderRows();
         } else {
-          this.showMessage("No results found");
+          this.showMessage("No results found with "+ this.searchBy+ " and value ="+ this.searchQuery);
         }
         this.loaderService.hide();
       },
@@ -339,7 +348,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   }
   download() {
     this.loaderService.show();
-    this.userService.downloadUsers(this.pageIndex, this.pageSize, this.sortBy, this.sortDirection).subscribe((blob: Blob) => {
+    this.userService.downloadUsers(this.pageIndex, this.totalRecords, this.sortBy, this.sortDirection).subscribe((blob: Blob) => {
       this.loaderService.hide();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -352,5 +361,11 @@ export class UserListComponent implements OnInit, AfterViewInit {
     }, error => {
       this.loaderService.hide();
     });
+  }
+  onSearchSelect():void{
+    this.searchQuery ='';
+    if(this.searchBy =='all') {
+      this.pageSize = 5;
+    }
   }
 }

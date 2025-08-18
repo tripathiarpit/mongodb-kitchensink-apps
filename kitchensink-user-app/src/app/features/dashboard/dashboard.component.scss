@@ -1,324 +1,214 @@
-/* Prevent horizontal scroll on root */
-html, body {
-  overflow-x: hidden;
-  width: 100%;
-  margin: 0;
-  padding: 0;
+:root {
+  /* Core theme colors */
+  /* Borders & shadows */
+  --border-color: #e5e7eb;
+  --elevation-1: 0 2px 6px rgba(0, 0, 0, 0.08);
+
+  /* Sizes */
+  --dashboard-header-height: 64px;
+  --base-font-size: 14px;
+  --border-radius: 12px;
 }
 
+/* Container */
 .dashboard-container {
   display: flex;
-  flex-direction: row;
-  height: 100vh; /* full viewport height */
-  overflow: hidden; /* prevent whole-page scroll */
+  height: 100vh;
+  background: var(--background-color);
 }
 
-/* Fixed width sidenav */
+/* Sidenav */
 .dashboard-sidenav {
   width: 250px;
-  margin-top: 30px;
-  flex-shrink: 0;
-  background: var(--header-bg);
-  background-color: var(--primary-color) !important;
+  background: var(--surface-color);
+  color: var(--text-color);
   display: flex;
   flex-direction: column;
-  padding: 4rem 0;
-  box-shadow: 3px 0 8px rgba(0, 0, 0, 0.15);
+  padding: 1rem 0;
+  box-shadow: 3px 0 12px rgba(0, 0, 0, 0.08);
+  border-right: 1px solid var(--border-color);
+  transition: width 0.3s ease;
 }
 
-.sidenav-footer {
-  padding: 16px 8px;
-  border-top: 1px solid var(--border-color);
-  flex-shrink: 0;
-
-  .settings-btn {
-    width: 100%;
-    font-weight: 600;
-    margin-bottom: 8px;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    color: var(--text-color) !important;
-
-    &:hover {
-      background-color: rgba(var(--primary-color-rgb), 0.1);
-    }
-
-    &.compact {
-      min-width: 48px;
-      padding: 8px;
-    }
-
-    .menu-icon {
-      color: var(--text-secondary) !important;
-    }
-  }
-
-  .logout-btn {
-    width: 100%;
-    font-weight: 600;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background-color: rgba(244, 67, 54, 0.1);
-      color: #f44336;
-    }
-
-    &.compact {
-      min-width: 48px;
-      padding: 8px;
-
-      span {
-        display: none;
-      }
-    }
-  }
+.dashboard-sidenav.collapsed {
+  width: 70px;
 }
 
-.dashboard-sidenav .nav-menu {
-  flex-grow: 1;
-}
-
+/* Navigation items */
 .dashboard-sidenav a.mat-list-item {
-  color: white;
-  font-weight: 600;
-  font-size: 1.1rem;
-  padding: 0.75rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  border-radius: var(--border-radius);
+  margin: 0.25rem 0.75rem;
+  padding: 0.75rem 1rem;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
-.dashboard-sidenav a.mat-list-item:hover,
-.dashboard-sidenav a.mat-list-item.active-item {
-  background: #5c6bc0; /* lighter indigo */
+.dashboard-sidenav a.mat-list-item:hover {
+  background: rgba(var(--primary-color-rgb), 0.08);
+  color: var(--primary-color);
+}
+
+.dashboard-sidenav a.active-item {
+  background: rgba(var(--primary-color-rgb), 0.15);
+  color: var(--primary-color);
+  font-weight: 600;
 }
 
 .dashboard-sidenav .menu-icon {
-  font-size: 24px;
-  color: #ff4081; /* pink accent */
+  font-size: 22px;
+  color: var(--text-secondary);
 }
 
-.dashboard-sidenav .sidenav-footer {
-  padding: 1rem 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  text-align: center;
+/* Footer buttons */
+.sidenav-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
 }
 
-.dashboard-sidenav .logout-btn {
+.settings-btn,
+.logout-btn {
   width: 100%;
-  font-weight: 700;
-  color: #ff4081;
+  display: flex;
+  align-items: center;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.settings-btn:hover {
+  background: rgba(var(--primary-color-rgb), 0.08);
+  color: var(--primary-color);
+}
+
+.logout-btn {
+  color: var(--secondary-color);
   justify-content: center;
 }
 
-.dashboard-sidenav .logout-btn mat-icon {
-  margin-right: 0.5rem;
+.logout-btn:hover {
+  background: rgba(var(--secondary-color-rgb), 0.08);
 }
-
-.dashboard-sidenav .logout-btn:hover {
-  background: rgba(255, 64, 129, 0.2);
-}
-
 
 .dashboard-header {
-  background: var(--header-bg);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: var(--elevation-1);
-  color: var(--text-color);
-  padding: 8px 24px;
-  height: var(--dashboard-header-height);
-  min-height: var(--dashboard-header-height);
-  max-height: var(--dashboard-header-height);
-  flex-shrink: 0;
+  position: sticky; /* stays at the top when scrolling */
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1000;
+
+  height: var(--header-height);
+  min-height: var(--header-height);
+  max-height: var(--header-height);
+
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: var(--header-padding);
 
-  .menu-toggle {
-    color: var(--text-color);
-    margin-right: 16px;
-  }
-
-  .page-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: calc(var(--base-font-size) + 4px);
-    font-weight: 600;
-    color: var(--text-color);
-  }
-
-  .title-icon {
-    color: var(--primary-color);
-  }
-
-  .spacer {
-    flex: 1;
-  }
-
-  .toolbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .role-badge {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(var(--primary-color-rgb), 0.15);
-    color: var(--primary-color);
-    padding: 4px 8px;
-    border-radius: 16px;
-    font-size: calc(var(--base-font-size) - 2px);
-    font-weight: 600;
-
-    mat-icon {
-      font-size: 14px;
-      width: 14px;
-      height: 14px;
-    }
-  }
-
+  background-color: var(--header-bg);
+  color: var(--header-text);
+  box-shadow: var(--header-shadow);
 }
+
+.dashboard-header .page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.title-icon {
+  margin-right: 8px;
+  color: var(--header-text);
+}
+
+/* Spacer pushes actions to right */
+.spacer {
+  flex: 1;
+}
+
+/* Actions on right */
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+}
+
+.role-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9rem;
+  color: var(--header-text);
+  background: rgba(var(--primary-color-rgb), 0.1);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+.profile-btn {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 500;
+  transition: background-color 0.3s, color 0.3s;
+
+  mat-icon {
+    margin-right: 6px;
+    color: inherit; /* inherit contrast */
+  }
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+}
+/* Content */
 .dashboard-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: var(--background-color);
-  height: 100%;
-  overflow: hidden;
-
-  // Override Material sidenav content
-  &.mat-sidenav-content {
-    background-color: var(--background-color);
-    color: var(--text-color);
-  }
-}
-
-
-.mat-sidenav-content {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow-x: hidden;
-  background: #f5f7fa;
-  margin-top: 30px;
-}
-
-.toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.top-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #3f51b5;
-  color: white;
-  display: flex;
-  align-items: center;
-  padding: 0 1rem;
-}
-
-.top-toolbar button {
-  color: white;
-}
-
-.top-toolbar .page-title {
-  margin-left: 1rem;
-  font-size: 1.3rem;
-  font-weight: 600;
-}
-
-.top-toolbar .spacer {
-  flex: 1 1 auto;
+  background: var(--background-color);
 }
 
 .dashboard-main {
-  flex: 1;                 /* take remaining space */
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+/* Welcome card */
+.welcome-card {
+  border-radius: var(--border-radius);
+  box-shadow: var(--elevation-1);
+  background: var(--surface-color);
+  background: transparent;
+  box-shadow: none; // cleaner look
   display: flex;
-  flex-direction: column;
-  height: 100%;             /* fill container height */
-  overflow-y: auto;         /* enable vertical scrolling */
-  position: relative;       /* stays in place */
-}
-/* Footer styling */
-.dashboard-footer {
-  background: white;
-  padding: 1rem 2rem;
+  justify-content: center;   /* Centers text horizontally */
+  align-items: center;       /* Centers vertically (if multi-line) */
+  font-size: 2rem;           /* Bigger font size */
+  font-weight: 600;          /* Bold */
   text-align: center;
-  box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.1);
-  font-size: 0.9rem;
-  color: #666;
-  flex-shrink: 0;
+  padding: 1.5rem;
+  margin: 1rem 0;
 }
-/* Reset problematic negative margins in MDC list items */
-.mdc-list-item--with-two-lines .mdc-list-item__primary-text,
-.mdc-list-item--with-three-lines .mdc-list-item__primary-text {
-  margin-bottom: 0 !important;
-  line-height: 1.2;
+.page-heading {
+  font-size: 2rem;       // Bigger
+  font-weight: 600;      // Bold
+  text-align: left;      // Start from left
+  margin: 0;
+  color: var(--text-color); // uses theme color
 }
-
-/* If you use Bootstrap rows inside, remove their negative margin */
-.row {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-}
-
+/* Footer */
 .dashboard-footer {
-  flex-shrink: 0; // Keep footer height fixed
-}
-
-@media (max-width: 768px) {
-  :root {
-    --dashboard-header-height: 44px;
-    --sidenav-width: 250px;
-    --sidenav-collapsed-width: 60px;
-  }
-
-  .dashboard-header {
-    padding: 8px 16px;
-  }
-
-  .dashboard-main {
-    padding: 12px;
-  }
-
-  .toolbar-actions {
-    .profile-text {
-      display: none;
-    }
-
-    .role-badge {
-      font-size: calc(var(--base-font-size) - 3px);
-      padding: 2px 6px;
-    }
-  }
-
-  .page-title {
-    font-size: calc(var(--base-font-size) + 2px) !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .dashboard-header {
-    padding: 8px 12px;
-  }
-
-  .dashboard-main {
-    padding: 8px;
-  }
-
-  .role-badge {
-    display: none;
-  }
-
-  .brand-text {
-    font-size: 14px;
-  }
+  background: var(--surface-color);
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
 }
