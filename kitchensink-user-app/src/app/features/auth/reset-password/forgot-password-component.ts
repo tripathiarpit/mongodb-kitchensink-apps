@@ -60,7 +60,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.emailForm = this.fb.nonNullable.group({
-      email: [{ value: 'arpittripathijan92@gmail.com', disabled: this.changingOwnPassword },[Validators.required, Validators.email]],
+      email: [{ value: '', disabled: this.changingOwnPassword },[Validators.required, Validators.email]],
     });
 
     this.otpForm = this.fb.nonNullable.group({
