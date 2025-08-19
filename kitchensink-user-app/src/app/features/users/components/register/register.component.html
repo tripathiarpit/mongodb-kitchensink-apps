@@ -283,7 +283,14 @@
       </mat-card-header>
       <mat-card-content>
         <p class="rainbow-text">{{ successMessage }}</p>
-        <p class="rainbow-text">You will be redirected to login in a few seconds...</p>
+        <p class="rainbow-text">You will be redirected to login in a few seconds... If not press login to continue</p>
+
+        <button mat-raised-button
+                color="primary"
+                (click)="gotoLogin()"
+                class="next-btn">
+         Login
+        </button>
       </mat-card-content>
     </mat-card>
   </div>

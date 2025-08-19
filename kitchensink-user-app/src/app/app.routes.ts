@@ -34,13 +34,13 @@ export const routes: Routes = [
     path: 'signup',
     component: SignupComponent,
     title: 'Signup Page',
-    canActivate: [PublicGuard],
+    canActivate: [],
   },
   {
     path: 'forgot-password',
     component: ForgotPasswordComponent,
     title: 'Forgot Password',
-    canActivate: [PublicGuard],
+    canActivate: [],
   },
   {
     path: 'access-denied',

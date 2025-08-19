@@ -13,7 +13,7 @@ export class PublicGuard implements CanActivate {
     return this.authService.validateSession().pipe(
       map(isLoggedIn => {
         if (isLoggedIn) {
-          //return this.router.createUrlTree(['/dashboard']);
+          return this.router.createUrlTree(['/dashboard']);
         }
         return true;
       })

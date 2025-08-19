@@ -21,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 /**
@@ -229,6 +230,11 @@ public class UserController {
 
         Page<UserDto> pages = userService.getAllUsers(pageable);
         List<UserDto> users = pages.getContent();
+        return downloadFileService.generateUserExcel(users);
+    }
+    @GetMapping("/download-by-fetched-results")
+    public ResponseEntity<byte[]> downloadUsersbyEmails(@RequestParam()ArrayList<String> emailIds) {
+        List<UserDto> users = userService.getAllUsersByEmailIds(emailIds);
         return downloadFileService.generateUserExcel(users);
     }
 

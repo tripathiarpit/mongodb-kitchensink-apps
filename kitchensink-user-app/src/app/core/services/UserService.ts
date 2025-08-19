@@ -92,4 +92,23 @@ export class UserService {
       params: params
     });
   }
+  downloadUsersByEmailId(emailIds: string[]): Observable<Blob> {
+    if (!emailIds || emailIds.length === 0) {
+      return new Observable<Blob>(observer => {
+        observer.error('No email IDs provided.');
+        observer.complete();
+      });
+    }
+
+    let params = new HttpParams();
+    emailIds.forEach(email => {
+      params = params.append('emailIds', email);
+    });
+    return this.http.get(`${this.apiUrl}/download-by-fetched-results`, {
+      responseType: 'blob', // Important: specify blob for file downloads
+      params: params
+    });
+  }
+
+
 }

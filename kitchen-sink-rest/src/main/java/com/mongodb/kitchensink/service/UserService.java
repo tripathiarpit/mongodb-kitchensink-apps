@@ -25,8 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.mongodb.kitchensink.constants.AppContants.ACCOUNT_VERIFICATION;
 import static com.mongodb.kitchensink.constants.SuccessMessageConstants.*;
@@ -114,6 +116,22 @@ public class UserService {
                     dto.setProfile(profile != null ? userMapper.toDto(profile) : null);
                     return dto;
                 });
+    }
+    public List<UserDto> getAllUsersByEmailIds(ArrayList<String> emailIds) {
+        if (emailIds == null || emailIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<User> users = userRepository.findByEmailIn(emailIds);
+        List<UserDto> userDtos = users.stream()
+                .map(user -> {
+                    Optional<Profile> profileOptional = profileRepository.findByEmail(user.getEmail());
+                    UserDto dto = userMapper.toDto(user);
+                    profileOptional.ifPresent(profile -> dto.setProfile(userMapper.toDto(profile)));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return userDtos;
     }
 
     public UserDto getUserById(String id) {

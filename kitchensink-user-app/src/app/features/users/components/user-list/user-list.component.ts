@@ -48,7 +48,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   pageIndex: number = 0;
   sortBy: string = 'username';
   filterValue: string = '';
-
+  selectedEmailsForDownload: string[] = [];
   @ViewChild(MatSort, {static: false}) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatTable) table!: MatTable<any>;
@@ -96,6 +96,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
           if(data?.content?.length>0) {
             this.dataSource.data = data.content;
             this.totalRecords = data.totalElements as number;
+            this.extractAndPrepareForDownload();
           } else {
             this.showMessage("No results found");
           }
@@ -215,6 +216,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
           this.dataSource.data = res.content;
           this.totalRecords = res.totalElements as number;
           this.table.renderRows();
+          this.extractAndPrepareForDownload();
         } else {
           this.dataSource.data = [];
           this.showMessage("No results found with "+ this.searchBy+ " and value ="+ this.searchQuery);
@@ -239,6 +241,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
           this.dataSource.data = res.content;
           this.totalRecords = res.totalElements as number;
           this.table.renderRows();
+          this.extractAndPrepareForDownload();
         } else {
           this.showMessage("No results found with "+ this.searchBy+ " and value ="+ this.searchQuery);
         }
@@ -261,6 +264,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
           this.dataSource.data = res.content;
           this.totalRecords = res.totalElements as number;
           this.table.renderRows();
+          this.extractAndPrepareForDownload();
         } else {
           this.showMessage("No results found with "+ this.searchBy+ " and value ="+ this.searchQuery);
         }
@@ -282,6 +286,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
           this.dataSource.data = res.content;
           this.totalRecords = res.totalElements as number;
           this.table.renderRows();
+          this.extractAndPrepareForDownload();
         } else {
           this.showMessage("No results found with "+ this.searchBy+ " and value ="+ this.searchQuery);
         }
@@ -348,7 +353,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   }
   download() {
     this.loaderService.show();
-    this.userService.downloadUsers(this.pageIndex, this.totalRecords, this.sortBy, this.sortDirection).subscribe((blob: Blob) => {
+    this.userService.downloadUsersByEmailId(this.selectedEmailsForDownload).subscribe((blob: Blob) => {
       this.loaderService.hide();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -362,6 +367,14 @@ export class UserListComponent implements OnInit, AfterViewInit {
       this.loaderService.hide();
     });
   }
+  extractAndPrepareForDownload(): void {
+    if (this.dataSource.data && this.dataSource.data.length > 0) {
+      this.selectedEmailsForDownload = this.dataSource.data.map(user => user.email) as [];
+    } else {
+      this.selectedEmailsForDownload = [];
+    }
+  }
+
   onSearchSelect():void{
     this.searchQuery ='';
     if(this.searchBy =='all') {

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<User, String> {
@@ -22,4 +23,5 @@ public interface UserRepository extends MongoRepository<User, String> {
     long countByIsFirstLoginTrue();
     long countByRolesContaining(String role);
     long countByCreatedAtAfter(Instant date);
+    List<User> findByEmailIn(List<String> emails);
 }

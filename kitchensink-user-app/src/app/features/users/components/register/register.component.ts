@@ -188,10 +188,9 @@ export class SignupComponent implements OnInit {
             this.registrationSuccess = true;
             this.successMessage = res.message;
             this.loader.hide();
-            // Redirect after 3 seconds
             setTimeout(() => {
               this.router.navigate(['/login']);
-            }, 3000);
+            }, 10000);
           } else {
             this.registrationSuccess = false;
             this.errorMessage = res.message;
@@ -210,7 +209,9 @@ export class SignupComponent implements OnInit {
       this.markFormGroupTouched(this.addressForm);
     }
   }
-
+protected gotoLogin() {
+  this.router.navigate(['/login']);
+}
 
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach(key => {
