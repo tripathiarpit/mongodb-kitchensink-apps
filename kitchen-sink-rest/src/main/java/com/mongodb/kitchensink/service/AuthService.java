@@ -265,4 +265,7 @@ public class AuthService {
     }
 
 
+    public void saveApplicationSettingsAndApply(ApplicationSettingsPayload payload) {
+        this.sessionService.saveApplicationSettingsAndApply(payload);
+    }
 }

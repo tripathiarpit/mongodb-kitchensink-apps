@@ -339,17 +339,15 @@ export class AuthService {
     );
   }
 
-  /**
-   * Fetches login response after OTP verification.
-   * Used for scenarios where a new login response is needed post-verification.
-   * @param email User's email.
-   * @returns An Observable of the LoginResponse.
-   */
   fetchLoginResponseAfterOtpVerification(email: string): Observable<LoginResponse> {
     return this.http.get<LoginResponse>(`/api/auth/get-login-response-after-otp-verification`,
       {
         headers: { email }
       });
+  }
+  saveApplicationSettings(payload: ApplicationSettingsPayload): Observable<any> {
+    console.log('Sending settings payload:', payload);
+    return this.http.post<any>('/api/auth/save-app-settings', payload);
   }
 
 }

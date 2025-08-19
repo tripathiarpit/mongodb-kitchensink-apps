@@ -15,6 +15,7 @@ import { AppSettingsComponent } from './shared/common-components/app-settings-co
 import { AdminDashboardComponent } from './features/dashboard-stats/dashboard-stat.component';
 import { PublicGuard } from './core/services/PublicGuard';
 import {AdminDashboardGuard} from './core/services/AdminDashboardGuard';
+import {AppResourceSettingsComponent} from './features/app-settings/app-resource-settings';
 
 export const routes: Routes = [
   {
@@ -122,6 +123,13 @@ export const routes: Routes = [
         path: 'settings',
         component: AppSettingsComponent,
         title: 'App Settings',
+      },
+      {
+        path: 'resource-settings',
+        component: AppResourceSettingsComponent,
+        title: 'Resource Settings',
+        canActivate: [AuthGuard],
+        data: { allowedRoles: ['ADMIN'] },
       },
     ],
   },

@@ -1,0 +1,354 @@
+<!-- app-settings.component.html -->
+
+<!-- Load Bootstrap CSS (replace with your preferred way if already loaded globally) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Load Material Icons for Angular Material -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<div class="container my-5">
+  <mat-card class="settings-card shadow rounded-lg p-4">
+    <mat-card-title class="text-center mb-4">
+      <mat-icon color="primary" class="align-middle me-2">settings</mat-icon>
+      Application Settings
+    </mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="row g-3">
+
+        <!-- Session Expiry Time Configuration -->
+        <div class="col-12 mb-4 setting-group">
+          <h5 class="setting-title d-flex align-items-center">
+            <mat-icon class="me-2 text-warning">timer</mat-icon>
+            Session Expiry Time
+          </h5>
+          <div class="row align-items-start">
+
+            <div class="col-lg-4 col-md-6 col-12 mb-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Days</mat-label>
+                <input matInput type="number"  formControlName="days" min="0" max="30" required
+
+                       [value]="settingsForm.get('days')?.value"
+                       (input)="settingsForm.get('days')?.setValue(settingsForm.get('days')?.value)"
+
+                >
+                @if (settingsForm.get('days')?.hasError('required')) {
+                  <mat-error>Hours is required</mat-error>
+                } @else if (settingsForm.get('days')?.hasError('min')) {
+                  <mat-error>Hours must be at least 0</mat-error>
+                } @else if (settingsForm.get('days')?.hasError('max')) {
+                  <mat-error>Days must not exceed 30</mat-error>
+                }
+              </mat-form-field>
+              <div class="px-3 pb-3">
+                <mat-slider
+                  class="w-100"
+                  min="0"
+                  max="30"
+                  step="1"
+                  showTickMarks
+                  discrete>
+                  <input matSliderThumb formControlName="days">
+                </mat-slider>
+              </div>
+            </div>
+            <!-- Hours Input -->
+            <div class="col-lg-4 col-md-6 col-12 mb-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Hours</mat-label>
+                <input matInput type="number"  formControlName="sessionExpiryHours" min="0" max="24" required
+
+                       [value]="settingsForm.get('sessionExpiryHours')?.value"
+                       (input)="settingsForm.get('sessionExpiryHours')?.setValue(settingsForm.get('sessionExpiryHours')?.value)"
+
+                >
+                @if (settingsForm.get('sessionExpiryHours')?.hasError('required')) {
+                  <mat-error>Hours is required</mat-error>
+                } @else if (settingsForm.get('sessionExpiryHours')?.hasError('min')) {
+                  <mat-error>Hours must be at least 0</mat-error>
+                } @else if (settingsForm.get('sessionExpiryHours')?.hasError('max')) {
+                  <mat-error>Hours must not exceed 24</mat-error>
+                }
+              </mat-form-field>
+              <div class="px-3 pb-3">
+                <mat-slider
+                  class="w-100"
+                  min="0"
+                  max="24"
+                  step="1"
+                  showTickMarks
+                  discrete>
+                  <input matSliderThumb formControlName="sessionExpiryHours">
+                </mat-slider>
+              </div>
+            </div>
+            <!-- Minutes Input -->
+            <div class="col-lg-4 col-md-6 col-12 mb-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Minutes</mat-label>
+                <input matInput type="number" formControlName="sessionExpiryMinutes" min="0" max="59" required
+
+                       [value]="settingsForm.get('sessionExpiryMinutes')?.value"
+                       (input)="settingsForm.get('sessionExpiryMinutes')?.setValue(settingsForm.get('sessionExpiryMinutes')?.value)"
+                       >
+
+                @if (settingsForm.get('sessionExpiryMinutes')?.hasError('required')) {
+                  <mat-error>Minutes is required</mat-error>
+                } @else if (settingsForm.get('sessionExpiryMinutes')?.hasError('min') || settingsForm.get('sessionExpiryMinutes')?.hasError('max')) {
+                  <mat-error>Minutes must be between 0 and 59</mat-error>
+                }
+              </mat-form-field>
+              <div class="px-3 pb-3">
+                <mat-slider
+                  class="w-100"
+                  min="0"
+                  max="59"
+                  step="1"
+                  showTickMarks="false"
+                  discrete>
+                  <input matSliderThumb formControlName="sessionExpiryMinutes">
+                </mat-slider>
+              </div>
+            </div>
+            <!-- Seconds Input -->
+            <div class="col-lg-4 col-md-6 col-12 mb-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Seconds</mat-label>
+                <input matInput type="number" formControlName="sessionExpirySeconds" min="0" max="59" required
+                       [value]="settingsForm.get('sessionExpirySeconds')?.value"
+                       (input)="settingsForm.get('sessionExpirySeconds')?.setValue(settingsForm.get('sessionExpirySeconds')?.value)"
+                >
+                @if (settingsForm.get('sessionExpirySeconds')?.hasError('required')) {
+                  <mat-error>Seconds is required</mat-error>
+                } @else if (settingsForm.get('sessionExpirySeconds')?.hasError('min') || settingsForm.get('sessionExpirySeconds')?.hasError('max')) {
+                  <mat-error>Seconds must be between 0 and 59</mat-error>
+                }
+              </mat-form-field>
+              <div class="px-3 pb-3">
+                <mat-slider
+                  class="w-100"
+                  min="0"
+                  max="59"
+                  step="1"
+                  showTickMarks="false"
+                  discrete>
+                  <input matSliderThumb formControlName="sessionExpirySeconds">
+                </mat-slider>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center mb-3">
+            <mat-icon color="primary" class="me-2 display-6">schedule</mat-icon>
+            <span class="fs-5 fw-bold text-dark">
+            Total Session Time: {{ getFormattedTime('session') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Forgot Password OTP Expiry Time Configuration -->
+        <div class="col-12 mb-4 setting-group">
+          <h5 class="setting-title d-flex align-items-center">
+            <mat-icon class="me-2 text-info">lock_reset</mat-icon>
+            Forgot Password OTP Expiry Time
+          </h5>
+          <div class="row align-items-start">
+            <!-- Hours Input -->
+            <div class="col-lg-4 col-md-6 col-12 mb-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Hours</mat-label>
+                <input matInput type="number" formControlName="forgotOtpExpiryHours" min="0" max="24" required
+                       [value]="settingsForm.get('forgotOtpExpiryHours')?.value"
+                       (input)="settingsForm.get('forgotOtpExpiryHours')?.setValue(settingsForm.get('forgotOtpExpiryHours')?.value)"
+                >
+                @if (settingsForm.get('forgotOtpExpiryHours')?.hasError('required')) {
+                  <mat-error>Hours is required</mat-error>
+                } @else if (settingsForm.get('forgotOtpExpiryHours')?.hasError('min')) {
+                  <mat-error>Hours must be at least 0</mat-error>
+                } @else if (settingsForm.get('forgotOtpExpiryHours')?.hasError('max')) {
+                  <mat-error>Hours must not exceed 24</mat-error>
+                }
+              </mat-form-field>
+              <div class="px-3 pb-3">
+                <mat-slider
+                  class="w-100"
+                  min="0"
+                  max="24"
+                  step="1"
+                  showTickMarks="false"
+                  discrete>
+                  <input matSliderThumb formControlName="forgotOtpExpiryHours">
+                </mat-slider>
+              </div>
+            </div>
+            <!-- Minutes Input -->
+            <div class="col-lg-4 col-md-6 col-12 mb-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Minutes</mat-label>
+                <input matInput type="number" formControlName="forgotOtpExpiryMinutes" min="0" max="59" required
+                       [value]="settingsForm.get('forgotOtpExpiryMinutes')?.value"
+                       (input)="settingsForm.get('forgotOtpExpiryMinutes')?.setValue(settingsForm.get('forgotOtpExpiryMinutes')?.value)"
+
+                >
+                @if (settingsForm.get('forgotOtpExpiryMinutes')?.hasError('required')) {
+                  <mat-error>Minutes is required</mat-error>
+                } @else if (settingsForm.get('forgotOtpExpiryMinutes')?.hasError('min') || settingsForm.get('forgotOtpExpiryMinutes')?.hasError('max')) {
+                  <mat-error>Minutes must be between 0 and 59</mat-error>
+                }
+              </mat-form-field>
+              <div class="px-3 pb-3">
+                <mat-slider
+                  class="w-100"
+                  min="0"
+                  max="59"
+                  step="1"
+                  showTickMarks="false"
+                  discrete>
+                  <input matSliderThumb formControlName="forgotOtpExpiryMinutes">
+                </mat-slider>
+              </div>
+            </div>
+            <!-- Seconds Input -->
+            <div class="col-lg-4 col-md-6 col-12 mb-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Seconds</mat-label>
+                <input matInput type="number" formControlName="forgotOtpExpirySeconds" min="0" max="59" required
+
+                       [value]="settingsForm.get('forgotOtpExpirySeconds')?.value"
+                       (input)="settingsForm.get('forgotOtpExpirySeconds')?.setValue(settingsForm.get('forgotOtpExpirySeconds')?.value)"
+                >
+                @if (settingsForm.get('forgotOtpExpirySeconds')?.hasError('required')) {
+                  <mat-error>Seconds is required</mat-error>
+                } @else if (settingsForm.get('forgotOtpExpirySeconds')?.hasError('min') || settingsForm.get('forgotOtpExpirySeconds')?.hasError('max')) {
+                  <mat-error>Seconds must be between 0 and 59</mat-error>
+                }
+              </mat-form-field>
+              <div class="px-3 pb-3">
+                <mat-slider
+                  class="w-100"
+                  min="0"
+                  max="59"
+                  step="1"
+                  showTickMarks="false"
+                  discrete>
+                  <input matSliderThumb formControlName="forgotOtpExpirySeconds">
+                </mat-slider>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center mb-3">
+            <mat-icon color="primary" class="me-2 display-6">schedule</mat-icon>
+            <span class="fs-5 fw-bold text-dark">
+            Total OTP Expiry Time: {{ getFormattedTime('forgot') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- User Registration OTP Expiry Time Configuration -->
+        <div class="col-12 mb-4 setting-group">
+          <h5 class="setting-title d-flex align-items-center">
+            <mat-icon class="me-2 text-success">how_to_reg</mat-icon>
+            User Registration OTP Expiry Time
+          </h5>
+          <div class="row align-items-start">
+            <!-- Hours Input -->
+            <div class="col-lg-4 col-md-6 col-12 mb-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Hours</mat-label>
+                <input matInput type="number" formControlName="registrationOtpExpiryHours" min="0" max="24" required
+
+                       [value]="settingsForm.get('registrationOtpExpiryHours')?.value"
+                       (input)="settingsForm.get('registrationOtpExpiryHours')?.setValue(settingsForm.get('registrationOtpExpiryHours')?.value)"
+                >
+                @if (settingsForm.get('registrationOtpExpiryHours')?.hasError('required')) {
+                  <mat-error>Hours is required</mat-error>
+                } @else if (settingsForm.get('registrationOtpExpiryHours')?.hasError('min')) {
+                  <mat-error>Hours must be at least 0</mat-error>
+                } @else if (settingsForm.get('registrationOtpExpiryHours')?.hasError('max')) {
+                  <mat-error>Hours must not exceed 24</mat-error>
+                }
+              </mat-form-field>
+              <div class="px-3 pb-3">
+                <mat-slider
+                  class="w-100"
+                  min="0"
+                  max="24"
+                  step="1"
+                  showTickMarks="false"
+                  discrete>
+                  <input matSliderThumb formControlName="registrationOtpExpiryHours">
+                </mat-slider>
+              </div>
+            </div>
+            <!-- Minutes Input -->
+            <div class="col-lg-4 col-md-6 col-12 mb-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Minutes</mat-label>
+                <input matInput type="number" formControlName="registrationOtpExpiryMinutes" min="0" max="59" required
+                       [value]="settingsForm.get('registrationOtpExpiryMinutes')?.value"
+                       (input)="settingsForm.get('registrationOtpExpiryMinutes')?.setValue(settingsForm.get('registrationOtpExpiryMinutes')?.value)"
+
+                >
+                @if (settingsForm.get('registrationOtpExpiryMinutes')?.hasError('required')) {
+                  <mat-error>Minutes is required</mat-error>
+                } @else if (settingsForm.get('registrationOtpExpiryMinutes')?.hasError('min') || settingsForm.get('registrationOtpExpiryMinutes')?.hasError('max')) {
+                  <mat-error>Minutes must be between 0 and 59</mat-error>
+                }
+              </mat-form-field>
+              <div class="px-3 pb-3">
+                <mat-slider
+                  class="w-100"
+                  min="0"
+                  max="59"
+                  step="1"
+                  showTickMarks="false"
+                  discrete>
+                  <input matSliderThumb formControlName="registrationOtpExpiryMinutes">
+                </mat-slider>
+              </div>
+            </div>
+            <!-- Seconds Input -->
+            <div class="col-lg-4 col-md-6 col-12 mb-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Seconds</mat-label>
+                <input matInput type="number" formControlName="registrationOtpExpirySeconds" min="0" max="59" required
+                       [value]="settingsForm.get('registrationOtpExpirySeconds')?.value"
+                       (input)="settingsForm.get('registrationOtpExpirySeconds')?.setValue(settingsForm.get('registrationOtpExpirySeconds')?.value)"
+                >
+                @if (settingsForm.get('registrationOtpExpirySeconds')?.hasError('required')) {
+                  <mat-error>Seconds is required</mat-error>
+                } @else if (settingsForm.get('registrationOtpExpirySeconds')?.hasError('min') || settingsForm.get('registrationOtpExpirySeconds')?.hasError('max')) {
+                  <mat-error>Seconds must be between 0 and 59</mat-error>
+                }
+              </mat-form-field>
+              <div class="px-3 pb-3">
+                <mat-slider
+                  class="w-100"
+                  min="0"
+                  max="59"
+                  step="1"
+                  showTickMarks="false"
+                  discrete>
+                  <input matSliderThumb formControlName="registrationOtpExpirySeconds">
+                </mat-slider>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center mb-3">
+            <mat-icon color="primary" class="me-2 display-6">schedule</mat-icon>
+            <span class="fs-5 fw-bold text-dark">
+          Total Registration OTP Time: {{ getFormattedTime('registration') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="col-12 d-flex justify-content-end mt-3">
+          <button mat-raised-button color="primary" type="submit" [disabled]="settingsForm.invalid"
+                  class="save-button rounded-pill px-4 py-2">
+            <mat-icon class="me-1">save</mat-icon> Save Settings
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

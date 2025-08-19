@@ -4,16 +4,17 @@ import com.mongodb.kitchensink.dto.*;
 import com.mongodb.kitchensink.service.AuthService;
 import com.mongodb.kitchensink.service.ForgotPasswordService;
 import com.mongodb.kitchensink.service.OtpService;
+import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.*;
+import io.swagger.v3.oas.annotations.tags.*;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
-
 import static com.mongodb.kitchensink.constants.ErrorMessageConstants.*;
 import static com.mongodb.kitchensink.constants.SuccessMessageConstants.*;
 
@@ -126,5 +127,50 @@ public class AuthController {
     @GetMapping("/get-login-response-after-otp-verification")
     public ResponseEntity<LoginResponse> getLoginResponse(@RequestHeader("email") String email) {
         return ResponseEntity.ok(authService.getLoginResponse(email));
+    }
+    @Operation(
+            summary = "Save application settings",
+            description = "Persists various time-based application settings like session expiry and OTP expiry.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Application settings data including expiry times in seconds.",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApplicationSettingsPayload.class)
+                    )
+            ),
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Settings saved successfully",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(value = "{\"message\": \"Application settings saved successfully!\"}")
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid payload or bad request",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(value = "{\"message\": \"Invalid input data\"}")
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(value = "{\"message\": \"Failed to save settings due to internal error\"}")
+                            )
+                    )
+            }
+    )
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/save-app-settings")
+    public ResponseEntity<String> saveApplicationSettings(
+            @RequestBody ApplicationSettingsPayload payload) {
+            this.authService.saveApplicationSettingsAndApply(payload);
+        return new ResponseEntity<>("{\"message\": \"Application settings saved successfully!\"}", HttpStatus.OK);
     }
 }

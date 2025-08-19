@@ -15,11 +15,12 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSortModule} from '@angular/material/sort';
 import {MatChipSet} from '@angular/material/chips';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatSliderModule} from '@angular/material/slider';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 let CardModule;
 
@@ -27,41 +28,25 @@ let CardModule;
   exports: [
     MatToolbarModule,
     MatButtonModule,
-    MatIconModule,
     MatCardModule,
-    MatInputModule,
     MatFormFieldModule,
     MatTableModule,
     MatPaginatorModule,
-    MatTableModule,
     MatStepperModule,
-    MatSelectModule,
-    MatCardModule,
-    MatFormFieldModule,
     MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatStepperModule,
-    MatSelectModule,
     MatSidenavModule,
-    MatToolbarModule,
     MatListModule,
     MatDialogModule,
     MatTooltipModule,
     MatSortModule,
     CommonModule,
     FormsModule,
-    MatCardModule,
     MatSlideToggleModule,
     MatSelectModule,
-    MatButtonModule,
     MatIconModule,
     MatDividerModule,
-    MatSliderModule,
-    MatListModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    MatCardModule
+    MatButtonToggleModule,
+    ReactiveFormsModule
   ]
 })
 export class MaterialModule { }
