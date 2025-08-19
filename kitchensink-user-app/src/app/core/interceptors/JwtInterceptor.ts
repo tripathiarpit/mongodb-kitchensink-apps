@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../services/AuthService';
 import { AppSnackbarComponent } from '../../shared/common-components/app-snackbar/app-snackbar';
 import {LoaderService} from '../services/LoaderService';
+import {SessionService} from '../services/SessionService';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
@@ -22,7 +23,8 @@ export class JwtInterceptor implements HttpInterceptor {
     private auth: AuthService,
     private snackBar: MatSnackBar,
     private router: Router,
-    private loader: LoaderService
+    private loader: LoaderService,
+    private sessionService: SessionService
   ) {}
 
   private shouldBypassAuth(url: string): boolean {
@@ -40,9 +42,54 @@ export class JwtInterceptor implements HttpInterceptor {
     ].some((path) => url.includes(path));
   }
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let request = req;
+  // intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  //   let request = req;
+  //
+  //   if (!this.shouldBypassAuth(req.url)) {
+  //     const token = this.auth.getAuthToken();
+  //     if (token) {
+  //       request = req.clone({
+  //         setHeaders: { Authorization: `Bearer ${token}` }
+  //       });
+  //     }
+  //   }
+  //
+  //   return next.handle(request).pipe(
+  //     catchError((error: HttpErrorResponse) => {
+  //       // Check for 401 Unauthorized or a specific 400 error message
+  //       const isSessionExpiredError =
+  //         (error.status === 401) ||
+  //         (error.status === 400 && error.error?.message?.includes("Session has been expired"));
+  //
+  //       if (isSessionExpiredError && !this.isLoggingOut) {
+  //         this.loader.hide();
+  //         this.isLoggingOut = true;
+  //         this.auth.logout();
+  //         this.showMessage('Your session has expired. Please log in again.');
+  //         this.router.navigate(['/login']);
+  //         return EMPTY;
+  //       }
+  //
+  //       // For other errors, re-throw them for component-level handling
+  //       return throwError(() => error);
+  //     })
+  //   );
+  // }
 
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // Check session before proceeding with the request
+    if (!this.sessionService.isSessionActive() && !this.shouldBypassAuth(req.url)) {
+      if (!this.isLoggingOut) {
+        this.isLoggingOut = true;
+        this.auth.logout();
+        this.showMessage('Your session has expired. Please log in again.');
+        this.router.navigate(['/login']);
+        // Stop the request from going through
+        return EMPTY;
+      }
+    }
+
+    let request = req;
     if (!this.shouldBypassAuth(req.url)) {
       const token = this.auth.getAuthToken();
       if (token) {
@@ -52,9 +99,11 @@ export class JwtInterceptor implements HttpInterceptor {
       }
     }
 
+    // This part of the code handles the response after the request has been made.
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        // Check for 401 Unauthorized or a specific 400 error message
+        // Your existing error-handling logic for 401/400 errors can remain
+        // as a secondary check, in case the initial check isn't sufficient.
         const isSessionExpiredError =
           (error.status === 401) ||
           (error.status === 400 && error.error?.message?.includes("Session has been expired"));
@@ -68,7 +117,6 @@ export class JwtInterceptor implements HttpInterceptor {
           return EMPTY;
         }
 
-        // For other errors, re-throw them for component-level handling
         return throwError(() => error);
       })
     );

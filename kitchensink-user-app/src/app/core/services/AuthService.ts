@@ -349,5 +349,10 @@ export class AuthService {
     console.log('Sending settings payload:', payload);
     return this.http.post<any>('/api/auth/save-app-settings', payload);
   }
+  getLatestSettings(): Observable<any> {
+    return this.http.get<any>('/api/auth/get-app-settings');
+  }
+
+
 
 }

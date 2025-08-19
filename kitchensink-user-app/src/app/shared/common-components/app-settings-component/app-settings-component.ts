@@ -3,11 +3,11 @@ import {AppSettingsService} from '../../../core/services/AppSettingsService';
 import {MaterialModule} from '../../../material.module';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {FormsModule} from '@angular/forms';
-import {MatSlider} from '@angular/material/slider';
+import {MatSlider, MatSliderThumb} from '@angular/material/slider';
 
 @Component({
   selector: 'app-app-settings-component',
-  imports: [MaterialModule, MatSlideToggle, FormsModule, MatSlider],
+  imports: [MaterialModule, MatSlideToggle, FormsModule, MatSlider, MatSliderThumb],
   templateUrl: './app-settings-component.html',
   styleUrl: './app-settings-component.css'
 })
@@ -49,7 +49,7 @@ export class AppSettingsComponent implements OnInit {
   }
 
   onFontSizeChange(event: any) {
-    this.settingsService.setFontSize(event.value);
+    this.settingsService.applyFontSize(event);
   }
 
   onLanguageChange(language: string) {

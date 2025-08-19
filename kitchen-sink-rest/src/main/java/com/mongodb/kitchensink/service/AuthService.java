@@ -1,5 +1,8 @@
 package com.mongodb.kitchensink.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mongodb.kitchensink.config.AppSessionConfig;
+import com.mongodb.kitchensink.config.OtpConfig;
 import com.mongodb.kitchensink.constants.ErrorCodes;
 import com.mongodb.kitchensink.dto.*;
 import com.mongodb.kitchensink.exception.*;
@@ -16,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -49,6 +53,9 @@ public class AuthService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private ResourceConfigService resourceConfigService;
     @Value("${otp.accountVerification.ttlSeconds}")
     private long accountVerificationTtl;
 
@@ -265,7 +272,20 @@ public class AuthService {
     }
 
 
-    public void saveApplicationSettingsAndApply(ApplicationSettingsPayload payload) {
+    public void saveApplicationSettingsAndApply(ApplicationSettingsPayload payload) throws JsonProcessingException {
         this.sessionService.saveApplicationSettingsAndApply(payload);
+    }
+    public ApplicationSettingsPayload getSavedApplicationSettings() throws JsonProcessingException {
+        Optional<AppSessionConfig> sessionConfig = resourceConfigService.getConfig("appSessionConfig", AppSessionConfig.class);
+        Optional<OtpConfig> otpConfig  = resourceConfigService.getConfig("otpConfig", OtpConfig.class);
+        Long sessionExpiry = sessionConfig.isPresent()? sessionConfig.get().getExpirationSeconds():0;
+        Long forgetPasswordOtpExpiryTime = otpConfig.isPresent()? (long)otpConfig.get().getForgotPasswordTtlSeconds():0;
+        Long userRegistrationOtpExpiryTime = otpConfig.isPresent()? (long)otpConfig.get().getAccountVerificationTtlSeconds():0;
+        ApplicationSettingsPayload applicationSettingsPayload = new ApplicationSettingsPayload();
+        applicationSettingsPayload.setSessionExpirySeconds(sessionExpiry);
+        applicationSettingsPayload.setForgotPasswordOtpExpirySeconds(forgetPasswordOtpExpiryTime);
+        applicationSettingsPayload.setUserRegistrationOtpExpirySeconds(userRegistrationOtpExpiryTime);
+        return applicationSettingsPayload;
+
     }
 }

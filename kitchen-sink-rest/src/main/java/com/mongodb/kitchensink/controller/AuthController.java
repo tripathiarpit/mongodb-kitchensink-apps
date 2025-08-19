@@ -1,5 +1,6 @@
 package com.mongodb.kitchensink.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mongodb.kitchensink.dto.*;
 import com.mongodb.kitchensink.service.AuthService;
 import com.mongodb.kitchensink.service.ForgotPasswordService;
@@ -169,8 +170,14 @@ public class AuthController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/save-app-settings")
     public ResponseEntity<String> saveApplicationSettings(
-            @RequestBody ApplicationSettingsPayload payload) {
+            @RequestBody ApplicationSettingsPayload payload) throws JsonProcessingException {
             this.authService.saveApplicationSettingsAndApply(payload);
         return new ResponseEntity<>("{\"message\": \"Application settings saved successfully!\"}", HttpStatus.OK);
+    }
+
+    @GetMapping("/get-app-settings")
+    public ResponseEntity<ApplicationSettingsPayload> getApplicationSettingsConfig() throws JsonProcessingException {
+        ApplicationSettingsPayload applicationSettingsPayloads = this.authService.getSavedApplicationSettings();
+        return new ResponseEntity<ApplicationSettingsPayload>(applicationSettingsPayloads,HttpStatus.OK);
     }
 }

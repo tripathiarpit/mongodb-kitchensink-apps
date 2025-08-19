@@ -5,6 +5,10 @@ import { CommonModule } from '@angular/common';
 import { MatSliderModule } from '@angular/material/slider';
 import {Router} from '@angular/router';
 import {AuthService} from '../../core/services/AuthService';
+import {LoaderService} from "../../core/services/LoaderService";
+import {finalize} from "rxjs/operators";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {AppSnackbarComponent} from "../../shared/common-components/app-snackbar/app-snackbar";
 
 @Component({
   selector: 'app-resource-settings',
@@ -14,9 +18,10 @@ import {AuthService} from '../../core/services/AuthService';
   standalone: true // Add this if using standalone components
 })
 export class AppResourceSettingsComponent implements OnInit {
-  settingsForm!: FormGroup;
+    settingsForm!: FormGroup;
 
-  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) { }
+  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService
+  , private loader: LoaderService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.initializeForm();
@@ -30,48 +35,37 @@ export class AppResourceSettingsComponent implements OnInit {
       sessionExpiryMinutes: [30, [Validators.required, Validators.min(0), Validators.max(59)]],
       sessionExpirySeconds: [0, [Validators.required, Validators.min(0), Validators.max(59)]],
 
-      // Forgot Password OTP Expiry Configuration
+
       forgotOtpExpiryHours: [0, [Validators.required, Validators.min(0), Validators.max(24)]],
       forgotOtpExpiryMinutes: [5, [Validators.required, Validators.min(0), Validators.max(59)]],
       forgotOtpExpirySeconds: [0, [Validators.required, Validators.min(0), Validators.max(59)]],
 
-      // Registration OTP Expiry Configuration
       registrationOtpExpiryHours: [0, [Validators.required, Validators.min(0), Validators.max(24)]],
       registrationOtpExpiryMinutes: [10, [Validators.required, Validators.min(0), Validators.max(59)]],
       registrationOtpExpirySeconds: [0, [Validators.required, Validators.min(0), Validators.max(59)]]
     });
+    this.loadSettings();
   }
 
   private setupFormValueChanges(): void {
-    // Optional: Add real-time validation or synchronization between inputs and sliders
     this.settingsForm.valueChanges.subscribe(values => {
-      // You can add custom logic here if needed
-      // For example, ensuring minimum total time requirements
       this.validateMinimumTimes();
     });
   }
 
   private validateMinimumTimes(): void {
-    // Add custom validation to ensure each configuration has a minimum time
     const sessionTotal = this.calculateTotalSeconds('session');
     const forgotTotal = this.calculateTotalSeconds('forgot');
     const registrationTotal = this.calculateTotalSeconds('registration');
 
-    // Example: Session should be at least 5 minutes (300 seconds)
     if (sessionTotal < 300) {
-      // You could set custom errors or warnings here
       console.warn('Session time might be too short for practical use');
     }
 
-    // Example: OTP should be at least 30 seconds
     if (forgotTotal < 30 || registrationTotal < 30) {
       console.warn('OTP expiry time might be too short');
     }
   }
-
-  /**
-   * Calculate total seconds for a given configuration type
-   */
   private calculateTotalSeconds(type: 'session' | 'forgot' | 'registration'): number {
     const formValue = this.settingsForm.value;
 
@@ -140,31 +134,19 @@ export class AppResourceSettingsComponent implements OnInit {
     return parts.join(', ');
   }
 
-  /**
-   * Handles the form submission.
-   * Converts all configured times (Hours, Minutes, Seconds) into total seconds
-   * before preparing the payload.
-   */
   saveSettings(): void {
+
     if (this.settingsForm.valid) {
-      // Calculate total seconds for each configuration
       const sessionTotalSeconds = this.calculateTotalSeconds('session');
       const forgotOtpTotalSeconds = this.calculateTotalSeconds('forgot');
       const registrationOtpTotalSeconds = this.calculateTotalSeconds('registration');
-
-      // Validate that each configuration has a reasonable minimum time
-      if (sessionTotalSeconds < 60) { // Less than 1 minute
-        alert('Session expiry time should be at least 1 minute');
-        return;
-      }
-
       if (forgotOtpTotalSeconds < 30) { // Less than 30 seconds
-        alert('Forgot password OTP expiry time should be at least 30 seconds');
+        this.showMessage('Forgot password OTP expiry time should be at least 30 seconds');
         return;
       }
 
       if (registrationOtpTotalSeconds < 30) { // Less than 30 seconds
-        alert('Registration OTP expiry time should be at least 30 seconds');
+        this.showMessage('Registration OTP expiry time should be at least 30 seconds');
         return;
       }
       const payload = {
@@ -173,37 +155,38 @@ export class AppResourceSettingsComponent implements OnInit {
         userRegistrationOtpExpirySeconds: registrationOtpTotalSeconds,
       };
 
-      console.log('Settings to be sent to backend (in seconds):', payload);
       console.log('Formatted display:', {
         session: this.getFormattedTime('session'),
         forgot: this.getFormattedTime('forgot'),
         registration: this.getFormattedTime('registration')
       });
-
-      this.authService.saveApplicationSettings(payload).subscribe({
+      this.loader.show();
+      this.authService.saveApplicationSettings(payload).pipe(
+          finalize(() => {
+            this.loader.hide();
+          })
+      ).subscribe({
         next: (response) => {
           console.log('Settings saved successfully!', response);
-          // Display a success message (e.g., using MatSnackBar)
-          this.showSuccessMessage('Settings saved successfully!');
+          this.showMessage('Settings saved successfully!');
         },
         error: (error) => {
+          this.loader.hide();
           console.error('Error saving settings:', error);
           // Display an error message
-          this.showErrorMessage('Error saving settings. Please try again.');
+          this.showMessage('Error saving settings. Please try again.');
         }
       });
 
-      // For demonstration purposes, show success feedback
       this.showSuccessMessage('Settings saved successfully!');
 
-      // Mark form as pristine after successful save
       this.settingsForm.markAsPristine();
       this.settingsForm.markAsUntouched();
     } else {
       console.log('Form is invalid. Please check all fields.');
-      // Mark all fields as touched to display validation errors in the UI
+
       this.settingsForm.markAllAsTouched();
-      this.showErrorMessage('Please fix the validation errors before saving.');
+      this.showMessage('Please fix the validation errors before saving.');
     }
   }
 
@@ -211,24 +194,23 @@ export class AppResourceSettingsComponent implements OnInit {
    * Load existing settings from the backend and populate the form
    */
   loadSettings(): void {
-    // TODO: Call your service to get current settings
-    // Example: this.settingsService.getLatestSettings().subscribe(settings => {
-    //   const sessionTime = this.convertSecondsToHMS(settings.sessionExpirySeconds);
-    //   const forgotTime = this.convertSecondsToHMS(settings.forgotPasswordOtpExpirySeconds);
-    //   const regTime = this.convertSecondsToHMS(settings.userRegistrationOtpExpirySeconds);
-    //
-    //   this.settingsForm.patchValue({
-    //     sessionExpiryHours: sessionTime.hours,
-    //     sessionExpiryMinutes: sessionTime.minutes,
-    //     sessionExpirySeconds: sessionTime.seconds,
-    //     forgotOtpExpiryHours: forgotTime.hours,
-    //     forgotOtpExpiryMinutes: forgotTime.minutes,
-    //     forgotOtpExpirySeconds: forgotTime.seconds,
-    //     registrationOtpExpiryHours: regTime.hours,
-    //     registrationOtpExpiryMinutes: regTime.minutes,
-    //     registrationOtpExpirySeconds: regTime.seconds,
-    //   });
-    // });
+    Example: this.authService.getLatestSettings().subscribe(settings => {
+      const sessionTime = this.convertSecondsToHMS(settings.sessionExpirySeconds);
+      const forgotTime = this.convertSecondsToHMS(settings.forgotPasswordOtpExpirySeconds);
+      const regTime = this.convertSecondsToHMS(settings.userRegistrationOtpExpirySeconds);
+
+      this.settingsForm.patchValue({
+        sessionExpiryHours: sessionTime.hours,
+        sessionExpiryMinutes: sessionTime.minutes,
+        sessionExpirySeconds: sessionTime.seconds,
+        forgotOtpExpiryHours: forgotTime.hours,
+        forgotOtpExpiryMinutes: forgotTime.minutes,
+        forgotOtpExpirySeconds: forgotTime.seconds,
+        registrationOtpExpiryHours: regTime.hours,
+        registrationOtpExpiryMinutes: regTime.minutes,
+        registrationOtpExpirySeconds: regTime.seconds,
+      });
+    });
   }
 
   /**
@@ -259,22 +241,17 @@ export class AppResourceSettingsComponent implements OnInit {
       registrationOtpExpirySeconds: 0,
     });
   }
-
-  /**
-   * Show success message (implement with MatSnackBar or your preferred method)
-   */
   private showSuccessMessage(message: string): void {
-    // TODO: Implement with MatSnackBar
-    // this.snackBar.open(message, 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
+    this.snackBar.open(message, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
     console.log('Success:', message);
   }
-
-  /**
-   * Show error message (implement with MatSnackBar or your preferred method)
-   */
-  private showErrorMessage(message: string): void {
-    // TODO: Implement with MatSnackBar
-    // this.snackBar.open(message, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
-    console.error('Error:', message);
+  showMessage(message: string) {
+    this.snackBar.openFromComponent(AppSnackbarComponent, {
+      data: { message },
+      duration: 3000,
+      verticalPosition: 'top', // position at the top
+      panelClass: ['error-snackbar'] // custom CSS
+    });
   }
+
 }

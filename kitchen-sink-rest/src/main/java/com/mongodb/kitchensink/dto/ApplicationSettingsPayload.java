@@ -1,31 +1,31 @@
 package com.mongodb.kitchensink.dto;
 
 public class ApplicationSettingsPayload {
-    private int sessionExpirySeconds;
-    private int forgotPasswordOtpExpirySeconds;
-    private int userRegistrationOtpExpirySeconds;
+    private Long sessionExpirySeconds;
+    private Long forgotPasswordOtpExpirySeconds;
+    private Long userRegistrationOtpExpirySeconds;
 
-    public int getSessionExpirySeconds() {
+    public Long getSessionExpirySeconds() {
         return sessionExpirySeconds;
     }
 
-    public void setSessionExpirySeconds(int sessionExpirySeconds) {
+    public void setSessionExpirySeconds(Long sessionExpirySeconds) {
         this.sessionExpirySeconds = sessionExpirySeconds;
     }
 
-    public int getForgotPasswordOtpExpirySeconds() {
+    public Long getForgotPasswordOtpExpirySeconds() {
         return forgotPasswordOtpExpirySeconds;
     }
 
-    public void setForgotPasswordOtpExpirySeconds(int forgotPasswordOtpExpirySeconds) {
+    public void setForgotPasswordOtpExpirySeconds(Long forgotPasswordOtpExpirySeconds) {
         this.forgotPasswordOtpExpirySeconds = forgotPasswordOtpExpirySeconds;
     }
 
-    public int getUserRegistrationOtpExpirySeconds() {
+    public Long getUserRegistrationOtpExpirySeconds() {
         return userRegistrationOtpExpirySeconds;
     }
 
-    public void setUserRegistrationOtpExpirySeconds(int userRegistrationOtpExpirySeconds) {
+    public void setUserRegistrationOtpExpirySeconds(Long userRegistrationOtpExpirySeconds) {
         this.userRegistrationOtpExpirySeconds = userRegistrationOtpExpirySeconds;
     }
 

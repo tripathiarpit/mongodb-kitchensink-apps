@@ -166,7 +166,7 @@ export class AppSettingsService {
     this.document.documentElement.style.setProperty('--primary-color', colorMap[color] || colorMap['indigo']);
   }
 
-  private applyFontSize(fontSize: number): void {
+  public applyFontSize(fontSize: number): void {
     this.document.documentElement.style.setProperty('--base-font-size', `${fontSize}px`);
   }
 

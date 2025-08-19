@@ -1,5 +1,8 @@
 package com.mongodb.kitchensink.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mongodb.kitchensink.config.AppSessionConfig;
+import com.mongodb.kitchensink.config.OtpConfig;
 import com.mongodb.kitchensink.constants.RedisValue; // Uses your provided RedisValue
 import com.mongodb.kitchensink.dto.ApplicationSettingsPayload;
 import com.mongodb.kitchensink.util.TimeCalculationUtil;
@@ -11,12 +14,14 @@ import java.security.SecureRandom;
 import java.time.Duration; // For RedisTemplate TTLs
 import java.time.LocalDateTime; // For RedisValue's timestamp field
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit; // For RedisTemplate TTLs
 
 @Service
 public class SessionService {
 
+    private final ResourceConfigService resourceConfigService;
     @Value("${app.otp.length}")
     private int otpLength;
 
@@ -32,9 +37,10 @@ public class SessionService {
 
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public SessionService(RedisTemplate<String, Object> redisTemplate, TimeCalculationUtil timeCalculationUtil) {
+    public SessionService(RedisTemplate<String, Object> redisTemplate, TimeCalculationUtil timeCalculationUtil, ResourceConfigService resourceConfigService) {
         this.redisTemplate = redisTemplate;
         this.timeCalculationUtil = timeCalculationUtil;
+        this.resourceConfigService = resourceConfigService;
     }
 
     /**
@@ -188,9 +194,8 @@ public class SessionService {
             System.out.println("Session token mismatch for " + email);
             return false;
         }
-
-        // Refresh the session: update its internal timestamp and TTL based on current session expiry setting
-        long currentSessionTtl = defaultSessionExpirationSeconds; // The current default setting for session
+        Optional<AppSessionConfig> sessionConfig = resourceConfigService.getConfig("appSessionConfig", AppSessionConfig.class);
+        long currentSessionTtl = sessionConfig.isPresent()? sessionConfig.get().getExpirationSeconds():defaultSessionExpirationSeconds;
         value.refresh(currentSessionTtl); // Updates internal timestamp to now, and ttl to currentSessionTtl
         redisTemplate.opsForValue().set(redisKey, value, currentSessionTtl, TimeUnit.SECONDS); // Reset Redis TTL
 
@@ -256,13 +261,17 @@ public class SessionService {
      *
      * @param payload The {@link ApplicationSettingsPayload} containing the new expiry settings (in seconds).
      */
-    public void saveApplicationSettingsAndApply(ApplicationSettingsPayload payload) {
+    public void saveApplicationSettingsAndApply(ApplicationSettingsPayload payload) throws JsonProcessingException {
         System.out.println("Applying new application settings to Redis: " + payload);
 
         long newSessionExpirySeconds = payload.getSessionExpirySeconds();
         long newForgotOtpExpirySeconds = payload.getForgotPasswordOtpExpirySeconds();
         long newUserRegistrationOtpExpirySeconds = payload.getUserRegistrationOtpExpirySeconds();
-
+        if(newSessionExpirySeconds>0)
+        resourceConfigService.saveConfig("appSessionConfig", new AppSessionConfig(newSessionExpirySeconds));
+        if(newForgotOtpExpirySeconds >0 &&  newUserRegistrationOtpExpirySeconds >0) {
+            resourceConfigService.saveConfig("otpConfig", new OtpConfig(newUserRegistrationOtpExpirySeconds,newForgotOtpExpirySeconds,6L, 3600L));
+        }
         Set<String> sessionKeys = redisTemplate.keys("SESSION:*");
         Set<String> forgotOtpKeys = redisTemplate.keys("FORGOT_OTP:*");
         Set<String> regOtpKeys = redisTemplate.keys("REG_OTP:*");
@@ -308,7 +317,7 @@ public class SessionService {
 
                 System.out.println("Updated key: " + key + " with new internal TTL: " + newConfigTotalSeconds +
                         "s and reset timestamp. Redis TTL set to: " + redisTTL + "s.");
-
+                    resourceConfigService.saveConfig(key, newConfigTotalSeconds);
             } catch (Exception e) {
                 System.err.println("Error processing Redis key " + key + " during settings update: " + e.getMessage());
                 // Log the error and continue to process other keys

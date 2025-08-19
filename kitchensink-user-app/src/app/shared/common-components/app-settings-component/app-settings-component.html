@@ -20,7 +20,7 @@
             <mat-slide-toggle
               name="darkMode"
               [(ngModel)]="settings.darkMode"
-              (change)="onDarkModeChange($event)"
+              (change)="onDarkModeChange($event.source)"
               color="primary">
             </mat-slide-toggle>
           </div>
@@ -44,7 +44,14 @@
 
           <div class="setting-item">
             <span class="setting-label">Font Size</span>
-            <mat-slider min="12" max="20" step="1" discrete>
+            <mat-slider
+              class="w-100"
+              min="0"
+              max="20"
+              step="1"
+              showTickMarks
+              (change)="onFontSizeChange(settings.fontSize)"
+              discrete>
               <input matSliderThumb [(ngModel)]="settings.fontSize">
             </mat-slider>
             <span class="font-size-display">{{ settings.fontSize }}px</span>
