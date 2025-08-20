@@ -1,4 +1,18 @@
-<div class="snack-bar-content">
-  <mat-icon>error</mat-icon>
+<div class="snack-bar-content-wrapper">
+  @if (data.type === 'error') {
+    <mat-icon>error</mat-icon>
+  } @else {
+    <mat-icon>check_circle</mat-icon>
+  }
   <span>{{ data.message }}</span>
+  @if (data.showCloseButton) {
+    <button
+      mat-icon-button
+      class="close-button"
+      (click)="snackBarRef.dismiss()"
+      aria-label="Close"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  }
 </div>

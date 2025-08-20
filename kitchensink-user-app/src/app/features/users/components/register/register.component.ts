@@ -12,6 +12,9 @@ import {UserService} from '../../../../core/services/UserService';
 import {LoaderService} from '../../../../core/services/LoaderService';
 import {Country, CountryService} from '../../../../core/services/CountryService';
 import {CountryFilterPipe} from '../../../../core/pipe/CountryPipe';
+import {AppSnackbarComponent} from '../../../../shared/common-components/app-snackbar/app-snackbar';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {SnackbarService} from '../../../../shared/common-components/app-snackbar/SnackbarService';
 
 export interface Address {
   street: string;
@@ -54,6 +57,7 @@ export class SignupComponent implements OnInit {
     private userService: UserService,
     private loader: LoaderService,
     private countryService: CountryService,
+    private snackbarService: SnackbarService,
   ) {
     this.stepperOrientation = breakpointObserver
       .observe('(min-width: 800px)')
@@ -74,9 +78,10 @@ export class SignupComponent implements OnInit {
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
 
-    // Contact Information Form
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     this.contactForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email,Validators.pattern(emailRegex)]],
       phoneNumber: ['', [Validators.required, Validators.pattern('^[+]?[0-9]{10,15}$')]]
     });
 
@@ -89,6 +94,7 @@ export class SignupComponent implements OnInit {
       country: ['', [Validators.required]]
     });
   }
+
 
   passwordValidator(control: any) {
     const value = control.value;
@@ -144,6 +150,19 @@ export class SignupComponent implements OnInit {
     if (field?.hasError('required')) return `${fieldName} is required`;
     if (field?.hasError('email')) return 'Please enter a valid email';
     if (field?.hasError('pattern')) return 'Please enter a valid phone number';
+    if (fieldName === 'email' && field?.hasError('email')) {
+      return 'Please enter a valid email address';
+    }
+    return '';
+  }
+  getEmailErrorMessage(fieldName: string): string {
+    const field = this.contactForm.get(fieldName);
+    if (fieldName === 'email' && field?.hasError('email')) {
+      return 'Please enter a valid email address';
+    }
+    if (fieldName === 'email' && field?.hasError('pattern')) {
+      return 'Please enter a valid email address';
+    }
     return '';
   }
 
@@ -194,10 +213,15 @@ export class SignupComponent implements OnInit {
           } else {
             this.registrationSuccess = false;
             this.errorMessage = res.message;
+            this.showErrorMessage(this.errorMessage);
             this.loader.hide();
           }
         },
         error: err => {
+          const errorObject = err?.error || {};
+          const errorMessages = Object.values(errorObject);
+          const combinedMessage = errorMessages.join('. ');
+          this.showErrorMessage(combinedMessage);
           this.loader.hide();
         }
       });
@@ -235,5 +259,11 @@ protected gotoLogin() {
     this.countryService.getCountries().subscribe(data => {
       this.countries = data.map(c => c.name).sort();
     });
+  }
+  showMessage(message: string) {
+    this.snackbarService.showMessage(message, 'success');
+  }
+  showErrorMessage(message: string) {
+    this.snackbarService.showMessage(message, 'error');
   }
 }

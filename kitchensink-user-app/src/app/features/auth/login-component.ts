@@ -12,6 +12,9 @@ import {AuthService, LoginResponse} from '../../core/services/AuthService';
 import {LoaderService} from '../../core/services/LoaderService';
 import {OtpVerificationComponent} from './otp-verification/otp-verification-component/otp-verification-component';
 import {UserService} from '../../core/services/UserService';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {AppSnackbarComponent} from '../../shared/common-components/app-snackbar/app-snackbar';
+import {SnackbarService} from '../../shared/common-components/app-snackbar/SnackbarService';
 
 @Component({
   selector: 'app-login',
@@ -36,12 +39,14 @@ export class LoginComponent {
   isAccountVerificationPending: boolean = false;
   isFirstLogin: boolean = false;
   showOtpVerify: boolean = false;
-  currentLoggedInUserEmail:string='';
-  constructor(private fb: FormBuilder ,
-  private router: Router,
-              private authService: AuthService, private loaderService: LoaderService, private userService: UserService){
+  currentLoggedInUserEmail: string = '';
+
+  constructor(private fb: FormBuilder,
+              private router: Router,
+              private authService: AuthService, private loaderService: LoaderService, private userService: UserService, private snackbarService: SnackbarService,) {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email, Validators.pattern(emailRegex)]],
       password: ['', [Validators.required, Validators.minLength(2)]]
     });
   }
@@ -56,7 +61,7 @@ export class LoginComponent {
       return;
     }
 
-    const { email, password } = this.loginForm.value;
+    const {email, password} = this.loginForm.value;
     this.loaderService.show();
     this.authService.login(email, password).subscribe({
       next: (response) => {
@@ -65,13 +70,13 @@ export class LoginComponent {
         this.currentLoggedInUserEmail = response.email;
         this.isAccountVerificationPending = response.accountVerificationPending;
         this.isFirstLogin = response.firstLogin;
-        if(this.isAccountVerificationPending) {
+        if (this.isAccountVerificationPending) {
           this.isLoading = false;
           this.showOtpVerify = true;
           this.loginForm.controls['email'].disable();
           this.loginForm.controls['password'].disable();
           this.loaderService.hide();
-        }else {
+        } else {
           this.authService.saveUserData(response);
           setTimeout(() => {
             this.loaderService.hide();
@@ -80,11 +85,27 @@ export class LoginComponent {
         }
 
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Login failed', error);
         this.isLoading = false;
-        this.errorMessage = error?.message || 'Login failed. Please try again.';
         this.loaderService.hide();
+        if (error.status === 400 && error.error) {
+          let validationError = '';
+          if (error.error.email) {
+            validationError = error.error.email;
+          } else if (error.error.password) {
+            validationError = error.error.password;
+          } else {
+            validationError = error.error.message || 'Validation failed. Please check your form.';
+          }
+          this.errorMessage = validationError;
+
+        } else if (error.status === 401) {
+          this.errorMessage = error.error.message || 'Invalid email or password.';
+
+        } else {
+          this.showMessage(error);
+        }
       }
     });
   }
@@ -106,6 +127,9 @@ export class LoginComponent {
     if (this.loginForm.get('email')?.hasError('required')) {
       return 'Email is required';
     }
+    if (this.loginForm.get('email')) {
+      return 'Please enter a valid email address';
+    }
     return this.loginForm.get('email')?.hasError('email') ? 'Not a valid email' : '';
   }
 
@@ -116,7 +140,7 @@ export class LoginComponent {
     return this.loginForm.get('password')?.hasError('minlength') ? 'Password must be at least 6 characters' : '';
   }
 
-  isOtpVerificationSuccessful(isOtpSuccessfullyVerified:boolean) {
+  isOtpVerificationSuccessful(isOtpSuccessfullyVerified: boolean) {
     this.isAccountVerificationPending = isOtpSuccessfullyVerified;
     this.authService.fetchLoginResponseAfterOtpVerification(this.currentLoggedInUserEmail).subscribe(response => {
       this.loaderService.show();
@@ -125,11 +149,16 @@ export class LoginComponent {
     })
 
   }
-  navigateToDashboard():void{
+
+  navigateToDashboard(): void {
     setTimeout(() => {
 
       this.router.navigate(['/dashboard']);
     }, 1000);
     this.loaderService.hide();
+  }
+
+  showMessage(message: string) {
+    this.snackbarService.showMessage(message,'error',false);
   }
 }

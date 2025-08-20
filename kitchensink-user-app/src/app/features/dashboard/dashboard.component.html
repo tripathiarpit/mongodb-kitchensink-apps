@@ -1,72 +1,100 @@
-<mat-sidenav-container class="dashboard-container" [class]="themeClass">
-
-  <mat-sidenav #sidenav
-               mode="side"
-               [opened]="isOpened"
-               class="dashboard-sidenav"
-               [class.collapsed]="isCollapsed">
-
-    <mat-nav-list class="nav-menu">
-      <a mat-list-item
-         *ngFor="let item of menuItems"
-         (click)="onMenuClick(item.route)"
-         routerLinkActive="active-item"
-         [class.compact]="isCollapsed"
-         [matTooltip]="isCollapsed ? item.label : ''"
-         matTooltipPosition="right">
-        <mat-icon class="menu-icon">{{ item.icon }}</mat-icon>
-        <span class="menu-label" *ngIf="!isCollapsed">{{ item.label }}</span>
+<div class="container-scroller">
+  <nav class="sidebar sidebar-offcanvas" id="sidebar">
+    <div class="text-center sidebar-brand-wrapper d-flex align-items-center justify-content-center">
+      <a class="sidebar-brand brand-logo" href="index.html">
+        <img src="assets/images/logo.svg" alt="logo" />
       </a>
-    </mat-nav-list>
-
-    <div class="sidenav-footer">
-      <button mat-list-item
-              (click)="openSettings()"
-              class="settings-btn"
-              [class.compact]="isCollapsed"
-              [matTooltip]="isCollapsed ? 'Settings' : ''"
-              matTooltipPosition="right">
-        <mat-icon class="menu-icon">settings</mat-icon>
-        <span class="menu-label" *ngIf="!isCollapsed">Settings</span>
-      </button>
-
-      <button mat-button
-              color="warn"
-              (click)="logout()"
-              class="logout-btn"
-              [class.compact]="isCollapsed">
-        <mat-icon>logout</mat-icon>
-        <span *ngIf="!isCollapsed">Logout</span>
-      </button>
+      <a class="sidebar-brand brand-logo-mini" href="index.html">
+        <img src="assets/images/logo-mini.svg" alt="logo" />
+      </a>
     </div>
-  </mat-sidenav>
 
-  <mat-sidenav-content class="dashboard-content">
-    <mat-toolbar class="dashboard-header">
-      <span class="page-title">
-        <mat-icon class="title-icon">dashboard</mat-icon>
-        Welcome {{ currentUserFullName }}
-      </span>
+    <ul class="nav">
+      <li class="nav-item nav-profile">
+        <a href="#" class="nav-link">
+          <div class="nav-profile-image">
+            <img src="assets/images/faces/face1.jpg" alt="profile" />
+            <span class="login-status online"></span>
+          </div>
+          <div class="nav-profile-text d-flex flex-column">
+            <span class="font-weight-medium mb-2">{{currentUserFullName}}</span>
+            <span class="font-weight-normal text-muted">{{ userRole}}</span>
+          </div>
+        </a>
+      </li>
 
-      <span class="spacer"></span>
-      <div class="toolbar-actions">
-        <button mat-button (click)="gotoUserProfile()" class="profile-btn">
-          <mat-icon>account_circle</mat-icon>
-          <span class="profile-text">Profile</span>
+      <li *ngFor="let item of menuItems" class="nav-item">
+        <a *ngIf="!item.children" (click)="onMenuClick(item?.route)" class="nav-link">
+          <mat-icon matSuffix fontSet="mdi" [fontIcon]="item.icon.split(' ')[1]"></mat-icon>
+          <span class="menu-title">{{ item.label }}</span>
+        </a>
+
+        <div *ngIf="item.children" class="nav-link">
+          <i [class]="item.icon"></i>
+          <span class="menu-title">{{ item.label }}</span>
+        </div>
+
+        <ul *ngIf="item.children" class="nav flex-column sub-menu">
+          <li *ngFor="let child of item.children" class="nav-item">
+            <a (click)="onMenuClick(item?.route)" class="nav-link">
+              {{ child.label }}
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <li class="nav-item sidebar-actions">
+        <div class="nav-link">
+          <div class="mt-4">
+            <ul class="mt-4 pl-0">
+              <li (click)="logout()">Sign Out</li>
+            </ul>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="page-body-wrapper">
+    <nav class="navbar col-lg-12 col-12 p-lg-0 fixed-top d-flex flex-row">
+      <div class="navbar-menu-wrapper d-flex align-items-stretch justify-content-between w-100" style="margin-left: 19rem">
+        <a class="navbar-brand brand-logo-mini align-self-center d-lg-none" href="index.html">
+          <img src="assets/images/logo-mini.svg" alt="logo" />
+        </a>
+        <button class="navbar-toggler navbar-toggler align-self-center d-lg-none" type="button" data-toggle="minimize">
+          <i class="mdi mdi-menu"></i>
+        </button>
+        <ul class="navbar-nav navbar-nav-right ml-auto">
+          <li class="nav-item nav-profile dropdown">
+            <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-toggle="dropdown">
+              <img class="nav-profile-img" alt="Profile image" src="assets/images/faces/face1.jpg" />
+              <span class="profile-name d-none d-md-inline">{{ currentUserFullName}}</span>
+            </a>
+            <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+              <a class="dropdown-item" (click)="gotoUserProfile()">
+                <i class="mdi mdi-logout mr-2 text-primary"></i> Profile
+              </a>
+              <a class="dropdown-item" (click)="logout()">
+                <i class="mdi mdi-logout mr-2 text-primary"></i> Signout
+              </a>
+            </div>
+          </li>
+        </ul>
+        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+          <span class="mdi mdi-menu"></span>
         </button>
       </div>
-    </mat-toolbar>
-
-    <div class="dashboard-main" [class]="contentClass">
-      <div class="main-content-wrapper">
-        <div class="router-outlet-wrapper">
-          <router-outlet></router-outlet>
+    </nav>
+    <div class="main-panel">
+      <div class="content-wrapper pb-0">
+        <div class="page-header flex-wrap">
+          <h3 class="mb-0">
+            Hi, welcome back! {{ currentUserFullName }}
+            <span class="pl-2 h6 text-muted d-none d-sm-inline-block"></span>
+          </h3>
         </div>
+        <router-outlet></router-outlet>
       </div>
     </div>
-
-    <footer class="dashboard-footer">
-      <app-footer></app-footer>
-    </footer>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  </div>
+</div>

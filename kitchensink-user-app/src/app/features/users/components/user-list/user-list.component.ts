@@ -36,7 +36,6 @@ export class UserListComponent implements OnInit, AfterViewInit {
     'city',
     'country',
     'roles',
-    'active',
     'createdAt',
     'actions'
   ];

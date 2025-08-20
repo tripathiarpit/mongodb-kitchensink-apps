@@ -120,8 +120,8 @@
                           <mat-label>Email Address</mat-label>
                           <input matInput type="email" formControlName="email" placeholder="Enter your email">
                           <mat-icon matSuffix>email</mat-icon>
-                          <mat-error *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
-                            {{getContactErrorMessage('email')}}
+                          <mat-error *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched" >
+                            {{getEmailErrorMessage('email')}}
                           </mat-error>
                         </mat-form-field>
                       </div>

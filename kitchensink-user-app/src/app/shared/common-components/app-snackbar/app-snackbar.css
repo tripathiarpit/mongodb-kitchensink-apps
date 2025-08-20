@@ -1,4 +1,16 @@
-.error-snackbar {
-  background-color: #f44336; /* red */
-  color: white;
+.snack-bar-content-wrapper {
+  /* Establish a positioning context for the button */
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.close-button {
+  /* Position the button absolutely within its parent wrapper */
+  position: absolute;
+  top: 50%; /* Center vertically */
+  right: 0;  /* Pin to the right side */
+  transform: translateY(-50%); /* Adjust for perfect vertical centering */
 }

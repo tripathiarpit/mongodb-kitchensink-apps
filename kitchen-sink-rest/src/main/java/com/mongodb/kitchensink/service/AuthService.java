@@ -99,8 +99,9 @@ public class AuthService {
             throw new BadRequestException(ErrorCodes.VALIDATION_ERROR, REQ_EMAIL);
         }
 
-        if (!loginRequest.getEmail().matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")) {
-            throw new BadRequestException(ErrorCodes.VALIDATION_ERROR, INVALID_REQUEST);
+        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        if (!loginRequest.getEmail().matches(emailRegex)) {
+            throw new BadRequestException(ErrorCodes.VALIDATION_ERROR, INVALID_EMAIL_FORMET);
         }
     }
     public LoginResponse login(String email, String password) throws UserAuthException, UserNotFoundException, Exception {

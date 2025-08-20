@@ -47,7 +47,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   private countdownSub!: Subscription;
   private matref!: MatSnackBarRef<EmbeddedViewRef<any>>;
   showSIgnInLink: boolean = true;
-
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -68,10 +67,10 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
         }
       });
     }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     this.emailForm = this.fb.nonNullable.group({
-      email: [{ value: '', disabled: this.changingOwnPassword },[Validators.required, Validators.email]],
+      email: [{ value: this.email, disabled: this.changingOwnPassword },[Validators.required, Validators.email, Validators.pattern(emailRegex)]],
     });
-
     this.otpForm = this.fb.nonNullable.group({
       otp: [
         '',
@@ -86,7 +85,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
     this.passwordForm = this.fb.group({
       newPassword: ['', [Validators.required, Validators.minLength(8), this.passwordValidator]],
-      confirmPassword: ['', [Validators.required]],
+      confirmPassword: ['', [Validators.required]]
     }, {validators: this.passwordMatchValidator});
     this.sharedState.showSignInLink$.subscribe(value => {
       this.showSIgnInLink = value;
@@ -102,6 +101,13 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       verticalPosition: 'top',
       panelClass: ['custom-snack-panel'],
     });
+  }
+  getEmailErrorMessage(fieldName: string): string {
+    const field = this.emailForm.get(fieldName);
+    if (fieldName === 'email' && field?.hasError('email') || field?.hasError('pattern')) {
+      return 'Please enter a valid email address';
+    }
+    return '';
   }
 
   private showSuccessSnack(err: string, fallback = 'Action Success', duration: number): void {
@@ -284,15 +290,27 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       });
   }
 
+  passwordValidator(control: any) {
+    const value = control.value;
+    if (!value) return null;
+    const hasUpperCase = /[A-Z]+/.test(value);
+    const hasLowerCase = /[a-z]+/.test(value);
+    const hasNumeric = /[0-9]+/.test(value);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]+/.test(value);
+
+    const valid = hasUpperCase && hasLowerCase && hasNumeric && hasSpecial;
+    return valid ? null : { invalidPassword: true };
+  }
+
   passwordMatchValidator(group: FormGroup) {
     const passwordControl = group.get('newPassword');
     const confirmPasswordControl = group.get('confirmPassword');
 
     if (passwordControl?.value !== confirmPasswordControl?.value) {
-      confirmPasswordControl?.setErrors({...confirmPasswordControl.errors, passwordMismatch: true});
+      confirmPasswordControl?.setErrors({ ...confirmPasswordControl.errors, passwordMismatch: true });
     } else {
       if (confirmPasswordControl?.hasError('passwordMismatch')) {
-        const errors = {...confirmPasswordControl.errors};
+        const errors = { ...confirmPasswordControl.errors };
         delete errors['passwordMismatch'];
         confirmPasswordControl.setErrors(Object.keys(errors).length ? errors : null);
       }
@@ -314,19 +332,5 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.countdownSub?.unsubscribe();
     this.snack.ngOnDestroy();
-  }
-
-  passwordValidator(control: any) {
-    const value = control.value;
-    if (!value) return null;
-
-    const hasUpperCase = /[A-Z]+/.test(value);
-    const hasLowerCase = /[a-z]+/.test(value);
-    const hasNumeric = /[0-9]+/.test(value);
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]+/.test(value);
-
-    const valid = hasUpperCase && hasLowerCase && hasNumeric && hasSpecial;
-    return valid ? null : {invalidPassword: true};
-
   }
 }

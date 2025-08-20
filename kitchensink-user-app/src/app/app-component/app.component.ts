@@ -7,6 +7,7 @@ import {AuthService} from '../core/services/AuthService';
 import {Subscription} from 'rxjs';
 import {LoaderComponent} from '../shared/common-components/loader/loader.component';
 import {AppSettings, AppSettingsService} from '../core/services/AppSettingsService';
+import {AppFooterComponent} from '../shared/common-components/app-footer.component';
 
 @Component({
   selector: 'app-root',

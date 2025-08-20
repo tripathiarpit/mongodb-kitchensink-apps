@@ -10,26 +10,6 @@ body {
   z-index: 3000 !important;
 }
 
-/* Ensure html and body take full viewport height and width without margin */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  overflow-x: hidden; /* Prevent horizontal scroll on body */
-  box-sizing: border-box;
-}
-
-/* Make app-root fill viewport width and height and prevent overflow */
-app-root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  max-width: 100vw;
-  overflow-x: hidden; /* Prevent horizontal scroll on app-root */
-  box-sizing: border-box;
-}
-
 /* Optional: Make all elements use border-box sizing */
 *, *::before, *::after {
   box-sizing: inherit;
@@ -213,4 +193,35 @@ app-root {
     transition-duration: 0.01ms !important;
     transition-delay: 0.01ms !important;
   }
+}
+/* General custom snackbar styling */
+.custom-snackbar {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Error Snackbar Styling (White background, Red text) */
+.error-snackbar {
+  background-color: #fff !important; /* White background */
+}
+
+/* The parent container, where your component is inserted */
+.error-snackbar .mat-mdc-snack-bar-container,
+.error-snackbar .mat-mdc-snack-bar-label,
+.error-snackbar .mat-icon {
+  background-color: #fff !important; /* White background */
+  color: #d32f2f !important; /* Red text and icon color */
+}
+
+/* Success Snackbar Styling (Green/Teal) */
+.success-snackbar {
+  background-color: #43a047 !important; /* A nice success green */
+}
+
+/* Style the content inside the success snackbar */
+.success-snackbar .mat-mdc-snack-bar-container,
+.success-snackbar .mat-mdc-snack-bar-label,
+.success-snackbar .mat-icon {
+  background: #43A047 !important;
+  color: #fff !important; /* White text and icon color */
 }

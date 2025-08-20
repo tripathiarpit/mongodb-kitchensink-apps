@@ -213,12 +213,22 @@ public class UserController {
 
     @Operation(summary = "Update user details by email/ID")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDto> updateUser(
             @PathVariable("id") String emailId,
             @RequestBody UserDto request
     ) {
         return ResponseEntity.ok(userService.updateUser(emailId, request));
     }
+    @Operation(summary = "Update user profile by emailId")
+    @PutMapping("update-profile/{id}")
+    public ResponseEntity<UserDto> updateUserProfile(
+            @PathVariable("id") String emailId,
+            @RequestBody UserDto request
+    ) {
+        return ResponseEntity.ok(userService.updateUser(emailId, request));
+    }
+
     @GetMapping("/download")
     public ResponseEntity<byte[]> downloadUsers(@RequestParam(defaultValue = "0") int page,
                                                 @RequestParam(defaultValue = "50") int size,

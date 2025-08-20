@@ -43,7 +43,7 @@ public class AuthController {
 
     @Operation(summary = "Login user", description = "Authenticates user with email and password and returns login response including token")
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) throws Exception {
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) throws Exception {
         authService.validateLoginRequest(loginRequest);
         return ResponseEntity.ok(authService.login(loginRequest));
     }

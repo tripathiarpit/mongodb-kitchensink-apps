@@ -50,7 +50,7 @@ export class EditUserComponent implements OnInit {
       });
     }
     else{
-      this.router.navigate(['/access-denied']);
+     this.router.navigate(['/access-denied']);
     }
 
   }
@@ -60,7 +60,7 @@ export class EditUserComponent implements OnInit {
       id: [''],
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: [{ value: "", disabled: true },[Validators.required, Validators.email]],
-      roles: [[]],
+      roles: [[], [Validators.required, Validators.minLength(1)]],
       active: [true],
       twoFAEnabled:[false],
       createdAt: [''],

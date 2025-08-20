@@ -23,7 +23,7 @@ import {MaterialModule} from '../../../material.module';
           </div>
         </mat-card-content>
 
-        <mat-card-actions align="end">
+        <mat-card-actions align="start">
           <button mat-raised-button color="primary" (click)="goHome()">Go to Dashboard</button>
         </mat-card-actions>
       </mat-card>

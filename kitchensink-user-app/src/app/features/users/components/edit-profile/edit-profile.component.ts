@@ -180,7 +180,7 @@ export class EditProfileComponent implements OnInit {
 
       this.loaderService.show();
 
-      this.userService.updateUser(this.emailId, updatedUser).subscribe({
+      this.userService.updateUserProfile(this.emailId, updatedUser).subscribe({
         next: (data) => {
           this.loaderService.hide();
           this.showMessage("User updated successfully");

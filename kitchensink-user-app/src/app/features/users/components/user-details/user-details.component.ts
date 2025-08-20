@@ -29,7 +29,7 @@ export class UserDetailsComponent implements OnInit , OnDestroy{
   isLoading = true;
   protected email: string | null = null;
   protected showPasswordTemplate: boolean = false;
-
+  emailId:string = '';
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -41,6 +41,8 @@ export class UserDetailsComponent implements OnInit , OnDestroy{
     private authService: AuthService,
     private dialog: MatDialog
   ) {
+    const nav = this.router.getCurrentNavigation();
+    this.emailId = nav?.extras.state?.['email'] ?? '';
   }
 
   ngOnDestroy(): void {
@@ -51,15 +53,13 @@ export class UserDetailsComponent implements OnInit , OnDestroy{
   ngOnInit(): void {
     this.loaderService.show();
 
-    const userIdParam = this.route.snapshot.paramMap.get('id');
-
-    if (userIdParam) {
-      this.email = userIdParam;
-      this.fetchUserDetails(this.email);
+    if (this.emailId) {
+      this.fetchUserDetails(this.emailId);
 
     } else {
       this.email = this.authService.getEmail();
       if (this.email) {
+        this.emailId = this.email;
         this.fetchUserDetails(this.email);
       } else {
         this.loaderService.hide();

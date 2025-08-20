@@ -31,7 +31,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
         if (error.status === 403) {
           this.showMessage(error.error.message || 'Access denied.');
-          this.router.navigate(['/access-denied']);
+         // this.router.navigate(['/access-denied']);
           return EMPTY;
         }
 

@@ -5,6 +5,7 @@ private ErrorMessageConstants() {
     public static final String REQ_PASSWORD = "Password is required";
     public static final String REQ_EMAIL = "Email is required";
     public static final String INVALID_REQUEST = "Request is invalid, try again";
+    public static final String INVALID_EMAIL_FORMET = "Email in the request is not a valid email.";
     public static final String INVALID_OR_EXPIRED_SESSION = "Invalid or expired session";
     public static final String ACCOUNT_NOT_FOUND_EMAIL = "Account with this email does not exist";
     public static final String ACCOUNT_NOT_FOUND_ID = "Account with this ID does not exist";

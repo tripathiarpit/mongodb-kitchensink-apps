@@ -109,6 +109,7 @@ export class UserService {
       params: params
     });
   }
-
-
+  updateUserProfile(emailId: string, user: any): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/update-profile/${emailId}`, user);
+  }
 }

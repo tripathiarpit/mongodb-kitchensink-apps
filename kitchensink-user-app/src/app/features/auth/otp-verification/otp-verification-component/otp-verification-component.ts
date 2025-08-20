@@ -7,6 +7,7 @@ import {CommonModule} from '@angular/common';
 import {AuthService} from '../../../../core/services/AuthService';
 import {ApiResponse} from '../../../../shared/model/ApiResponse';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {SnackbarService} from '../../../../shared/common-components/app-snackbar/SnackbarService';
 
 @Component({
   selector: 'app-otp-verification',
@@ -24,7 +25,7 @@ export class OtpVerificationComponent implements OnInit, OnDestroy {
   resendDisabled = true;
   private countdownSub!: Subscription;
 
-  constructor(private fb: FormBuilder,   private authService: AuthService, private snackBar: MatSnackBar) {}
+  constructor(private fb: FormBuilder,   private authService: AuthService, private snackBar: MatSnackBar, private snackBarService: SnackbarService) {}
 
   ngOnInit(): void {
     this.otpForm = this.fb.group({
@@ -55,7 +56,7 @@ export class OtpVerificationComponent implements OnInit, OnDestroy {
         error: (err) => {
           // Handle HTTP or network errors
           const message = err?.error?.message || 'Something went wrong. Please try again.';
-          this.snackBar.open(message, 'Close', { duration: 5000, panelClass: ['snack-error'] });
+          this.snackBarService.showMessage(message,'error',true);
         }
       });
     }

@@ -1,18 +1,13 @@
 @if (showPasswordTemplate) {
-  <app-forgot-password [changingOwnPassword]="true" [currentUserEmail]="email ? email : ''"></app-forgot-password>
+  <app-forgot-password [changingOwnPassword]="true" [currentUserEmail]="emailId"></app-forgot-password>
 } @else {
   @if(user) {
     <div class="user-details-dialog">
-      <h2 mat-dialog-title class="dialog-title">
-        <mat-icon class="title-icon">person</mat-icon>
-        User Details
-      </h2>
 
       <mat-dialog-content class="user-details-content">
         @if (!isLoading) {
           <div class="container-fluid p-0">
 
-            <!-- User Profile Header Card -->
             <mat-card class="profile-header-card mb-4">
               <mat-card-content class="p-4">
                 <div class="row align-items-center">
@@ -58,7 +53,7 @@
                       </mat-chip-set>
                     </div>
                   </div>
-                  <div class="col-md-3 text-end">
+                  <div class="col-md-3">
                     <button mat-icon-button [matMenuTriggerFor]="menu" class="options-btn">
                       <mat-icon>more_vert</mat-icon>
                     </button>
@@ -88,11 +83,9 @@
               </mat-card-content>
             </mat-card>
 
-            <!-- User Information Cards -->
             <div class="row g-4">
 
-              <!-- Basic Information Card -->
-              <div class="col-md-6">
+              <div class="col-md-3">
                 <mat-card class="info-card">
                   <mat-card-header class="card-header">
                     <div mat-card-avatar class="card-avatar basic-info">
@@ -134,8 +127,7 @@
                 </mat-card>
               </div>
 
-              <!-- Contact Information Card -->
-              <div class="col-md-6">
+              <div class="col-md-3">
                 <mat-card class="info-card">
                   <mat-card-header class="card-header">
                     <div mat-card-avatar class="card-avatar contact-info">
@@ -163,7 +155,6 @@
                 </mat-card>
               </div>
 
-              <!-- Address Information Card -->
               <div class="col-12">
                 <mat-card class="info-card">
                   <mat-card-header class="card-header">
@@ -237,6 +228,3 @@
   }
 
 }
-
-
-

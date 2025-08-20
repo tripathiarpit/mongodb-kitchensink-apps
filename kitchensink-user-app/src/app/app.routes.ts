@@ -19,11 +19,15 @@ import {AdminDashboardGuard} from './core/services/AdminDashboardGuard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'login',
     pathMatch: 'full',
   },
-
-  // Public routes, protected by PublicGuard to prevent authenticated users from navigating back.
+  {
+    path: 'login',
+    component: LoginComponent,
+    title: 'Login Page',
+    canActivate: [PublicGuard],
+  },
   {
     path: 'login',
     component: LoginComponent,
@@ -48,7 +52,6 @@ export const routes: Routes = [
     title: 'Access Denied',
   },
 
-  // Protected Dashboard route and its children. AuthGuard checks for session.
   {
     path: 'dashboard',
     component: DashboardComponent,

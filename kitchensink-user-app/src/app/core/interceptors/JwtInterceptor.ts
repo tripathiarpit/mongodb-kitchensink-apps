@@ -39,45 +39,11 @@ export class JwtInterceptor implements HttpInterceptor {
       '/api/auth/account-verification/reset',
       '/api/auth/get-login-response-after-otp-verification',
       '/api/auth/logout'
-    ].some((path) => url.includes(path));
+    ].some((path) => url.includes(path) || url.includes('restcountries.com'));
   }
 
-  // intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-  //   let request = req;
-  //
-  //   if (!this.shouldBypassAuth(req.url)) {
-  //     const token = this.auth.getAuthToken();
-  //     if (token) {
-  //       request = req.clone({
-  //         setHeaders: { Authorization: `Bearer ${token}` }
-  //       });
-  //     }
-  //   }
-  //
-  //   return next.handle(request).pipe(
-  //     catchError((error: HttpErrorResponse) => {
-  //       // Check for 401 Unauthorized or a specific 400 error message
-  //       const isSessionExpiredError =
-  //         (error.status === 401) ||
-  //         (error.status === 400 && error.error?.message?.includes("Session has been expired"));
-  //
-  //       if (isSessionExpiredError && !this.isLoggingOut) {
-  //         this.loader.hide();
-  //         this.isLoggingOut = true;
-  //         this.auth.logout();
-  //         this.showMessage('Your session has expired. Please log in again.');
-  //         this.router.navigate(['/login']);
-  //         return EMPTY;
-  //       }
-  //
-  //       // For other errors, re-throw them for component-level handling
-  //       return throwError(() => error);
-  //     })
-  //   );
-  // }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Check session before proceeding with the request
     if (!this.sessionService.isSessionActive() && !this.shouldBypassAuth(req.url)) {
       if (!this.isLoggingOut) {
         this.isLoggingOut = true;
@@ -107,7 +73,6 @@ export class JwtInterceptor implements HttpInterceptor {
         const isSessionExpiredError =
           (error.status === 401) ||
           (error.status === 400 && error.error?.message?.includes("Session has been expired"));
-
         if (isSessionExpiredError && !this.isLoggingOut) {
           this.loader.hide();
           this.isLoggingOut = true;

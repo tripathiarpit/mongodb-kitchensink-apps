@@ -32,10 +32,8 @@ interface User {
       <div class="row mb-6"> <!-- Increased bottom margin for header -->
         <div class="col-12">
           <h2 class="text-primary mb-0 flex items-center">
-            <mat-icon class="mr-3 text-4xl">dashboard</mat-icon> <!-- Larger icon for title -->
-            <span class="text-3xl font-extrabold">Admin Dashboard</span> <!-- Larger, bolder title -->
+            <span class="text-3xl font-extrabold">Admin Dashboard</span>
           </h2>
-          <p class="text-muted text-lg mt-2">System overview and key metrics</p> <!-- Larger subtitle -->
         </div>
       </div>
 

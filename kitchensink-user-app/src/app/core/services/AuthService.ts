@@ -77,7 +77,6 @@ export class AuthService {
       // If no token, the user is not authenticated, thus no access.
       return of(false);
     }
-
     // Fetch roles from the token via an API call
     return this.getRolesFromToken(token).pipe(
       map(roles => {
@@ -333,7 +332,6 @@ export class AuthService {
     const headers = { Authorization: `Bearer ${token}` };
     return this.http.get<boolean>('/api/auth/validate-session', { headers }).pipe(
       catchError(err => {
-        console.error('Session validation failed:', err);
         return of(false); // Session is invalid on error
       })
     );

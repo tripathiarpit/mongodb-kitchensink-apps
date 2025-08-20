@@ -5,7 +5,6 @@ import {AuthService} from '../../core/services/AuthService';
 import {NavigationMenu, NavItem} from '../../shared/model/NaigationModel';
 import {MaterialModule} from '../../material.module';
 import {AppFooterComponent} from '../../shared/common-components/app-footer.component';
-import {NgForOf, NgIf} from '@angular/common';
 import {MatSidenav} from '@angular/material/sidenav';
 import {AppSettings, AppSettingsService} from '../../core/services/AppSettingsService';
 import {filter, Subject, takeUntil} from 'rxjs';
@@ -15,7 +14,7 @@ import {Title} from '@angular/platform-browser';
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  imports: [MaterialModule, RouterOutlet, AppFooterComponent, NgForOf, NgIf]
+  imports: [MaterialModule, RouterOutlet]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -24,6 +23,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   menuItems: NavItem[] = [];
   userRole: string | null = '' ;
   currentUserRole: string = 'USER';
+  roles: string[]= [];
   @ViewChild('sidenav') sidenav!: MatSidenav;
   isMobile = false;
   isOpened = true;
@@ -49,12 +49,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.userRole = this.authService.getUserRole();
+
     this.currentUserFullName = this.authService.getFullName();
     this.loadMenu();
     this.loadSettings();
     const rolesString = this.authService.getUserRole();
     const roles: string[] = rolesString ? JSON.parse(rolesString) : [];
-
+    this.roles = roles;
+    this.userRole = roles.join(",");
     if (roles.includes('ADMIN')) {
       this.router.navigate(['dashboard/admin']);
     } else if (roles.includes('USER')) {
@@ -86,14 +88,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadMenu() {
-    this.menuItems = NavigationMenu.menuItems.filter(item =>
+    this.menuItems = NavigationMenu.allMenuItems.filter(item =>
       this.authService.isAuthorized(item.allowedRoles)
     );
   }
 
-  onMenuClick(route: string) {
+  gotoHome(): void {
+    this.router.navigate(['dashboard']);
+  }
+
+  onMenuClick(route: string | undefined) {
     if (!this.authService.isLoggedIn()) {
-      // redirect to login or show message
       this.router.navigate(['/login']);
       return;
     }
