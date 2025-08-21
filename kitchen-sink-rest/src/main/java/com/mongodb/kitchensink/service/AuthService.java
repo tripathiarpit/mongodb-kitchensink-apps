@@ -7,7 +7,6 @@ import com.mongodb.kitchensink.model.User;
 import com.mongodb.kitchensink.util.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -18,9 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -56,11 +53,10 @@ public class AuthService {
     private long forgotPasswordTtl;
 
     public LoginResponse login(LoginRequest loginRequest) throws UserAuthException, UserNotFoundException, Exception {
-        validateLoginRequest(loginRequest);
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
         try {
-
+            email = email.toLowerCase();
             UserDto user = userService.getUserByEmail(email);
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password)
@@ -68,22 +64,27 @@ public class AuthService {
         List<String> roles = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-
-        String token = getOrCreateSessionToken(email, roles);
         String fullName = getFullName(user);
         if (user.getAccountVerificationPending() && user.getFirstLogin()) {
             User currentUser = userService.getUserByEmailForVerification(email);
             currentUser.setFirstLogin(false);
             userService.saveUpdatedUserAfterVerification(currentUser);
+            UserDto updatedUser = userService.getUserByEmail(email);
             return new LoginResponse(true, "Login successful", null, email, auth.getName(),
-                    fullName, roles, user.getAccountVerificationPending(), user.getFirstLogin());
+                    fullName, roles, updatedUser.getAccountVerificationPending(), updatedUser.getFirstLogin());
         }
+        if(!user.isActive()) {
+            throw  new UserAuthException(ErrorCodes.ACCOUNT_DISABLED, USERS_ACCOUNT_DISABLED);
+        }
+        String token = getOrCreateSessionToken(email, roles);
         return new LoginResponse(true, "Login successful", token, email, auth.getName(),
                 fullName, roles, user.getAccountVerificationPending(), user.getFirstLogin());
         }
         catch (BadCredentialsException | DisabledException e) {
             throw mapAuthException(e);
         } catch (UserNotFoundException e) {
+            throw e;
+        } catch (UserAuthException e) {
             throw e;
         }catch (Exception e) {
             throw new RuntimeException("Unexpected error", e);
@@ -260,7 +261,7 @@ public class AuthService {
                     userDto.getFirstLogin()
             );
         } else {
-            throw new AccountVerificationExcpetion(ErrorCodes.ACCOUNT_VERIFICATION_PENDING);
+            throw new AccountVerificationException(ErrorCodes.ACCOUNT_VERIFICATION_PENDING);
         }
 
     }

@@ -14,6 +14,10 @@ public class InvalidOtpException extends RuntimeException {
         super(customMessage);
         this.errorCode = errorCode;
     }
+    public InvalidOtpException(String customMessage, ErrorCodes errorCode) {
+        super(customMessage);
+        this.errorCode = errorCode;
+    }
 
     public ErrorCodes getErrorCode() {
         return errorCode;

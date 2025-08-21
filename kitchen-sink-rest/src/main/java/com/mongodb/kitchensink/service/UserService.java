@@ -4,8 +4,7 @@ import com.mongodb.kitchensink.constants.ErrorCodes;
 import com.mongodb.kitchensink.constants.ErrorMessageConstants;
 import com.mongodb.kitchensink.constants.UserAccountType;
 import com.mongodb.kitchensink.dto.*;
-import com.mongodb.kitchensink.exception.AccountVerificationExcpetion;
-import com.mongodb.kitchensink.exception.ResourceNotFoundException;
+import com.mongodb.kitchensink.exception.AccountVerificationException;
 import com.mongodb.kitchensink.exception.UserNotFoundException;
 import com.mongodb.kitchensink.mapper.ProfileMapper;
 import com.mongodb.kitchensink.mapper.UserMapper;
@@ -66,6 +65,7 @@ public class UserService {
     }
 
     public RegistrationResponse registerUser(RegistrationRequest request, Authentication authentication) {
+        request.setEmail(request.getEmail().toLowerCase());
         if (userRepository.existsByEmail(request.getEmail())) {
             return new RegistrationResponse(false, "Email already registered");
         }
@@ -121,7 +121,9 @@ public class UserService {
         if (emailIds == null || emailIds.isEmpty()) {
             return new ArrayList<>();
         }
-        List<User> users = userRepository.findByEmailIn(emailIds);
+
+        ArrayList<String> emaildIdSLowerCase = emailIds.stream().map(String::toLowerCase).collect(Collectors.toCollection(ArrayList::new));
+        List<User> users = userRepository.findByEmailIn(emaildIdSLowerCase);
         List<UserDto> userDtos = users.stream()
                 .map(user -> {
                     Optional<Profile> profileOptional = profileRepository.findByEmail(user.getEmail());
@@ -141,6 +143,10 @@ public class UserService {
     }
 
     public UserDto getUserByEmail(String email) {
+        if(email == null || email.isEmpty()) {
+            throw new UserNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, ErrorMessageConstants.ACCOUNT_NOT_FOUND_EMAIL);
+        }
+        email = email.toLowerCase();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(
                         ErrorCodes.RESOURCE_NOT_FOUND,
@@ -173,7 +179,7 @@ public class UserService {
                 ));
     }
     public Page<UserDto> getUsersByCity(String city, Pageable pageable) {
-        return profileRepository.findByAddress_CityIgnoreCase(city, pageable)
+        return profileRepository.findByAddress_CityContainingIgnoreCase(city, pageable)
                 .map(profile -> {
                     User user = userRepository.findByEmail(profile.getEmail())
                             .orElseThrow(() -> new UserNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, ErrorMessageConstants.USERS_NOT_FOUND_BY_CITY));
@@ -196,17 +202,24 @@ public class UserService {
     }
 
     public void activateAccount(String email,boolean firstLogin) {
+        if(email == null || email.isEmpty()) {
+            throw new UserNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, ErrorMessageConstants.ACCOUNT_NOT_FOUND_EMAIL);
+        }
+        email = email.toLowerCase();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new  UserNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, ErrorMessageConstants.ACCOUNT_NOT_FOUND_EMAIL));
         if(!user.getAccountVerificationPending() && !firstLogin) {
-            throw new AccountVerificationExcpetion(ErrorCodes.ACCOUNT_VERIFICATION_FAILED, ErrorMessageConstants.ACCOUNT_VERFIED);
+            throw new AccountVerificationException(ErrorCodes.ACCOUNT_VERIFICATION_FAILED, ErrorMessageConstants.ACCOUNT_VERFIED);
         }
         user.setAccountVerificationPending(false);
         userRepository.save(user);
     }
     @Transactional
     public ResourceDeleteResponse deleteUserByEmail(String email) {
-
+        if(email==null || email.isEmpty()) {
+            throw new UserNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, ErrorMessageConstants.ACCOUNT_NOT_FOUND_EMAIL);
+        }
+        email = email.toLowerCase();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(
                         ErrorCodes.RESOURCE_NOT_FOUND,
@@ -262,7 +275,7 @@ public class UserService {
     }
 
     public Page<UserDto> getUsersByCountry(String country, Pageable pageable) {
-        Page<Profile> profiles = profileRepository.findByAddress_CountryIgnoreCase(country, pageable);
+        Page<Profile> profiles = profileRepository.findByAddress_CountryContainingIgnoreCase(country, pageable);
         if (profiles.isEmpty()) {
             throw new UserNotFoundException(
                     ErrorCodes.RESOURCE_NOT_FOUND,
@@ -279,16 +292,24 @@ public class UserService {
 
     @Transactional
     public UserDto updateUser(String emailId, UserDto updateRequest) {
+        if(emailId == null || emailId.isEmpty()) {
+            throw new UserNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, ErrorMessageConstants.ACCOUNT_NOT_FOUND_EMAIL);
+        }
+        emailId = emailId.toLowerCase();
         User existingUser = userRepository.findByEmail(emailId)
                 .orElseThrow(() -> new UserNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, ErrorMessageConstants.USERS_NOT_FOUND_BY_EMAIL));
-
+        if (existingUser == null) {
+            throw new AccountVerificationException(ErrorCodes.VALIDATION_ERROR, ErrorMessageConstants.USERS_NOT_FOUND_BY_EMAIL);
+        }
         Profile existingProfile = profileRepository.findByUsername(existingUser.getUsername())
                 .orElseThrow(() -> new UserNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, ErrorMessageConstants.USERS_NOT_FOUND_BY_EMAIL));
-
+        if (existingProfile == null) {
+            throw new AccountVerificationException(ErrorCodes.VALIDATION_ERROR, ErrorMessageConstants.USERS_NOT_FOUND_BY_USER_ID);
+        }
         if (updateRequest.getUsername() != null && !updateRequest.getUsername().equals(existingUser.getUsername())) {
             Optional<Profile> profileExist = profileRepository.findByUsername(updateRequest.getUsername());
             if (!profileExist.isEmpty()) {
-                new AccountVerificationExcpetion(ErrorCodes.VALIDATION_ERROR, ErrorMessageConstants.USERS_FOUND_BY_USER_ID);
+                throw new AccountVerificationException(ErrorCodes.VALIDATION_ERROR, ErrorMessageConstants.USERS_FOUND_BY_USER_ID);
             }
             existingUser.setUsername(updateRequest.getUsername());
             existingProfile.setUsername(updateRequest.getUsername());

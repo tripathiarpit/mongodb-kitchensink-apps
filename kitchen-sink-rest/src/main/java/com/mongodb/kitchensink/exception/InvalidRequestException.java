@@ -14,6 +14,10 @@ public class InvalidRequestException extends RuntimeException {
         super(customMessage);
         this.errorCode = errorCode;
     }
+    public InvalidRequestException(String customMessage,ErrorCodes errorCode) {
+        super(customMessage);
+        this.errorCode = errorCode;
+    }
 
     public ErrorCodes getErrorCode() {
         return errorCode;

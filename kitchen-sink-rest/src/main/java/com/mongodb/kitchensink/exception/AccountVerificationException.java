@@ -2,15 +2,15 @@ package com.mongodb.kitchensink.exception;
 
 import com.mongodb.kitchensink.constants.ErrorCodes;
 
-public class AccountVerificationExcpetion extends RuntimeException {
+public class AccountVerificationException extends RuntimeException {
     private final ErrorCodes errorCode;
 
-    public AccountVerificationExcpetion(ErrorCodes errorCode) {
+    public AccountVerificationException(ErrorCodes errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }
 
-    public AccountVerificationExcpetion(ErrorCodes errorCode, String customMessage) {
+    public AccountVerificationException(ErrorCodes errorCode, String customMessage) {
         super(customMessage);
         this.errorCode = errorCode;
     }

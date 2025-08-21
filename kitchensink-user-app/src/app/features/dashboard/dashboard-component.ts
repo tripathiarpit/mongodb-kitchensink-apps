@@ -14,7 +14,7 @@ import {Title} from '@angular/platform-browser';
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  imports: [MaterialModule, RouterOutlet]
+  imports: [MaterialModule, RouterOutlet, RouterLink]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

@@ -24,7 +24,10 @@
       </li>
 
       <li *ngFor="let item of menuItems" class="nav-item">
-        <a *ngIf="!item.children" (click)="onMenuClick(item?.route)" class="nav-link">
+        <a *ngIf="!item.children" class="nav-link"
+           [routerLink]="item?.route"
+           routerLinkActive="active"
+        >
           <mat-icon matSuffix fontSet="mdi" [fontIcon]="item.icon.split(' ')[1]"></mat-icon>
           <span class="menu-title">{{ item.label }}</span>
         </a>

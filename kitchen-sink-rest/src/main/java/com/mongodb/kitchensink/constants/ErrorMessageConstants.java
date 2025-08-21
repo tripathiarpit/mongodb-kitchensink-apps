@@ -31,4 +31,5 @@ private ErrorMessageConstants() {
     public static final String USERS_NOT_FOUND_BY_STATE = "Users not found with State";
     public static final String USERS_NOT_FOUND_BY_USER_ID= "Users not found with UserID";
     public static final String USERS_FOUND_BY_USER_ID= "There is an Existing account with this UserID.";
+    public static final String USERS_ACCOUNT_DISABLED     = "Your account has been disabled, please contact Administrator.";
 }

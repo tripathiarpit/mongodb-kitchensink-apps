@@ -39,6 +39,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService   {
 
     @Override
     public ApiResponse sendOtpToEmail(String email) {
+
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
         if (optionalUser.isEmpty()) {
@@ -52,7 +53,7 @@ public class ForgotPasswordServiceImpl implements ForgotPasswordService   {
 
         String otp  = otpService.generateOtp(email, "FORGOT_PASSWORD", forgotPasswordTtl);
 
-        emailService.sendEmail(
+    emailService.sendEmail(
                 user.getEmail(),
                 PASSWORD_RESET_OTP_SUBJECT,
                 String.format(PASSWORD_RESET_OTP_BODY_TEMPLATE, user.getUsername(),otp)

@@ -14,6 +14,10 @@ public class UserNotFoundException extends RuntimeException {
         super(customMessage);
         this.errorCode = errorCode;
     }
+    public UserNotFoundException(String customMessage, ErrorCodes errorCode) {
+        super(customMessage);
+        this.errorCode = errorCode;
+    }
 
     public ErrorCodes getErrorCode() {
         return errorCode;

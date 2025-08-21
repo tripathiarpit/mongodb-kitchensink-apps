@@ -73,6 +73,7 @@ export class JwtInterceptor implements HttpInterceptor {
         const isSessionExpiredError =
           (error.status === 401) ||
           (error.status === 400 && error.error?.message?.includes("Session has been expired"));
+
         if (isSessionExpiredError && !this.isLoggingOut) {
           this.loader.hide();
           this.isLoggingOut = true;

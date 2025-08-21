@@ -1,4 +1,4 @@
-package com.mongodb.kitchensink.util;
+package com.mongodb.kitchensink.config;
 
 import com.mongodb.kitchensink.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;

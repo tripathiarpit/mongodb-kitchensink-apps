@@ -1,6 +1,6 @@
 package com.mongodb.kitchensink.config;
 
-import com.mongodb.kitchensink.util.JwtAuthenticationEntryPoint;
+import com.mongodb.kitchensink.config.JwtAuthenticationEntryPoint;
 import com.mongodb.kitchensink.util.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

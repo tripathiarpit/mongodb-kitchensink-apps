@@ -10,6 +10,21 @@ public class ProfileDto {
     private String country;
     private String pincode;
 
+    public ProfileDto() {
+
+    }
+
+    public ProfileDto(String firstName, String lastName, String phoneNumber, String street, String city, String state, String country, String pincode) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.street = street;
+        this.city = city;
+        this.state = state;
+        this.country = country;
+        this.pincode = pincode;
+    }
+
     public String getFirstName() {
         return firstName;
     }

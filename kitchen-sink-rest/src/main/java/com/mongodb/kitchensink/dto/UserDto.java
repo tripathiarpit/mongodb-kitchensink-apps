@@ -14,6 +14,22 @@ public class UserDto {
     private Boolean isFirstLogin;
     private String twoFactorSecret;
     private boolean twoFactorEnabled = false;
+    public UserDto() {
+
+    }
+    public UserDto(String id, String email, String username, List<String> roles, boolean active, Instant createdAt, Boolean isAccountVerificationPending, Boolean isFirstLogin, String twoFactorSecret, boolean twoFactorEnabled, ProfileDto profile) {
+        this.id = id;
+        this.email = email;
+        this.username = username;
+        this.roles = roles;
+        this.active = active;
+        this.createdAt = createdAt;
+        this.isAccountVerificationPending = isAccountVerificationPending;
+        this.isFirstLogin = isFirstLogin;
+        this.twoFactorSecret = twoFactorSecret;
+        this.twoFactorEnabled = twoFactorEnabled;
+        this.profile = profile;
+    }
 
     public String getTwoFactorSecret() {
         return twoFactorSecret;

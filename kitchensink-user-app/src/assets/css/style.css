@@ -14988,6 +14988,7 @@ dl {
         .sidebar .nav .nav-item .nav-link[aria-expanded="true"] .menu-arrow:before {
           content: "\F374"; }
         .sidebar .nav .nav-item .nav-link:hover {
+          cursor: pointer;
           font-weight: 500;
           -webkit-transition-duration: 0.45s;
           transition-duration: 0.45s; }

@@ -1,7 +1,7 @@
 package com.mongodb.kitchensink.util;
 
 import com.mongodb.kitchensink.constants.ErrorCodes;
-import com.mongodb.kitchensink.exception.AccountVerificationExcpetion;
+import com.mongodb.kitchensink.exception.AccountVerificationException;
 import com.mongodb.kitchensink.model.User;
 import com.mongodb.kitchensink.repository.UserRepository;
 import com.mongodb.kitchensink.service.SessionService;
@@ -9,8 +9,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.websocket.SessionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,11 +27,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider tokenProvider;
     private final UserRepository userRepository;
     private final SessionService sessionService;
-    private final com.mongodb.kitchensink.util.JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final com.mongodb.kitchensink.config.JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     public JwtAuthenticationFilter(JwtTokenProvider tokenProvider,
                                    UserRepository userRepository, SessionService sessionService,
-                                   com.mongodb.kitchensink.util.JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+                                   com.mongodb.kitchensink.config.JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
         this.tokenProvider = tokenProvider;
         this.userRepository = userRepository;
         this.sessionService = sessionService;
@@ -64,7 +62,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .collect(Collectors.toList());
                 boolean sessionValid = sessionService.validateSessionToken(email, token);
                 if (!sessionValid) {
-                    throw new AccountVerificationExcpetion(ErrorCodes.SESSION_EXPIRED);
+                    throw new AccountVerificationException(ErrorCodes.SESSION_EXPIRED);
                 }
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
@@ -79,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
 
-        } catch (AccountVerificationExcpetion accountVerificationExcpetion) {
+        } catch (AccountVerificationException accountVerificationExcpetion) {
             jwtAuthenticationEntryPoint.commence(request, response,
                     new org.springframework.security.core.AuthenticationException(accountVerificationExcpetion.getMessage()) {});
         }

@@ -62,14 +62,14 @@ export class UserListComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loadUsers();
+
     this.dataSource.filterPredicate = (data: User, filter: string): boolean => {
       const searchTerm = filter.trim().toLowerCase();
-      return <boolean>(
-        (data.profile.firstName && data.profile.firstName.toLowerCase().includes(searchTerm)) ||
-        (data.email && data.email.toLowerCase().includes(searchTerm)) ||
-        (data.profile.city && data.profile.city.toLowerCase().includes(searchTerm)) ||
-        (data.profile.country && data.profile.country.toLowerCase().includes(searchTerm))
-      );
+      const firstNameMatch = data.profile?.firstName?.toLowerCase().includes(searchTerm) || false;
+      const emailMatch = data.email?.toLowerCase().includes(searchTerm) || false;
+      const cityMatch = data.profile?.city?.toLowerCase().includes(searchTerm) || false;
+      const countryMatch = data.profile?.country?.toLowerCase().includes(searchTerm) || false;
+      return firstNameMatch || emailMatch || cityMatch || countryMatch;
     };
   }
 
@@ -119,6 +119,12 @@ export class UserListComponent implements OnInit, AfterViewInit {
     const filterValue = (event.target as HTMLInputElement).value;
     this.filterValue = filterValue.trim().toLowerCase();
     this.dataSource.filter = this.filterValue;
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+    this.selectedEmailsForDownload = this.dataSource.filteredData
+      .map(user => user.email)
+      .filter((email): email is string => email !== undefined);
   }
 
   sortChange(event: any) {

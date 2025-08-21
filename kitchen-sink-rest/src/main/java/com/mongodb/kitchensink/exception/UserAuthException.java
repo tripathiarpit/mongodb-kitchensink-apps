@@ -14,6 +14,10 @@ public class UserAuthException extends RuntimeException {
         super(customMessage);
         this.errorCode = errorCode;
     }
+    public UserAuthException(String customMessage, ErrorCodes errorCode) {
+        super(customMessage);
+        this.errorCode = errorCode;
+    }
 
     public ErrorCodes getErrorCode() {
         return errorCode;

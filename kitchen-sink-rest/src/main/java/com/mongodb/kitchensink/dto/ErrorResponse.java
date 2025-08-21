@@ -3,18 +3,43 @@ import org.springframework.http.HttpStatus;
 
 public class ErrorResponse {
     private String message;
-    private int status;
+    private HttpStatus status;
+    private Long timestamp;
 
+    public ErrorResponse() {
+    }
     public ErrorResponse(String message, HttpStatus status) {
         this.message = message;
-        this.status = status.value();
+        this.status = status;
+    }
+
+    public ErrorResponse(String message, HttpStatus status, Long timestamp) {
+        this.message = message;
+        this.status = status;
+        this.timestamp = timestamp;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public int getStatus() {
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public HttpStatus getStatus() {
         return status;
+    }
+
+    public void setStatus(HttpStatus status) {
+        this.status = status;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
     }
 }

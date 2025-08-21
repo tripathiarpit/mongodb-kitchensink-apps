@@ -12,7 +12,7 @@ public interface ProfileRepository extends MongoRepository<Profile, String> {
 
     Optional<Profile> findByUsername(String username);
     Optional<Profile> findByEmail(String emailId);
-    Page<Profile> findByAddress_CountryIgnoreCase(String country, Pageable pageable);
+    Page<Profile> findByAddress_CountryContainingIgnoreCase(String country, Pageable pageable);
     Page<Profile> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName, Pageable pageable);
-    Page<Profile> findByAddress_CityIgnoreCase(String city, Pageable pageable);
+    Page<Profile> findByAddress_CityContainingIgnoreCase(String city, Pageable pageable);
 }

@@ -63,14 +63,16 @@ public class SessionService {
     public boolean validateSessionToken(String email, String token) {
         String redisKey = "SESSION:" + email;
         RedisValue<String> value = (RedisValue<String>) redisTemplate.opsForValue().get(redisKey);
-
-        if (value == null || value.isExpired()) return false;
-
-        value.refresh(sessionExpirationSeconds);
-        redisTemplate.opsForValue().set(redisKey, value, Duration.ofSeconds(sessionExpirationSeconds));
-        return value.getValue().equals(token);
+        if (value == null || value.isExpired()) {
+            return false;
+        }
+        if (value.getValue().equals(token)) {
+            value.refresh(sessionExpirationSeconds);
+            redisTemplate.opsForValue().set(redisKey, value, Duration.ofSeconds(sessionExpirationSeconds));
+            return true;
+        }
+        return false;
     }
-
     public void invalidateSession(String email) {
         redisTemplate.delete("SESSION:" + email);
     }
@@ -90,13 +92,12 @@ public class SessionService {
     public String getTokenForExistingSession(String email) {
         String key = "SESSION:" + email;
         RedisValue<String> sessionValue = (RedisValue<String>) redisTemplate.opsForValue().get(key);
-        if (sessionValue != null && !sessionValue.isExpired()) {
-            return sessionValue.getValue();
+        if (sessionValue == null) {
+            return null;
         }
         if (sessionValue.isExpired()) {
             redisTemplate.delete(email);
-            return null;
         }
-        return null;
+        return sessionValue.getValue();
     }
 }

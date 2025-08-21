@@ -69,8 +69,8 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.badRequest().body(errors);
     }
-    @ExceptionHandler(AccountVerificationExcpetion.class)
-    public ResponseEntity<String> handleVerificationPending(AccountVerificationExcpetion ex) {
+    @ExceptionHandler(AccountVerificationException.class)
+    public ResponseEntity<String> handleVerificationPending(AccountVerificationException ex) {
         return ResponseEntity
                 .badRequest()
                 .body(ex.getMessage());

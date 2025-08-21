@@ -131,7 +131,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     this.otpSending = true;
     this.startCountdown();
     this.otpSent = false;
-    this.authService.requestForgotPasswordOtp(email).subscribe({
+    this.authService.requestForgotPasswordOtp(email.toLowerCase()).subscribe({
       next: (response) => {
         if (response.success) {
           this.showSuccessSnack(response.message, "", 8000);
@@ -163,7 +163,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     this.otpSending = true;
     this.startCountdown();
     this.otpSent = false;
-    this.authService.requestForgotPasswordOtp(email).subscribe({
+    this.authService.requestForgotPasswordOtp(email.toLowerCase()).subscribe({
       next: (response) => {
         if (response.success) {
           this.showSuccessSnack(response.message, "", 8000);
@@ -196,7 +196,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
     this.otpVerifying = true;
     this.otpVerified = false;
-    this.authService.verifyForgotPasswordOtp(email, otp).subscribe({
+    this.authService.verifyForgotPasswordOtp(email.toLowerCase(), otp).subscribe({
       next: (res: { success: boolean; code: any; message: string }) => {
         if (res.success) {
           this.otpVerified = true;
@@ -229,7 +229,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       return;
     }
     this.loaderService.show();
-    this.authService.resetPassword(email, newPassword).subscribe({
+    this.authService.resetPassword(email.toLowerCase(), newPassword).subscribe({
       next: (res: { success: boolean; code: any; message: string }) => {
         this.emailForm.reset();
         this.otpForm.reset();
