@@ -55,8 +55,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String email = tokenProvider.getEmailFromToken(token);
                 User currentUser = userRepository.findByEmail(email)
                         .orElseThrow(() -> new RuntimeException("User not found"));
-                System.out.println("User roles from DB: " + currentUser.getRoles());
-
                 List<GrantedAuthority> authorities = currentUser.getRoles().stream()
                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                         .collect(Collectors.toList());
@@ -70,7 +68,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 null,
                                 authorities
                         );
-                System.out.println("Granted authorities: " + authorities);
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }

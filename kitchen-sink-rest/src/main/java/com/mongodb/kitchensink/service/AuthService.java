@@ -31,9 +31,6 @@ public class AuthService {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private  JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
     private UserDetailsService userDetailsService;
 
     @Autowired UserService userService;
@@ -51,6 +48,8 @@ public class AuthService {
 
     @Value("${otp.forgotPassword.ttlSeconds}")
     private long forgotPasswordTtl;
+    @Autowired
+    private  JwtTokenProvider jwtTokenProvider;
 
     public LoginResponse login(LoginRequest loginRequest) throws UserAuthException, UserNotFoundException, Exception {
         String email = loginRequest.getEmail();
@@ -76,7 +75,11 @@ public class AuthService {
         if(!user.isActive()) {
             throw  new UserAuthException(ErrorCodes.ACCOUNT_DISABLED, USERS_ACCOUNT_DISABLED);
         }
-        String token = getOrCreateSessionToken(email, roles);
+        // If the User has Existing Session, we are invalidate it and create a new token
+            if(sessionService.doesSessionExist(email)) {
+                sessionService.invalidateSessionToken(email);
+            }
+        String token = this.sessionService.createNewSessionToken(email, roles);
         return new LoginResponse(true, "Login successful", token, email, auth.getName(),
                 fullName, roles, user.getAccountVerificationPending(), user.getFirstLogin());
         }
@@ -150,6 +153,10 @@ public class AuthService {
             return token;
         }
     }
+    public String createNewSessionToken(String email, List<String> roles) {
+        return sessionService.createNewSessionToken(email, roles);
+    }
+
     private void invalidateSessionToken(String email) {
         if (sessionService.doesSessionExist(email)) {
             sessionService.invalidateSessionToken(email);
@@ -176,16 +183,7 @@ public class AuthService {
     public boolean isUserAdminOrUser(List<String> roles) {
         return roles.contains("ROLE_ADMIN") || roles.contains("ROLE_USER");
     }
-    public boolean validateSession(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new InvalidRequestException(ErrorCodes.VALIDATION_ERROR, INVALID_REQUEST);
-        }
-        String token = authHeader.substring(7);
-        jwtTokenProvider.validateToken(token);
-        String username = jwtTokenProvider.getEmailFromToken(token);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        return userDetails != null;
-    }
+
     public List<String> getRolesFromToken(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new InvalidRequestException(ErrorCodes.VALIDATION_ERROR, INVALID_REQUEST);
@@ -264,6 +262,16 @@ public class AuthService {
             throw new AccountVerificationException(ErrorCodes.ACCOUNT_VERIFICATION_PENDING);
         }
 
+    }
+    public boolean validateSession(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new InvalidRequestException(ErrorCodes.VALIDATION_ERROR, INVALID_REQUEST);
+        }
+        String token = authHeader.substring(7);
+        this.sessionService.validateSession(token);
+        String username = jwtTokenProvider.getEmailFromToken(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return userDetails != null;
     }
 
 

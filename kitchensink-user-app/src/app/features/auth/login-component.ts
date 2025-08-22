@@ -70,6 +70,7 @@ export class LoginComponent {
         this.currentLoggedInUserEmail = response.email;
         this.isAccountVerificationPending = response.accountVerificationPending;
         this.isFirstLogin = response.firstLogin;
+
         if (this.isAccountVerificationPending) {
           this.isLoading = false;
           this.showOtpVerify = true;
@@ -77,13 +78,11 @@ export class LoginComponent {
           this.loginForm.controls['password'].disable();
           this.loaderService.hide();
         } else {
+          // Save user data and navigate immediately.
           this.authService.saveUserData(response);
-          setTimeout(() => {
-            this.loaderService.hide();
-            this.router.navigate(['/dashboard']);
-          }, 1000);
+          this.loaderService.hide();
+          this.router.navigate(['/dashboard']);
         }
-
       },
       error: (error: any) => {
         console.error('Login failed', error);
@@ -102,7 +101,6 @@ export class LoginComponent {
 
         } else if (error.status === 401) {
           this.errorMessage = error.error.message || 'Invalid email or password.';
-
         } else {
           this.showMessage(error);
         }

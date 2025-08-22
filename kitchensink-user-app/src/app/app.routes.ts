@@ -29,22 +29,14 @@ export const routes: Routes = [
     canActivate: [PublicGuard],
   },
   {
-    path: 'login',
-    component: LoginComponent,
-    title: 'Login Page',
-    canActivate: [PublicGuard],
-  },
-  {
     path: 'signup',
     component: SignupComponent,
     title: 'Signup Page',
-    canActivate: [],
   },
   {
     path: 'forgot-password',
     component: ForgotPasswordComponent,
     title: 'Forgot Password',
-    canActivate: [],
   },
   {
     path: 'access-denied',

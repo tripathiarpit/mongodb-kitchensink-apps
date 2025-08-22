@@ -31,7 +31,6 @@ public class RedisConfig {
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
-
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.activateDefaultTyping(
@@ -39,11 +38,9 @@ public class RedisConfig {
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY
         );
-
         GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
         template.setValueSerializer(jsonSerializer);
         template.setHashValueSerializer(jsonSerializer);
-
         template.afterPropertiesSet();
         return template;
     }

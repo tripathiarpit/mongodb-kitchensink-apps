@@ -43,7 +43,7 @@ public class DataLoader implements CommandLineRunner {
             String email = "user" + i + "@example.com";
             User user = User.builder()
                     .email(email)
-                    .passwordHash(passwordEncoder.encode("Welcome@123"+i))
+                    .passwordHash(passwordEncoder.encode("Admin@123"))
                     .roles(List.of("USER"))
                     .username(usernameGeneratorService.generateUniqueUsername(email))
                     .active(true)

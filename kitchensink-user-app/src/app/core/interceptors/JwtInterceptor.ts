@@ -1,3 +1,4 @@
+// src/app/core/interceptors/JwtInterceptor.ts
 import { Injectable } from '@angular/core';
 import {
   HttpInterceptor,
@@ -6,14 +7,14 @@ import {
   HttpEvent,
   HttpErrorResponse
 } from '@angular/common/http';
-import { Observable, throwError, EMPTY } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, throwError, EMPTY, of } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/AuthService';
 import { AppSnackbarComponent } from '../../shared/common-components/app-snackbar/app-snackbar';
-import {LoaderService} from '../services/LoaderService';
-import {SessionService} from '../services/SessionService';
+import { LoaderService } from '../services/LoaderService';
+import { SessionService } from '../services/SessionService';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
@@ -38,57 +39,60 @@ export class JwtInterceptor implements HttpInterceptor {
       '/api/auth/account-verification/verify-otp',
       '/api/auth/account-verification/reset',
       '/api/auth/get-login-response-after-otp-verification',
-      '/api/auth/logout'
+      '/api/auth/logout',
+      '/api/auth/validate-session'
     ].some((path) => url.includes(path) || url.includes('restcountries.com'));
   }
 
-
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (!this.sessionService.isSessionActive() && !this.shouldBypassAuth(req.url)) {
-      if (!this.isLoggingOut) {
-        this.isLoggingOut = true;
-        this.auth.logout();
-        this.showMessage('Your session has expired. Please log in again.');
-        this.router.navigate(['/login']);
-        // Stop the request from going through
-        return EMPTY;
-      }
+    // If a request shouldn't be authenticated, handle it directly.
+    if (this.shouldBypassAuth(req.url)) {
+      return next.handle(req);
     }
 
-    let request = req;
-    if (!this.shouldBypassAuth(req.url)) {
-      const token = this.auth.getAuthToken();
-      if (token) {
-        request = req.clone({
-          setHeaders: { Authorization: `Bearer ${token}` }
-        });
-      }
-    }
-
-    // This part of the code handles the response after the request has been made.
-    return next.handle(request).pipe(
-      catchError((error: HttpErrorResponse) => {
-        // Your existing error-handling logic for 401/400 errors can remain
-        // as a secondary check, in case the initial check isn't sufficient.
-        const isSessionExpiredError =
-          (error.status === 401) ||
-          (error.status === 400 && error.error?.message?.includes("Session has been expired"));
-
-        if (isSessionExpiredError && !this.isLoggingOut) {
-          this.loader.hide();
-          this.isLoggingOut = true;
-          this.auth.logout();
-          this.showMessage('Your session has expired. Please log in again.');
-          this.router.navigate(['/login']);
-          return EMPTY;
+    // Check if the session is active before proceeding.
+    return this.sessionService.isSessionActive().pipe(
+      switchMap(isSessionActive => {
+        if (!isSessionActive) {
+          if (!this.isLoggingOut) {
+            this.isLoggingOut = true;
+            this.auth.clearSessionStorage();
+            this.showMessage('Your session has expired. Please log in again.');
+            this.router.navigate(['/login']);
+          }
+          return EMPTY; // Stop the request
         }
 
-        return throwError(() => error);
+        // If session is active, clone the request with the token.
+        const token = this.auth.getAuthToken();
+        const requestWithToken = req.clone({
+          setHeaders: { Authorization: `Bearer ${token}` }
+        });
+
+        // Handle the response after the request has been made.
+        return next.handle(requestWithToken).pipe(
+          catchError((error: HttpErrorResponse) => {
+            const isSessionExpiredError =
+              (error.status === 401) ||
+              (error.status === 400 && error.error?.message?.includes("Session has been expired"));
+
+            if (isSessionExpiredError && !this.isLoggingOut) {
+              this.loader.hide();
+              this.isLoggingOut = true;
+              this.auth.clearSessionStorage();
+              this.showMessage('Your session has expired. Please log in again.');
+              this.router.navigate(['/login']);
+              return EMPTY;
+            }
+
+            return throwError(() => error);
+          })
+        );
       })
     );
   }
 
-  private showMessage(message: string) {
+  private showMessage(message: string): void {
     this.loader.hide();
     this.snackBar.openFromComponent(AppSnackbarComponent, {
       data: { message },

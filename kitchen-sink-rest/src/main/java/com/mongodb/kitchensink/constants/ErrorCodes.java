@@ -8,7 +8,7 @@ public enum ErrorCodes {
     INVALID_CREDENTIALS("Invalid email or password", HttpStatus.UNAUTHORIZED),
     ACCOUNT_DISABLED("User account is disabled", HttpStatus.FORBIDDEN),
     USER_NOT_FOUND("No account not found", HttpStatus.NOT_FOUND),
-    ACCOUNT_VERIFICATION_FAILED("Account verification failed,You have entered Wrong or Expired OTP. Request a new OTP and try again.", HttpStatus.INTERNAL_SERVER_ERROR),
+    ACCOUNT_VERIFICATION_FAILED("Account verification failed, enter the valid OTP or request a new OTP.", HttpStatus.INTERNAL_SERVER_ERROR),
     ACCOUNT_VERIFICATION_PENDING("Account verification is pending, verification requesting OTP.", HttpStatus.INTERNAL_SERVER_ERROR),
     SESSION_EXPIRED("Session has been expired, login again to continue", HttpStatus.FORBIDDEN),
     INVALID_OTP("Provided otp is not valid", HttpStatus.BAD_REQUEST),

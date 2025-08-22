@@ -1,12 +1,20 @@
 package com.mongodb.kitchensink.service;
 
+import com.mongodb.kitchensink.constants.ErrorCodes;
 import com.mongodb.kitchensink.constants.RedisValue;
+import com.mongodb.kitchensink.exception.InvalidRequestException;
+import com.mongodb.kitchensink.util.JwtTokenProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.Duration;
+import java.util.List;
+
+import static com.mongodb.kitchensink.constants.ErrorMessageConstants.INVALID_REQUEST;
 
 @Service
 public class SessionService {
@@ -20,8 +28,11 @@ public class SessionService {
     private long sessionExpirationSeconds;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public SessionService(RedisTemplate<String, Object> redisTemplate) {
+    private final JwtTokenProvider jwtTokenProvider;
+
+    public SessionService(RedisTemplate<String, Object> redisTemplate, JwtTokenProvider jwtTokenProvider) {
         this.redisTemplate = redisTemplate;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -73,9 +84,6 @@ public class SessionService {
         }
         return false;
     }
-    public void invalidateSession(String email) {
-        redisTemplate.delete("SESSION:" + email);
-    }
     public boolean doesSessionExist(String email) {
         String key = "SESSION:" + email;
     RedisValue<String> sessionValue = (RedisValue<String>) redisTemplate.opsForValue().get(key);
@@ -99,5 +107,15 @@ public class SessionService {
             redisTemplate.delete(email);
         }
         return sessionValue.getValue();
+    }
+    public String createNewSessionToken(String email, List<String> roles) {
+        String token = jwtTokenProvider.generateToken(email, roles);
+        this.storeSessionToken(email, token);
+        return token;
+    }
+    public boolean validateSession(String token) {
+        jwtTokenProvider.validateToken(token);
+        String username = jwtTokenProvider.getEmailFromToken(token);
+        return username != null;
     }
 }

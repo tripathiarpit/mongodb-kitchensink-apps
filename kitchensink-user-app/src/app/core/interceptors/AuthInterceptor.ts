@@ -25,13 +25,14 @@ export class AuthInterceptor implements HttpInterceptor {
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
           this.showMessage(error.error.message || 'Session expired. Please login again.');
-          this.authService.logout();
+          this.authService.clearSessionStorage();
+          this.router.navigate(['/login']);
           return EMPTY;
         }
 
         if (error.status === 403) {
           this.showMessage(error.error.message || 'Access denied.');
-         // this.router.navigate(['/access-denied']);
+          this.router.navigate(['/access-denied']);
           return EMPTY;
         }
 

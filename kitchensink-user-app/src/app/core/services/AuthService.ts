@@ -322,21 +322,7 @@ export class AuthService {
     return this.http.get<string[]>(`/api/auth/roles-by-email/${email}`);
   }
 
-  /**
-   * Validates the current user session with the backend.
-   * @returns An Observable<boolean> indicating if the session is valid.
-   */
-  validateSession(): Observable<boolean> {
-    const token = localStorage.getItem(this.tokenKey);
-    if (!token) return of(false);
 
-    const headers = { Authorization: `Bearer ${token}` };
-    return this.http.get<boolean>('/api/auth/validate-session', { headers }).pipe(
-      catchError(err => {
-        return of(false); // Session is invalid on error
-      })
-    );
-  }
 
   /**
    * Fetches login response after OTP verification.
@@ -356,5 +342,43 @@ export class AuthService {
     let value = localStorage.getItem(this.userRoleKey)?localStorage.getItem(this.userRoleKey): '';
     if (value)
     this.rolesSubject.next(value);
+  }
+  clearSessionStorage(): void {
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.userRoleKey);
+    localStorage.removeItem(this.fullnameKey);
+    localStorage.removeItem(this.emailKey);
+    sessionStorage.clear();
+  }
+  isSessionActive(): Observable<boolean> {
+    const token = this.getAuthToken();
+
+    if (!token) {
+      return of(false);
+    }
+    return this.validateSession().pipe(
+      map(isValid => {
+        return isValid;
+      }),
+      catchError(error => {
+        return of(false);
+      })
+    );
+  }
+
+   validateSession(): Observable<boolean> {
+    const token = this.getAuthToken();
+
+    if (!token) {
+      return of(false);
+    }
+
+    const headers = { Authorization: `Bearer ${token}` };
+    return this.http.get<boolean>('/api/auth/validate-session', { headers }).pipe(
+      map(() => true), // Map a successful response to 'true'
+      catchError(err => {
+        return of(false); // Map any error to 'false'
+      })
+    );
   }
 }

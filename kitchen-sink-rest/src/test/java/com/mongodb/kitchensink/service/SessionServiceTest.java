@@ -171,7 +171,7 @@ class SessionServiceTest {
     @Test
     @DisplayName("invalidateSession should delete the session key")
     void invalidateSession_shouldDeleteSessionKey() {
-        sessionService.invalidateSession(EMAIL);
+        sessionService.invalidateSessionToken(EMAIL);
 
         verify(redisTemplate, times(1)).delete(SESSION_KEY);
     }

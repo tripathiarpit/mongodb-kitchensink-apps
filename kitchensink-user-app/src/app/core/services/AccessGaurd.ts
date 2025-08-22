@@ -23,13 +23,9 @@ export class AccessGuard implements CanActivate {
     state: RouterStateSnapshot
   ): Observable<boolean | UrlTree> {
     const allowedRoles = route.data['allowedRoles'] as string[];
-
-    // If no roles are defined on the route, allow access (or adjust as needed)
     if (!allowedRoles || allowedRoles.length === 0) {
       return of(true);
     }
-
-    // Check if the logged-in user has the required roles
     return this.authService.hasAccessToPage(allowedRoles).pipe(
       map(hasAccess => {
         if (hasAccess) {
