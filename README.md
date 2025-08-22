@@ -21,6 +21,7 @@ A comprehensive **full-stack web application** demonstrating modern enterprise d
 - [API Documentation](#-api-documentation)
 - [Development](#-development)
 - [Configuration](#-configuration)
+- [Code Coverage](#-codecoverage)
 - [Troubleshooting](#-troubleshooting)
 - [Contributing](#-contributing)
 
@@ -258,6 +259,33 @@ environment:
 ```
 
 ---
+
+
+## ⚙️ Code Coverage
+Run dockr-compose up --build
+1. Run SonarQube locally 🏃‍♂️
+Your first step, "Open bash and Run the Application, it starts sonar cube application on http://localhost:9000," is for starting the SonarQube server itself, likely using docker-compose. This is a prerequisite for the analysis.
+
+3. Run Maven Analysis
+This is the core of the analysis process.
+
+Bash
+
+mvn clean verify sonar:sonar \
+  -Dsonar.projectKey=kitchensink \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=squ_4f4b69499f09af05304af0653ed9ad5d9b66b83e
+mvn clean verify: This command from your build tool (Maven) runs all the tests and generates the Jacoco test coverage report.
+
+sonar:sonar: This is the SonarQube Maven plugin goal. It executes the analysis.
+
+-Dsonar.projectKey=kitchensink: Defines a unique identifier for your project.
+
+-Dsonar.host.url=http://localhost:9000: Specifies the URL of your SonarQube server.
+
+-Dsonar.login=...: Provides the authentication token required to send the analysis results to the server.
+
+
 
 ## 🔧 Troubleshooting
 
