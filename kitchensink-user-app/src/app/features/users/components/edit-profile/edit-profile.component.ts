@@ -33,7 +33,7 @@ export class EditProfileComponent implements OnInit {
   countries: string[] = [];
   countryFilter: string = '';
   protected showPasswordTemplate: boolean = false;
-  currentUserRole='';
+  currentUserRoleAdmin=false;
   constructor(private fb: FormBuilder, private route: ActivatedRoute, private countryService: CountryService,
               private userService: UserService, private router: Router,private authService: AuthService,private snackBar: MatSnackBar,private loaderService: LoaderService) {
     const nav = this.router.getCurrentNavigation();
@@ -47,10 +47,13 @@ export class EditProfileComponent implements OnInit {
     if (roleString != null) {
        roles = JSON.parse(roleString);
     }
-
+    if (roles != undefined && roles?.includes("ADMIN")) {
+      this.currentUserRoleAdmin = true;
+    }
     if(this.authService.getEmail() == this.emailId || roles?.includes("ADMIN")) {
       if(roles?.includes("ADMIN")) {
         this.userForm.controls['active'].enable();
+        this.userForm.controls['roles'].enable();
       }
       this.userService.gerUserByEmailId(this.emailId).subscribe({
         next: (user: User | undefined) => {
@@ -77,9 +80,9 @@ export class EditProfileComponent implements OnInit {
     this.userForm = this.fb.group({
       username: new FormControl({value: "", disabled: false}, Validators.required),
       email: [{ value: "", disabled: true } ,[Validators.required, Validators.email]],
-      roles: [[]],
+      roles: [{ value: [], disabled: true }, [Validators.required, Validators.minLength(1)]],
       active: new FormControl({value: true, disabled: true}),
-      twoFAEnabled:[false],
+      twoFAEnabled:[{ value: false, disabled: true }],
       createdAt: [''],
       profile: this.fb.group({
         firstName: ['', Validators.required],
@@ -132,6 +135,7 @@ export class EditProfileComponent implements OnInit {
     if ((value === 'USER' || value === 'ADMIN') && !this.userForm.value.roles.includes(value)) {
       const roles = [...this.userForm.value.roles, value];
       this.userForm.get('roles')?.setValue(roles);
+      this.roles = roles;
     }
     if (input) {
       input.value = '';
@@ -163,7 +167,7 @@ export class EditProfileComponent implements OnInit {
       const formValue = this.userForm.value;
       const updatedUser = {
         username: formValue.username,
-        roles: this.roles,
+        roles: this.userForm.controls['roles'].value,
         active: this.userForm.controls['active'].value,
         twoFAEnabled:formValue.twoFAEnabled? formValue.twoFAEnabled: false,
         profile: {
@@ -184,6 +188,8 @@ export class EditProfileComponent implements OnInit {
         next: (data) => {
           this.loaderService.hide();
           this.showMessage("User updated successfully");
+          if(this.currentUserRoleAdmin == false)
+          this.authService.updateRole(updatedUser.roles);
         },
         error: (err) => {
           this.loaderService.hide();

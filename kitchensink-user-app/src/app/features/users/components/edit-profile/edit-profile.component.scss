@@ -1,10 +1,21 @@
+/* Section headers - updated to work with new h6 structure */
+.border.rounded-2.bg-light h6 {
+  border-left: 4px solid #0d6efd;
+  padding-left: 10px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+/* Alternative: If you want to keep the section-title class approach */
 .section-title {
   border-left: 4px solid #0d6efd;
   padding-left: 10px;
   margin-bottom: 15px;
 }
 
-.section-title h5 {
+.section-title h5,
+.section-title h6 {
   font-weight: 600;
   color: #0d6efd;
 }
@@ -23,12 +34,13 @@ mat-form-field {
   margin-bottom: 1rem;
 }
 
-
-/* Action buttons */
+/* Action buttons - updated selector since we moved them */
+.border-top button,
 .action-buttons button {
   min-width: 130px;
 }
 
+.border-top button:first-child,
 .action-buttons button:first-child {
   border: 1px solid #6c757d;
 }
@@ -46,4 +58,20 @@ mat-slide-toggle {
 .status-inactive .mat-slide-toggle-content {
   color: #dc3545 !important;
   font-weight: 600;
+}
+
+/* Additional styles for the new structure */
+.edit-user-container .border.rounded-2.bg-light {
+  background-color: #f8f9fa !important;
+  border-color: #dee2e6 !important;
+}
+
+/* Ensure proper spacing for the gap utility fallback */
+.d-flex.gap-2 > * + * {
+  margin-left: 0.5rem;
+}
+
+/* Fine-tune the form field spacing in the new grid */
+.border.rounded-2.bg-light .row.g-2 mat-form-field {
+  margin-bottom: 0.5rem;
 }

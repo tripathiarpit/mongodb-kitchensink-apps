@@ -30,6 +30,7 @@ export class AuthService {
   private fullnameKey = 'fullName';
   private emailKey = 'user_email';
   isLoggedIn$ = new BehaviorSubject<boolean>(false);
+  rolesSubject = new BehaviorSubject<string>('');
 
   constructor(private http: HttpClient, private router: Router, private snackBar: MatSnackBar,private loader: LoaderService) { }
 
@@ -349,5 +350,11 @@ export class AuthService {
         headers: { email }
       });
   }
-
+  updateRole(roles:string[]):void{
+    localStorage.removeItem(this.userRoleKey);
+    localStorage.setItem(this.userRoleKey, JSON.stringify(roles));
+    let value = localStorage.getItem(this.userRoleKey)?localStorage.getItem(this.userRoleKey): '';
+    if (value)
+    this.rolesSubject.next(value);
+  }
 }

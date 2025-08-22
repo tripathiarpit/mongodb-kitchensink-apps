@@ -1,220 +1,236 @@
-<div *ngIf="showPasswordTemplate" xmlns="http://www.w3.org/1999/html">
+<div *ngIf="showPasswordTemplate">
   <app-forgot-password [changingOwnPassword]="true" [currentUserEmail]="emailId"></app-forgot-password>
 </div>
 
-<div *ngIf="!showPasswordTemplate" class="edit-user-container container mt-4">
+<div *ngIf="!showPasswordTemplate" class="edit-user-container container mt-3">
   <div class="card shadow-sm border-0 rounded-3">
-    <div class="card-header bg-primary text-white">
-      <h3 class="mb-0">Edit Profile</h3>
+    <div class="card-header bg-primary text-white py-2 px-3">
+      <h3 class="mb-0 fs-5">Edit Profile</h3>
     </div>
-    <div class="card-body">
+    <div class="card-body p-3">
       <form [formGroup]="userForm">
-        <div class="row g-4">
-          <div class="col-md-6" id="basic">
-            <div class="section-title">
-              <h5>Your Basic Information</h5>
+        <div class="row g-3">
+          <!-- Left Column: Basic and System Information -->
+          <div class="col-lg-6" id="basic">
+            <!-- Your Basic Information Section -->
+            <div class="mb-3">
+              <div class="border rounded-2 bg-light p-3">
+                <div class="d-flex align-items-center mb-2">
+                  <h6 class="mb-0 text-primary fw-semibold">Basic Information</h6>
+                </div>
+                <div class="row g-5">
+                  <div class="col-sm-4">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>Username</mat-label>
+                      <input matInput formControlName="username">
+                      @if(userForm.get('username')?.hasError('required') && userForm.get('username')?.touched) {
+                        <mat-error>
+                          Username is required
+                        </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                  <div class="col-sm-4">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>Email</mat-label>
+                      <input matInput type="email" formControlName="email" [readonly]="true">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-sm-4">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>Roles</mat-label>
+                      <mat-chip-grid #chipGrid formControlName="roles">
+                        <mat-chip-row
+                          *ngFor="let role of userForm.get('roles')?.value"
+                          (removed)="removeRole(role)"
+                          [removable]="true">
+                          {{ role }}
+                          <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                          </button>
+                        </mat-chip-row>
+                        <input
+                          placeholder="Add role..."
+                          #roleInput
+                          [matChipInputFor]="chipGrid"
+                          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                          (matChipInputTokenEnd)="addRole($event)" />
+                      </mat-chip-grid>
+                      @if(userForm.get('roles')?.hasError('required') && userForm.get('roles')?.touched) {
+                        <mat-error>At least one role is required</mat-error>
+                      }
+                      <mat-hint>Allowed roles: ADMIN and USER</mat-hint>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-sm-6 d-flex flex-column justify-content-center">
+                    <div class="d-flex flex-column gap-2">
+                      <mat-slide-toggle
+                        formControlName="active"
+                        [ngClass]="{'status-active': userForm.get('active')?.value, 'status-inactive': !userForm.get('active')?.value}">
+                        Active User
+                      </mat-slide-toggle>
+                      <mat-slide-toggle formControlName="twoFAEnabled">
+                        2FA {{ userForm.get('twoFAEnabled')?.value ? 'Enabled' : 'Disabled' }}
+                      </mat-slide-toggle>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="row">
-              <div class="col-md-6">
-                <mat-form-field appearance="fill" class="w-100">
-                  <mat-label>Username</mat-label>
-                  <input matInput formControlName="username">
-                  @if(userForm.get('username')?.hasError('required') && userForm.get('username')?.touched) {
-                    <mat-error>
-                      Username is required
-                    </mat-error>
-                  }
-                </mat-form-field>
-              </div>
-              <div class="col-md-6">
-                <mat-form-field appearance="fill" class="w-100">
-                  <mat-label>Email</mat-label>
-                  <input matInput type="email" formControlName="email" [readonly]="true">
-                </mat-form-field>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <mat-form-field appearance="fill" class="w-100">
-                  <mat-label>Your Roles</mat-label>
-                  <mat-chip-grid #chipGrid formControlName="roles">
-                    <mat-chip-row
-                      *ngFor="let role of userForm.value.roles"
-                      (removed)="removeRole(role)"
-                      [removable]="false">
-                      {{ role }}
-                    </mat-chip-row>
-                    <input placeholder="Add role..."
-                           #roleInput
-                           [matChipInputFor]="chipGrid"
-                           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                           disabled style="display: none"
-                           (matChipInputTokenEnd)="addRole($event)" />
-                  </mat-chip-grid>
-                </mat-form-field>
-              </div>
-              <div class="col-md-6">
-                <mat-slide-toggle
-                  formControlName="active"
-                  [ngClass]="{'status-active': userForm.get('active')?.value, 'status-inactive': !userForm.get('active')?.value}">
-                  Active User
-                </mat-slide-toggle>
-                <mat-slide-toggle style="padding-left: 2rem" formControlName="twoFAEnabled" class="mt-lg-5">
-                  2FA {{ userForm.get('twoFAEnabled')?.value ? 'Enabled' : 'Disabled' }}
-                </mat-slide-toggle>
-              </div>
-            </div>
-
-            <div class="section-title mt-4">
-              <h5>Your System Related Information</h5>
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <mat-form-field appearance="fill" class="w-100">
-                  <mat-label>Created At</mat-label>
-                  <input matInput formControlName="createdAt" readonly>
-                </mat-form-field>
+            <!-- Your System Related Information Section -->
+            <div class="mb-3">
+              <div class="border rounded-2 bg-light p-3">
+                <div class="d-flex align-items-center mb-2">
+                  <h6 class="mb-0 text-primary fw-semibold">System Information</h6>
+                </div>
+                <div class="row g-2">
+                  <div class="col-12">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>Created At</mat-label>
+                      <input matInput formControlName="createdAt" readonly>
+                    </mat-form-field>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div formGroupName="profile" class="col-md-6" id="profile">
-            <div class="section-title">
-              <h5>Your Profile Information</h5>
-            </div>
-            <div class="row">
-              <div class="col-md-6">
-                <mat-form-field appearance="fill" class="w-100">
-                  <mat-label>First Name</mat-label>
-                  <input matInput formControlName="firstName">
-                  @if(userForm.get('profile.firstName')?.hasError('required') && userForm.get('profile.firstName')?.touched) {
-                    <mat-error>
-                      First Name is required
-                    </mat-error>
-                  }
-                </mat-form-field>
-              </div>
-              <div class="col-md-6">
-                <mat-form-field appearance="fill" class="w-100">
-                  <mat-label>Last Name</mat-label>
-                  <input matInput formControlName="lastName">
-                  @if(userForm.get('profile.lastName')?.hasError('required') && userForm.get('profile.lastName')?.touched) {
-                    <mat-error>
-                      Last Name is required
-                    </mat-error>
-                  }
-                </mat-form-field>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <mat-form-field appearance="fill" class="w-100">
-                  <mat-label>Phone Number</mat-label>
-                  <input matInput type="tel" formControlName="phoneNumber">
-                  @if(userForm.get('profile.phoneNumber')?.hasError('pattern') && userForm.get('profile.phoneNumber')?.touched) {
-                    <mat-error>
-                      Invalid phone number format
-                    </mat-error>
-                  }
-                </mat-form-field>
-              </div>
-              <div class="col-md-6">
-                <mat-form-field appearance="fill" class="w-100">
-                  <mat-label>Street</mat-label>
-                  <input matInput formControlName="street">
-                  @if(userForm.get('profile.street')?.hasError('required') && userForm.get('profile.street')?.touched) {
-                    <mat-error>
-                      Street is required
-                    </mat-error>
-                  }
-                </mat-form-field>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <mat-form-field appearance="fill" class="w-100">
-                  <mat-label>City</mat-label>
-                  <input matInput formControlName="city">
-                  @if(userForm.get('profile.city')?.hasError('required') && userForm.get('profile.city')?.touched) {
-                    <mat-error>
-                      City is required
-                    </mat-error>
-                  }
-                </mat-form-field>
-              </div>
-              <div class="col-md-6">
-                <mat-form-field appearance="fill" class="w-100">
-                  <mat-label>State</mat-label>
-                  <input matInput formControlName="state">
-                  @if(userForm.get('profile.state')?.hasError('required') && userForm.get('profile.state')?.touched) {
-                    <mat-error>
-                      State is required
-                    </mat-error>
-                  }
-                </mat-form-field>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-4">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Country</mat-label>
-                  <mat-select
-                    formControlName="country"
-                    placeholder="Select country"
-                    panelClass="country-dropdown-panel">
-                    <mat-option class="select-search-option">
-                      <input
-                        matInput
-                        type="text"
-                        placeholder="Search country..."
-                        [(ngModel)]="countryFilter"
-                        [ngModelOptions]="{standalone: true}"
-                        (click)="$event.stopPropagation()"
-                        (keydown)="$event.stopPropagation()"
-                        class="select-search-input" />
-                    </mat-option>
-                    <mat-option
-                      *ngFor="let country of countries | countryFilter:countryFilter"
-                      [value]="country"
-                      class="select-country-option">
-                      {{ country }}
-                    </mat-option>
-                  </mat-select>
-                  <mat-icon matSuffix>public</mat-icon>
-                  @if(userForm.get('profile.country')?.hasError('required') && userForm.get('profile.country')?.touched) {
-                    <mat-error>
-                      Country is required
-                    </mat-error>
-                  }
-                </mat-form-field>
-              </div>
-              <div class="col-md-6">
-                <mat-form-field appearance="fill" class="w-100">
-                  <mat-label>Pincode</mat-label>
-                  <input matInput formControlName="pincode">
-                  @if(userForm.get('profile.pincode')?.hasError('required') && userForm.get('profile.pincode')?.touched) {
-                    <mat-error>
-                      Pincode is required
-                    </mat-error>
-                  }
-                </mat-form-field>
+          <!-- Right Column: Profile Information -->
+          <div formGroupName="profile" class="col-lg-6" id="profile">
+            <!-- Your Profile Information Section -->
+            <div class="mb-3">
+              <div class="border rounded-2 bg-light p-3">
+                <div class="d-flex align-items-center mb-2">
+                  <h6 class="mb-0 text-primary fw-semibold">Profile Information</h6>
+                </div>
+                <div class="row g-5">
+                  <div class="col-sm-3">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>First Name</mat-label>
+                      <input matInput formControlName="firstName">
+                      @if(userForm.get('profile.firstName')?.hasError('required') && userForm.get('profile.firstName')?.touched) {
+                        <mat-error>
+                          First Name is required
+                        </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                  <div class="col-sm-3">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>Last Name</mat-label>
+                      <input matInput formControlName="lastName">
+                      @if(userForm.get('profile.lastName')?.hasError('required') && userForm.get('profile.lastName')?.touched) {
+                        <mat-error>
+                          Last Name is required
+                        </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                  <div class="col-sm-3">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>Phone Number</mat-label>
+                      <input matInput type="tel" formControlName="phoneNumber">
+                      @if(userForm.get('profile.phoneNumber')?.hasError('pattern') && userForm.get('profile.phoneNumber')?.touched) {
+                        <mat-error>
+                          Invalid phone number format
+                        </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                  <div class="col-sm-10">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>Street</mat-label>
+                      <input matInput formControlName="street">
+                      @if(userForm.get('profile.street')?.hasError('required') && userForm.get('profile.street')?.touched) {
+                        <mat-error>
+                          Street is required
+                        </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                  <div class="col-sm-5">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>City</mat-label>
+                      <input matInput formControlName="city">
+                      @if(userForm.get('profile.city')?.hasError('required') && userForm.get('profile.city')?.touched) {
+                        <mat-error>
+                          City is required
+                        </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                  <div class="col-sm-5">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>State</mat-label>
+                      <input matInput formControlName="state">
+                      @if(userForm.get('profile.state')?.hasError('required') && userForm.get('profile.state')?.touched) {
+                        <mat-error>
+                          State is required
+                        </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                  <div class="col-sm-4">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Country</mat-label>
+                      <mat-select
+                        formControlName="country"
+                        placeholder="Select country"
+                        panelClass="country-dropdown-panel">
+                        <mat-option class="select-search-option">
+                          <input
+                            matInput
+                            type="text"
+                            placeholder="Search country..."
+                            [(ngModel)]="countryFilter"
+                            [ngModelOptions]="{standalone: true}"
+                            (click)="$event.stopPropagation()"
+                            (keydown)="$event.stopPropagation()"
+                            class="select-search-input" />
+                        </mat-option>
+                        <mat-option
+                          *ngFor="let country of countries | countryFilter:countryFilter"
+                          [value]="country"
+                          class="select-country-option">
+                          {{ country }}
+                        </mat-option>
+                      </mat-select>
+                      <mat-icon matSuffix>public</mat-icon>
+                      @if(userForm.get('profile.country')?.hasError('required') && userForm.get('profile.country')?.touched) {
+                        <mat-error>
+                          Country is required
+                        </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                  <div class="col-sm-6">
+                    <mat-form-field appearance="fill" class="w-100">
+                      <mat-label>Pincode</mat-label>
+                      <input matInput formControlName="pincode">
+                      @if(userForm.get('profile.pincode')?.hasError('required') && userForm.get('profile.pincode')?.touched) {
+                        <mat-error>
+                          Pincode is required
+                        </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="action-buttons mt-4">
-          <button mat-button type="button" (click)="cancel()" class="me-2">Cancel</button>
-          <button mat-raised-button color="primary"
-                  [disabled]="userForm.invalid"
-                  (click)="save()">
-            Save Changes
-          </button>
+        <!-- Action Buttons -->
+        <div class="border-top pt-3 mt-3">
+          <div class="d-flex justify-content-end gap-2">
+            <button mat-button type="button" (click)="cancel()">Cancel</button>
+            <button mat-raised-button color="primary"
+                    [disabled]="userForm.invalid"
+                    (click)="save()">
+              Save Changes
+            </button>
+          </div>
         </div>
       </form>
     </div>

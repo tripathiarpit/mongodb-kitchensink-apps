@@ -7,7 +7,7 @@ import {MaterialModule} from '../../material.module';
 import {AppFooterComponent} from '../../shared/common-components/app-footer.component';
 import {MatSidenav} from '@angular/material/sidenav';
 import {AppSettings, AppSettingsService} from '../../core/services/AppSettingsService';
-import {filter, Subject, takeUntil} from 'rxjs';
+import {BehaviorSubject, filter, Subject, takeUntil} from 'rxjs';
 import {Title} from '@angular/platform-browser';
 
 @Component({
@@ -19,7 +19,6 @@ import {Title} from '@angular/platform-browser';
 export class DashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private settingsService = inject(AppSettingsService);
-
   menuItems: NavItem[] = [];
   userRole: string | null = '' ;
   currentUserRole: string = 'USER';
@@ -49,10 +48,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.userRole = this.authService.getUserRole();
-
+     this.authService.rolesSubject.subscribe(roles=>{
+       this.userRole = roles;
+       this.identifyRolesAndRoute();
+    })
     this.currentUserFullName = this.authService.getFullName();
-    this.loadMenu();
     this.loadSettings();
+    this.identifyRolesAndRoute();
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((data) => {
+        this.pageTitle = this.titleService.getTitle()
+        console.log('Page title:', this.pageTitle);
+      });
+  }
+
+  identifyRolesAndRoute(): void {
     const rolesString = this.authService.getUserRole();
     const roles: string[] = rolesString ? JSON.parse(rolesString) : [];
     this.roles = roles;
@@ -65,12 +76,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       // fallback for unknown role
       this.router.navigate(['/access-denied']);
     }
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((data) => {
-        this.pageTitle = this.titleService.getTitle()
-        console.log('Page title:', this.pageTitle);
-      });
+    this.loadMenu();
   }
 
   ngOnDestroy() {
