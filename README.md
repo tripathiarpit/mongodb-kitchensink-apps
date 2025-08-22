@@ -104,13 +104,16 @@ Wait for all containers to start (usually 2-3 minutes), then verify:
 
 ```bash
 # Check container status
-docker-compose ps
+docker ps
 
-# Expected output should show 4 running containers:
-# - mongodb-kitchensink-apps_frontend_1
-# - mongodb-kitchensink-apps_backend_1  
-# - mongodb-kitchensink-apps_mongodb_1
-# - mongodb-kitchensink-apps_redis_1
+Expected O/P
+CONTAINER ID   IMAGE                        COMMAND                  CREATED          STATUS                    PORTS                                         NAMES 
+fbb76714dca5   kitchen-sink-frontend   "/docker-entrypoint.…"   10 minutes ago   Up 10 minutes             0.0.0.0:4200->80/tcp, [::]:4200->80/tcp       kitchensink-frontend
+715ec961a373   kitchen-sink-backend    "java -jar app.jar"      10 minutes ago   Up 10 minutes (healthy)   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp   kitchensink-app-rest
+46517bedf77e   redis:7                 "docker-entrypoint.s…"   22 hours ago     Up 10 minutes             0.0.0.0:6379->6379/tcp                        kitchensink-redis
+668aa2ba9237   mongo:6.0               "docker-entrypoint.s…"   22 hours ago     Up 10 minutes             0.0.0.0:27017->27017/tcp                      mongo
+
+
 ```
 
 ---
