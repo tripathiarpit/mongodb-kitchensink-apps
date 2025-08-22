@@ -188,7 +188,7 @@ export class EditProfileComponent implements OnInit {
         next: (data) => {
           this.loaderService.hide();
           this.showMessage("User updated successfully");
-          if(this.currentUserRoleAdmin == false)
+          if(!this.currentUserRoleAdmin || !updatedUser.roles.includes('ADMIN'))
           this.authService.updateRole(updatedUser.roles);
         },
         error: (err) => {

@@ -11,14 +11,14 @@
 
     <ul class="nav">
       <li class="nav-item nav-profile">
-        <a href="#" class="nav-link">
+        <a (click)="gotoUserProfile()" class="nav-link">
           <div class="nav-profile-image">
             <img src="assets/images/faces/face1.jpg" alt="profile" />
             <span class="login-status online"></span>
           </div>
           <div class="nav-profile-text d-flex flex-column">
-            <span class="font-weight-medium mb-2">{{currentUserFullName}}</span>
-            <span class="font-weight-normal text-muted">{{ userRole}}</span>
+            <span class="font-weight-medium mb-2">
+              {{currentUserFullName}}</span>
           </div>
         </a>
       </li>
@@ -50,7 +50,10 @@
         <div class="nav-link">
           <div class="mt-4">
             <ul class="mt-4 pl-0">
-              <li (click)="logout()">Sign Out</li>
+              <span class="mdi mdi-logout" (click)="logout()">
+                <li >Sign Out</li>
+              </span>
+
             </ul>
           </div>
         </div>
@@ -90,12 +93,6 @@
     </nav>
     <div class="main-panel">
       <div class="content-wrapper pb-0">
-        <div class="page-header flex-wrap">
-          <h3 class="mb-0">
-            Hi, welcome back! {{ currentUserFullName }}
-            <span class="pl-2 h6 text-muted d-none d-sm-inline-block"></span>
-          </h3>
-        </div>
         <router-outlet></router-outlet>
       </div>
     </div>

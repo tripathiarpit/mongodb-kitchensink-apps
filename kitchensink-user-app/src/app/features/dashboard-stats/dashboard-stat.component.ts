@@ -26,313 +26,249 @@ interface User {
     MatProgressSpinner,
     CommonModule // Required for pipes like DatePipe, NumberPipe
   ],
-  template: `
-    <div class="container-fluid p-4">
-      <!-- Dashboard Header -->
-      <div class="row mb-6"> <!-- Increased bottom margin for header -->
-        <div class="col-12">
-          <h2 class="text-primary mb-0 flex items-center">
-            <span class="text-3xl font-extrabold">Admin Dashboard</span>
-          </h2>
+  template: `<div class="container-fluid py-4 bg-light min-vh-100">
+    <!-- Dashboard Header -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <div>
+            <h2 class="text-dark fw-bold mb-1">Admin Dashboard</h2>
+            <p class="text-muted mb-0">Monitor your application statistics</p>
+          </div>
+          <mat-icon class="text-primary fs-1">dashboard</mat-icon>
         </div>
       </div>
-
-      <!-- Dashboard Stats Flex Containers -->
-      <div *ngIf="!loading; else loadingTemplate">
-
-        <!-- Category 1: User Base Overview -->
-        <h3 class="text-xl font-semibold mb-3 mt-6 text-gray-800">User Base Overview</h3>
-        <div class="flex flex-wrap justify-start gap-custom p-2 mb-6">
-          <!-- Total Users Card -->
-          <mat-card class="shadow-sm rounded-xl stat-card">
-            <div class="flex items-center p-2 h-full">
-              <mat-icon class="text-4xl text-blue-500 mr-3 icon-background-blue">groups</mat-icon>
-              <div class="flex-grow">
-                <h3 class="text-sm font-medium text-gray-700">Total Users</h3>
-                <span class="text-xl font-bold text-blue-700">{{ stats.totalUsers }}</span>
-              </div>
-            </div>
-          </mat-card>
-
-          <!-- Active Users Card -->
-          <mat-card class="shadow-sm rounded-xl stat-card">
-            <div class="flex items-center p-2 h-full">
-              <mat-icon class="text-4xl text-green-500 mr-3 icon-background-green">how_to_reg</mat-icon>
-              <div class="flex-grow">
-                <h3 class="text-sm font-medium text-gray-700">Active Users</h3>
-                <span class="text-xl font-bold text-green-700">{{ stats.activeUsers }}</span>
-              </div>
-            </div>
-          </mat-card>
-
-          <!-- Pending Verifications Card -->
-          <mat-card class="shadow-sm rounded-xl stat-card">
-            <div class="flex items-center p-2 h-full">
-              <mat-icon class="text-4xl text-yellow-500 mr-3 icon-background-yellow">pending_actions</mat-icon>
-              <div class="flex-grow">
-                <h3 class="text-sm font-medium text-gray-700">Pending Verifications</h3>
-                <span class="text-xl font-bold text-yellow-700">{{ stats.pendingVerifications }}</span>
-              </div>
-            </div>
-          </mat-card>
-
-          <!-- First Time Logins Card -->
-          <mat-card class="shadow-sm rounded-xl stat-card">
-            <div class="flex items-center p-2 h-full">
-              <mat-icon class="text-4xl text-purple-500 mr-3 icon-background-purple">login</mat-icon>
-              <div class="flex-grow">
-                <h3 class="text-sm font-medium text-gray-700">First Time Logins</h3>
-                <span class="text-xl font-bold text-purple-700">{{ stats.firstTimeLogins }}</span>
-              </div>
-            </div>
-          </mat-card>
-        </div>
-
-        <!-- Category 2: User Roles Breakdown -->
-        <h3 class="text-xl font-semibold mb-3 mt-6 text-gray-800">User Roles Breakdown</h3>
-        <div class="flex flex-wrap justify-start gap-custom p-2 mb-6">
-          <!-- New Users This Month Card -->
-          <mat-card class="shadow-sm rounded-xl stat-card">
-            <div class="flex items-center p-2 h-full">
-              <mat-icon class="text-4xl text-indigo-500 mr-3 icon-background-indigo">person_add</mat-icon>
-              <div class="flex-grow">
-                <h3 class="text-sm font-medium text-gray-700">New Users (This Month)</h3>
-                <span class="text-xl font-bold text-indigo-700">{{ stats.newUsersThisMonth }}</span>
-              </div>
-            </div>
-          </mat-card>
-
-          <!-- Admin Users Card -->
-          <mat-card class="shadow-sm rounded-xl stat-card">
-            <div class="flex items-center p-2 h-full">
-              <mat-icon class="text-4xl text-red-500 mr-3 icon-background-red">admin_panel_settings</mat-icon>
-              <div class="flex-grow">
-                <h3 class="text-sm font-medium text-gray-700">Admin Users</h3>
-                <span class="text-xl font-bold text-red-700">{{ stats.adminUsers }}</span>
-              </div>
-            </div>
-          </mat-card>
-
-          <!-- Regular Users Card -->
-          <mat-card class="shadow-sm rounded-xl stat-card">
-            <div class="flex items-center p-2 h-full">
-              <mat-icon class="text-4xl text-teal-500 mr-3 icon-background-teal">group</mat-icon>
-              <div class="flex-grow">
-                <h3 class="text-sm font-medium text-gray-700">Regular Users</h3>
-                <span class="text-xl font-bold text-teal-700">{{ stats.regularUsers }}</span>
-              </div>
-            </div>
-          </mat-card>
-        </div>
-
-
-      </div>
-
-      <!-- Loading Template -->
-      <ng-template #loadingTemplate>
-        <div class="flex flex-col justify-center items-center h-96 bg-gray-50 rounded-lg shadow-inner">
-          <mat-spinner diameter="60" color="primary"></mat-spinner>
-          <span class="mt-5 text-xl font-medium text-gray-700">Loading dashboard statistics...</span>
-        </div>
-      </ng-template>
     </div>
-  `,
+
+    <!-- Dashboard Stats -->
+    <div *ngIf="!loading; else loadingTemplate">
+
+      <!-- User Base Overview Section -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h5 class="text-dark fw-semibold mb-3 d-flex align-items-center">
+            <mat-icon class="me-2 text-primary">groups</mat-icon>
+            User Base Overview
+          </h5>
+        </div>
+      </div>
+
+      <div class="row g-4 mb-5">
+        <!-- Total Users Card -->
+        <div class="col-xl-3 col-md-6">
+          <mat-card class="h-100 border-0 shadow-sm">
+            <mat-card-content class="p-4">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted small mb-1 text-uppercase fw-medium">Total Users</p>
+                  <h3 class="text-primary fw-bold mb-0">{{ stats.totalUsers }}</h3>
+                </div>
+                <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                  <mat-icon class="text-primary fs-4">groups</mat-icon>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Active Users Card -->
+        <div class="col-xl-3 col-md-6">
+          <mat-card class="h-100 border-0 shadow-sm">
+            <mat-card-content class="p-4">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted small mb-1 text-uppercase fw-medium">Active Users</p>
+                  <h3 class="text-success fw-bold mb-0">{{ stats.activeUsers }}</h3>
+                </div>
+                <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                  <mat-icon class="text-success fs-4">how_to_reg</mat-icon>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Pending Verifications Card -->
+        <div class="col-xl-3 col-md-6">
+          <mat-card class="h-100 border-0 shadow-sm">
+            <mat-card-content class="p-4">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted small mb-1 text-uppercase fw-medium">Pending Verifications</p>
+                  <h3 class="text-warning fw-bold mb-0">{{ stats.pendingVerifications }}</h3>
+                </div>
+                <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                  <mat-icon class="text-warning fs-4">pending_actions</mat-icon>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- First Time Logins Card -->
+        <div class="col-xl-3 col-md-6">
+          <mat-card class="h-100 border-0 shadow-sm">
+            <mat-card-content class="p-4">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted small mb-1 text-uppercase fw-medium">First Time Logins</p>
+                  <h3 class="text-info fw-bold mb-0">{{ stats.firstTimeLogins }}</h3>
+                </div>
+                <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                  <mat-icon class="text-info fs-4">login</mat-icon>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+      <!-- User Roles Breakdown Section -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h5 class="text-dark fw-semibold mb-3 d-flex align-items-center">
+            <mat-icon class="me-2 text-primary">admin_panel_settings</mat-icon>
+            User Roles Breakdown
+          </h5>
+        </div>
+      </div>
+
+      <div class="row g-4 mb-4">
+        <!-- New Users This Month Card -->
+        <div class="col-xl-4 col-md-6">
+          <mat-card class="h-100 border-0 shadow-sm">
+            <mat-card-content class="p-4">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted small mb-1 text-uppercase fw-medium">New Users (This Month)</p>
+                  <h3 class="text-secondary fw-bold mb-0">{{ stats.newUsersThisMonth }}</h3>
+                </div>
+                <div class="bg-secondary bg-opacity-10 rounded-circle p-3">
+                  <mat-icon class="text-secondary fs-4">person_add</mat-icon>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Admin Users Card -->
+        <div class="col-xl-4 col-md-6">
+          <mat-card class="h-100 border-0 shadow-sm">
+            <mat-card-content class="p-4">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted small mb-1 text-uppercase fw-medium">Admin Users</p>
+                  <h3 class="text-danger fw-bold mb-0">{{ stats.adminUsers }}</h3>
+                </div>
+                <div class="bg-danger bg-opacity-10 rounded-circle p-3">
+                  <mat-icon class="text-danger fs-4">admin_panel_settings</mat-icon>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Regular Users Card -->
+        <div class="col-xl-4 col-md-6">
+          <mat-card class="h-100 border-0 shadow-sm">
+            <mat-card-content class="p-4">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted small mb-1 text-uppercase fw-medium">Regular Users</p>
+                  <h3 class="text-dark fw-bold mb-0">{{ stats.regularUsers }}</h3>
+                </div>
+                <div class="bg-dark bg-opacity-10 rounded-circle p-3">
+                  <mat-icon class="text-dark fs-4">group</mat-icon>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Loading Template -->
+    <ng-template #loadingTemplate>
+      <div class="d-flex flex-column justify-content-center align-items-center" style="height: 50vh;">
+        <mat-spinner diameter="60" color="primary"></mat-spinner>
+        <p class="mt-4 text-muted fw-medium">Loading dashboard statistics...</p>
+      </div>
+    </ng-template>
+  </div>`,
   styles: [`
     /* Base stat card styling */
-    .stat-card {
-      width: 288px;  /* Approximately 3 inches */
-      height: 96px; /* Approximately 1 inch */
-      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-      border: 1px solid #e2e8f0; /* Light border for separation */
-      display: flex; /* Use flexbox for internal alignment */
-      align-items: center; /* Center content vertically */
-      justify-content: center; /* Center content horizontally */
-      box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    mat-card {
+      transition: all 0.3s ease;
+      border-radius: 12px !important;
     }
 
-    .stat-card:hover {
-      transform: translateY(-2px); /* Subtle lift on hover */
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Slightly more pronounced shadow */
+    mat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
     }
 
-    /* Custom gap for flex containers */
-    .gap-custom {
-      gap: 3px;
-      display: flex;
-    }
-
-    /* Icon background styling */
-    .icon-background-blue {
-      background-color: #DBEAFE; /* Light blue Tailwind 100 */
-      border-radius: 9999px; /* Full circle */
-      padding: 0.75rem; /* Adjusted padding to control size of the circle for 1-inch height */
+    /* Icon Container Styling */
+    .rounded-circle {
+      width: 56px;
+      height: 56px;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0; /* Prevent icon from shrinking */
-    }
-    .icon-background-green {
-      background-color: #D1FAE5; /* Light green Tailwind 100 */
-      border-radius: 9999px;
-      padding: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .icon-background-yellow {
-      background-color: #FEF3C7; /* Light yellow Tailwind 100 */
-      border-radius: 9999px;
-      padding: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .icon-background-purple {
-      background-color: #EDE9FE; /* Light purple Tailwind 100 */
-      border-radius: 9999px;
-      padding: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .icon-background-indigo {
-      background-color: #EEF2FF; /* Light indigo Tailwind 100 */
-      border-radius: 9999px;
-      padding: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .icon-background-red {
-      background-color: #FEE2E2; /* Light red Tailwind 100 */
-      border-radius: 9999px;
-      padding: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .icon-background-teal {
-      background-color: #CCFBF1; /* Light teal Tailwind 100 */
-      border-radius: 9999px;
-      padding: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .icon-background-gray {
-      background-color: #F3F4F6; /* Light gray Tailwind 100 */
-      border-radius: 9999px;
-      padding: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .icon-background-orange {
-      background-color: #FFEDD5; /* Light orange Tailwind 100 */
-      border-radius: 9999px;
-      padding: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .icon-background-cyan {
-      background-color: #CFFAFE; /* Light cyan Tailwind 100 */
-      border-radius: 9999px;
-      padding: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
     }
 
-    /* Adjust mat-icon size within the circular background */
-    .icon-background-blue mat-icon,
-    .icon-background-green mat-icon,
-    .icon-background-yellow mat-icon,
-    .icon-background-purple mat-icon,
-    .icon-background-indigo mat-icon,
-    .icon-background-red mat-icon,
-    .icon-background-teal mat-icon,
-    .icon-background-gray mat-icon,
-    .icon-background-orange mat-icon,
-    .icon-background-cyan mat-icon {
-      font-size: 2rem; /* Equivalent to text-3xl, fitting the smaller circle */
-      width: 2rem;
-      height: 2rem;
+    /* Typography Enhancements */
+    h2.fw-bold {
+      font-size: 2rem;
     }
 
-    /* Bootstrap compatibility classes - keep these as they are used in the template */
-    .text-primary { color: #0d6efd !important; } /* Bootstrap primary color */
-    .text-muted { color: #6c757d !important; }   /* Bootstrap muted text */
-
-    /* Global Theme Styles - Integrated (assuming these are in your global styles.css) */
-    /*
-    :root {
-      --base-font-size: 14px;
-      --primary-color: #3f51b5;
-      --background-color: #fafafa;
-      --surface-color: #ffffff;
-      --text-color: #212121;
-      --text-secondary: #757575;
-      --border-color: #e0e0e0;
+    h3.fw-bold {
+      font-size: 1.75rem;
     }
 
-    * {
-      font-size: var(--base-font-size) !important;
+    h5.fw-semibold {
+      font-size: 1.1rem;
     }
 
-    .light-theme {
-      --background-color: #fafafa;
-      --surface-color: #ffffff;
-      --text-color: #212121;
-      --text-secondary: #757575;
-      --border-color: #e0e0e0;
-      background-color: var(--background-color);
-      color: var(--text-color);
+    /* Section Headers */
+    h5.fw-semibold mat-icon {
+      font-size: 1.25rem;
     }
 
-    .virbrant-theme {
-      --background-color: burlywood;
-      --surface-color: cadetblue;
-      --text-color: #ffffff;
-      --text-secondary: #ff6ec7;
-      --border-color: #9d4edd;
-
-      background-color: var(--background-color);
-      color: var(--text-color);
-    }
-    .theme-indigo { --primary-color: #3f51b5; }
-    .theme-pink { --primary-color: #e91e63; }
-    .theme-purple { --primary-color: #9c27b0; }
-    .theme-deep-purple { --primary-color: #673ab7; }
-    .theme-blue { --primary-color: #2196f3; }
-    .theme-teal { --primary-color: #009688; }
-    .theme-green { --primary-color: #4caf50; }
-    .theme-orange { --primary-color: #ff9800; }
-
-    .mat-app-background {
-      background-color: var(--background-color);
-      color: var(--text-color);
+    /* Main Dashboard Icon */
+    .fs-1 {
+      font-size: 2.5rem !important;
     }
 
-    .mat-mdc-card {
-      background-color: var(--surface-color) !important;
-      color: var(--text-color) !important;
+    /* Card Icon Sizing */
+    .fs-4 {
+      font-size: 1.5rem !important;
     }
 
-    .mat-toolbar {
-      background-color: var(--primary-color) !important;
-      color: var(--text-color) !important;
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      h2.fw-bold {
+        font-size: 1.5rem;
+      }
+
+      h3.fw-bold {
+        font-size: 1.25rem;
+      }
+
+      .rounded-circle {
+        width: 48px;
+        height: 48px;
+      }
+
+      .fs-4 {
+        font-size: 1.25rem !important;
+      }
     }
-    */
+
+    /* Loading State */
+    mat-spinner {
+      margin-bottom: 1rem;
+    }
   `],
 })
 export class AdminDashboardComponent implements OnInit {
