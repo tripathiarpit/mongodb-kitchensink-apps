@@ -290,7 +290,7 @@ Now that your database and SonarQube server are running, you can run your tests 
 
 Bash
 ```
-docker run --rm -it -v "$(pwd):/app" --network=kitchen-sink_kitchensink-network -w /app maven:3.9-eclipse-temurin-21 mvn clean verify sonar:sonar -Dspring.data.mongodb.host=mongodb -Dspring.data.mongodb.database=kitchensinkdb -Dsonar.projectKey=kitchensink -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=squ_4f4b69499f09af05304af0653ed9ad5d9b66b83e
+docker run --rm -it -v "$(pwd):/app" --network=kitchen-sink_kitchensink-network -w /app maven:3.9-eclipse-temurin-21 mvn clean verify sonar:sonar -Dspring.data.mongodb.host=mongodb -Dspring.data.mongodb.database=kitchensinkdb -Dsonar.projectKey=kitchensink -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=squ_4f4b69499f09af05304af0653ed9ad5d9b66b83e -Dsonar.exclusions=**/dto/**/*,**/constants/**/*,**/mapper/**/*
 docker run: This creates a temporary container to run Maven.
 ```
 
