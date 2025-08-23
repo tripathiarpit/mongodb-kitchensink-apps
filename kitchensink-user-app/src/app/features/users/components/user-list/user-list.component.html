@@ -18,7 +18,12 @@
       <!-- Conditional input -->
       <mat-form-field *ngIf="searchBy !== 'all'" appearance="outline" style="width: 250px;">
         <mat-label>Enter search text</mat-label>
-        <input matInput [(ngModel)]="searchQuery" placeholder="Type here..." />
+        <input
+          matInput
+          [(ngModel)]="searchQuery"
+          placeholder="Type here..."
+          (keyup.enter)="onSearch(); $event.preventDefault();"
+        />
       </mat-form-field>
 
       <!-- Search button -->
