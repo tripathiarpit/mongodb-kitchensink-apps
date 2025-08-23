@@ -17,6 +17,7 @@ import {AppSnackbarComponent} from '../../../../shared/common-components/app-sna
 import {AuthService} from '../../../../core/services/AuthService';
 import {MatDialog} from '@angular/material/dialog';
 import {finalize} from 'rxjs/operators';
+import {SnackbarService} from '../../../../shared/common-components/app-snackbar/SnackbarService';
 
 @Component({
   selector: 'app-user-details',
@@ -39,7 +40,8 @@ export class UserDetailsComponent implements OnInit , OnDestroy{
     private sharedState: SharedStateService,
     private loaderService: LoaderService,
     private authService: AuthService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBarService: SnackbarService,
   ) {
     const nav = this.router.getCurrentNavigation();
     this.emailId = nav?.extras.state?.['email'] ?? '';
@@ -108,8 +110,11 @@ export class UserDetailsComponent implements OnInit , OnDestroy{
       if (confirmed) {
         this.userService.deleteUser(user.email).subscribe({
           next: (res) => {
-            this.snackBar.open(res.message || 'User deleted successfully', 'Close', {duration: 3000});
+            this.snackBarService.showMessage('User deleted successfully',"success",true)
+            if(!this.isLoggedInUserAdmin())
             this.authService.logout();
+            else
+              this.router.navigate(['dashboard/user-management']);
           },
           error: (err) => {
             let errorMessage = err.error.message ;
@@ -124,4 +129,14 @@ export class UserDetailsComponent implements OnInit , OnDestroy{
       }
     });
   }
+  onPasswordCancelPressed(): void {
+    this.showPasswordTemplate = false;
+  }
+  isLoggedInUserAdmin() {
+    const roleStr = this.authService.getUserRole();
+    if (!roleStr) return false;
+    const roles: string[] = JSON.parse(roleStr);
+    return roles.some(r => ["ADMIN"].includes(r));
+  }
+
 }

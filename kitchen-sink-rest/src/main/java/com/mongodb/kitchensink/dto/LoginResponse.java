@@ -96,4 +96,19 @@ public class LoginResponse {
     public void setRoles(List<String> roles) {
         this.roles = roles;
     }
+
+    @Override
+    public String toString() {
+        return "LoginResponse{" +
+                "success=" + success +
+                ", message='" + message + '\'' +
+                ", token='" + token + '\'' +
+                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", roles=" + roles +
+                ", accountVerificationPending=" + accountVerificationPending +
+                ", isFirstLogin=" + isFirstLogin +
+                '}';
+    }
 }

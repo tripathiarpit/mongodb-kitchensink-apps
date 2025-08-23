@@ -117,7 +117,7 @@ public class UserService {
                     return dto;
                 });
     }
-    public List<UserDto> getAllUsersByEmailIds(ArrayList<String> emailIds) {
+    public List<UserDto> getAllUsersByEmailIds(List<String> emailIds) {
         if (emailIds == null || emailIds.isEmpty()) {
             return new ArrayList<>();
         }

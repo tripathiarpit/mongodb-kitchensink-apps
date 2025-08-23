@@ -7,11 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class RegistrationResponse {
     public RegistrationResponse(boolean success, String message) {
         this.success = success;
-        this.message = message;
+        this.registrationMessage = message;
     }
 
     @Schema(description = "Response message", example = "User registered successfully")
-    private String message;
+    private String registrationMessage;
 
     @Schema(description = "Whether the registration was successful", example = "true")
     private boolean success;
@@ -24,11 +24,11 @@ public class RegistrationResponse {
         this.success = success;
     }
 
-    public String getMessage() {
-        return message;
+    public String getRegistrationMessage() {
+        return registrationMessage;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setRegistrationMessage(String registrationMessage) {
+        this.registrationMessage = registrationMessage;
     }
 }

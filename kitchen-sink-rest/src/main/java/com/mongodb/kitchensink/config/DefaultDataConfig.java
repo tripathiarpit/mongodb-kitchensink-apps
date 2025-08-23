@@ -4,7 +4,6 @@ import com.mongodb.kitchensink.model.Profile;
 import com.mongodb.kitchensink.model.User;
 import com.mongodb.kitchensink.repository.ProfileRepository;
 import com.mongodb.kitchensink.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;

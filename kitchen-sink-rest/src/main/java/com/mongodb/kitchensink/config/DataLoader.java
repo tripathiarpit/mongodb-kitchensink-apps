@@ -7,6 +7,7 @@ import com.mongodb.kitchensink.model.User;
 import com.mongodb.kitchensink.repository.ProfileRepository;
 import com.mongodb.kitchensink.repository.UserRepository;
 import com.mongodb.kitchensink.service.UsernameGeneratorService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,8 @@ public class DataLoader implements CommandLineRunner {
     private final Faker faker = new Faker();
     private final PasswordEncoder passwordEncoder;
     private  final UsernameGeneratorService usernameGeneratorService;
+    @Value("${app.admin.password}")
+    String appAdminPassword;
     public DataLoader(UserRepository userRepository, ProfileRepository profileRepository, PasswordEncoder passwordEncoder, UsernameGeneratorService usernameGeneratorService) {
         this.userRepository = userRepository;
         this.profileRepository = profileRepository;
@@ -32,7 +35,7 @@ public class DataLoader implements CommandLineRunner {
 
         String firstUserEmail = "user1@example.com";
         if (userRepository.findByEmail(firstUserEmail).isPresent()) {
-            System.out.println("✅ Dummy data already exists, skipping population.");
+           // System.err("✅ Dummy data already exists, skipping population.");
             return;
         }
 
@@ -80,6 +83,5 @@ public class DataLoader implements CommandLineRunner {
             profiles.add(profile);
         }
         profileRepository.saveAll(profiles);
-        System.out.println("✅ Successfully created 100 dummy Users and Profiles");
     }
 }

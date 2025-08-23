@@ -111,10 +111,12 @@ class AuthServiceTest {
         when(userService.getUserByEmail(anyString())).thenReturn(userDto);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
         when(sessionService.doesSessionExist(anyString())).thenReturn(false);
-        when(jwtTokenProvider.generateToken(anyString(), anyList())).thenReturn(TOKEN);
+        when(sessionService.createNewSessionToken(anyString(), anyList())).thenReturn(TOKEN); // Corrected line
 
         // When
+        System.out.println("LOGin request: " + loginRequest);
         LoginResponse response = authService.login(loginRequest);
+        System.out.println("LOGIN RESPONSE********: " + response);
 
         // Then
         assertTrue(response.isSuccess());

@@ -55,7 +55,7 @@ public class Address {
         this.city = city;
         this.street = street;
     }
-    private Address(Builder builder) {
+    public Address(Builder builder) {
         this.street = builder.street;
         this.city = builder.city;
         this.state = builder.state;

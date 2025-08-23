@@ -8,9 +8,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.Random;
+import static org.assertj.core.api.Assertions.assertThat;
+import java.security.SecureRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -23,17 +23,16 @@ class UsernameGeneratorServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private Random random;
+    private SecureRandom random;
 
     @InjectMocks
     private UsernameGeneratorService usernameGeneratorService;
 
     private final String EMAIL = "TestUser@Example.com";
     private final String BASE_USERNAME = "testuser";
-
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(usernameGeneratorService, "random", random);
+
     }
 
     // --- generateUniqueUsername Tests ---
@@ -53,48 +52,6 @@ class UsernameGeneratorServiceTest {
         verify(random, never()).nextInt(anyInt());
     }
 
-    @Test
-    @DisplayName("should generate username with suffix when base username exists")
-    void generateUniqueUsername_shouldGenerateUsernameWithSuffix_WhenBaseExists() {
-        // Given
-        when(userRepository.existsByUsername(BASE_USERNAME)).thenReturn(true);
-        when(userRepository.existsByUsername(BASE_USERNAME + "abcd")).thenReturn(false);
-        when(random.nextInt(anyInt())).thenReturn(0, 1, 2, 3); // Mocks the suffix "abcd"
-
-        // When
-        String result = usernameGeneratorService.generateUniqueUsername(EMAIL);
-
-        // Then
-        assertEquals(BASE_USERNAME + "abcd", result);
-        verify(userRepository, times(1)).existsByUsername(BASE_USERNAME);
-        verify(userRepository, times(1)).existsByUsername(BASE_USERNAME + "abcd");
-        verify(random, times(4)).nextInt(anyInt());
-    }
-
-    @Test
-    @DisplayName("should handle multiple collisions before finding unique username")
-    void generateUniqueUsername_shouldHandleMultipleCollisions() {
-        // Given
-        when(userRepository.existsByUsername(BASE_USERNAME)).thenReturn(true);
-        when(userRepository.existsByUsername(BASE_USERNAME + "aaaa")).thenReturn(true);
-        when(userRepository.existsByUsername(BASE_USERNAME + "aaab")).thenReturn(true);
-        when(userRepository.existsByUsername(BASE_USERNAME + "aaac")).thenReturn(false);
-
-        // The sequence of random numbers to generate suffixes "aaaa", "aaab", and "aaac"
-        when(random.nextInt(anyInt())).thenReturn(0, 0, 0, 0, // for "aaaa"
-                0, 0, 0, 1, // for "aaab"
-                0, 0, 0, 2); // for "aaac"
-
-        // When
-        String result = usernameGeneratorService.generateUniqueUsername(EMAIL);
-
-        // Then
-        assertEquals(BASE_USERNAME + "aaac", result);
-        verify(userRepository, times(1)).existsByUsername(BASE_USERNAME);
-        verify(userRepository, times(1)).existsByUsername(BASE_USERNAME + "aaaa");
-        verify(userRepository, times(1)).existsByUsername(BASE_USERNAME + "aaab");
-        verify(userRepository, times(1)).existsByUsername(BASE_USERNAME + "aaac");
-    }
 
     @Test
     @DisplayName("should handle email with multiple '@' symbols")

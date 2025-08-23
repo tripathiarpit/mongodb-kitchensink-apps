@@ -1,4 +1,5 @@
 export interface DashboardStats {
+  bothAdminAndUser: number
   totalUsers: number;
   activeUsers: number;
   pendingVerifications: number;

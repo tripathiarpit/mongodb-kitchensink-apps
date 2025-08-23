@@ -1,4 +1,14 @@
-import {Component, EmbeddedViewRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  Component,
+  EmbeddedViewRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import { MaterialModule } from '../../../material.module';
 import {
   FormBuilder,
@@ -37,7 +47,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   hideConfirmPassword = true;
   @Input('changingOwnPassword') changingOwnPassword!: boolean;
   @Input('currentUserEmail') email:string ='';
-
+  @Output() onCancelPressed = new EventEmitter<boolean>();
   otpSending = false;
   otpSent = false;
   otpVerifying = false;
@@ -332,5 +342,8 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.countdownSub?.unsubscribe();
     this.snack.ngOnDestroy();
+  }
+  onCancel(): void {
+      this.onCancelPressed.emit(true);
   }
 }

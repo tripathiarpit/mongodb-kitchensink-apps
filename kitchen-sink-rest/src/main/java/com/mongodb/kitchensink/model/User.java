@@ -153,11 +153,10 @@ public class User implements UserDetails {
         if (email != null && email.contains("@")) {
             return email.substring(0, email.indexOf("@"));
         }
-        return email; // fallback if no '@' found
+        return email;
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Add ROLE_ prefix for Spring Security
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
@@ -173,13 +172,13 @@ public class User implements UserDetails {
     public boolean isAccountNonExpired() { return true; }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() { return active; }
 
     @Override
     public boolean isCredentialsNonExpired() { return true; }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() { return active; }
 
     public static Builder builder() {
         return new Builder();

@@ -1,6 +1,5 @@
 package com.mongodb.kitchensink.config;
 
-import com.mongodb.kitchensink.config.JwtAuthenticationEntryPoint;
 import com.mongodb.kitchensink.util.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +16,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
+/**
+ * CENTRAL Security class to Configure Spring Security using JWT
+ * <p>
+ *    JwtAuthenticationFilter(To Intercept request and validates the JWT token)
+ *    JwtAuthenticationEntryPoint(For handling Authentication exceptions)
+ *    Password Encoder to encrypt and decrypt the password stored in DB using HASH
+ * </p>
+ * @author Arpit Tripathi
+ * @version 1.0
+ * @since 2025-08-17
+ */
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {

@@ -7,7 +7,15 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+/**
+ * Class to Configure OpenAPI3.0 for MongoDB kitchen sink APP
+ * <p>
+ *It's primary purpose is to allow user of Swagger to attach the JWT token in Authorization Header
+ * </p>
+ * @author Arpit Tripathi
+ * @version 1.0
+ * @since 2025-08-17
+ */
 @Configuration
 public class OpenApiConfig {
 
@@ -22,8 +30,8 @@ public class OpenApiConfig {
                                         .bearerFormat("JWT")))
                 .addSecurityItem(new SecurityRequirement().addList("bearer-key"))
                 .info(new Info()
-                        .title("Kitchensink API")
+                        .title("MongoDB kitchensink API")
                         .version("1.0")
-                        .description("API documentation for Kitchensink application"));
+                        .description("API documentation for MongoDB Kitchensink application"));
     }
 }

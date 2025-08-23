@@ -7,7 +7,6 @@ import com.mongodb.kitchensink.service.OtpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -117,7 +116,6 @@ public class AuthController {
             List<String> roles = authService.getRolesFromToken(authHeader);
             return ResponseEntity.ok(roles != null ? roles : Collections.emptyList());
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.emptyList());
         }
     }

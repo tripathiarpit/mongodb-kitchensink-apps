@@ -125,7 +125,7 @@ class UserServiceTest {
 
         // Then
         assertTrue(response.isSuccess());
-        assertEquals(ACCOUNT_CREATED_SUCCESSFULLY, response.getMessage());
+        assertEquals(ACCOUNT_CREATED_SUCCESSFULLY, response.getRegistrationMessage());
         verify(userRepository, times(1)).save(any(User.class));
         verify(profileRepository, times(1)).save(any(Profile.class));
         verify(emailService, times(1)).sendEmail(anyString(), anyString(), anyString());
@@ -143,7 +143,7 @@ class UserServiceTest {
 
         // Then
         assertFalse(response.isSuccess());
-        assertEquals("Email already registered", response.getMessage());
+        assertEquals("Email already registered", response.getRegistrationMessage());
         verify(userRepository, never()).save(any(User.class));
         verify(profileRepository, never()).save(any(Profile.class));
     }
@@ -374,7 +374,7 @@ class UserServiceTest {
         when(profileRepository.findByEmail(anyString())).thenReturn(Optional.of(profile));
         // When
         ResourceDeleteResponse response = userService.deleteUserByEmail(user.getEmail());
-        // Then
+        System.out.println("response***************: " + response);
         assertTrue(response.isSuccess());
         assertEquals(ACCOUNT_DELETED_SUCCESSFULLY, response.getMessage());
         verify(userRepository, times(1)).delete(user);

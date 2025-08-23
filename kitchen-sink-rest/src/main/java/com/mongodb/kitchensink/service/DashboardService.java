@@ -2,13 +2,13 @@ package com.mongodb.kitchensink.service;
 
 import com.mongodb.kitchensink.dto.DashboardStatsResponse;
 import com.mongodb.kitchensink.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.List;
 
 @Service
 public class DashboardService {
@@ -24,8 +24,9 @@ public class DashboardService {
         long activeUsers = userRepository.countByActiveTrue();
         long pendingVerifications = userRepository.countByIsAccountVerificationPendingTrue();
         long firstTimeLogins = userRepository.countByIsFirstLoginTrue();
-        long adminUsers = userRepository.countByRolesContaining("ADMIN");
-        long regularUsers = userRepository.countByRolesContaining("USER");
+        long adminUsers = userRepository.countByExactRoles(List.of("ADMIN"));
+        long regularUsers = userRepository.countByExactRoles(List.of("USER"));
+        long bothAdminAndUser= userRepository.countUsersWithRoles("ADMIN", "USER");
         LocalDate firstDayOfMonth = LocalDate.now().withDayOfMonth(1);
         Instant startOfMonth = firstDayOfMonth.atStartOfDay().toInstant(ZoneOffset.UTC);
         long newUsersThisMonth = userRepository.countByCreatedAtAfter(startOfMonth);
@@ -37,7 +38,8 @@ public class DashboardService {
                 firstTimeLogins,
                 newUsersThisMonth,
                 adminUsers,
-                regularUsers
+                regularUsers,
+                bothAdminAndUser
         );
     }
 }

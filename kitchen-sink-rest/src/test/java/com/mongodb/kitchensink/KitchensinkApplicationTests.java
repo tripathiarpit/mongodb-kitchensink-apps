@@ -2,19 +2,14 @@ package com.mongodb.kitchensink;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.context.ApplicationContext;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@ActiveProfiles("test")  // ensures application-test.properties is used
 class KitchensinkApplicationTests {
 
 	@Autowired
@@ -22,6 +17,6 @@ class KitchensinkApplicationTests {
 
 	@Test
 	void contextLoads() {
-		assertNotNull(context);
+		assertThat(context).isNotNull();
 	}
 }

@@ -1,20 +1,14 @@
 package com.mongodb.kitchensink.service;
 
-import com.mongodb.kitchensink.constants.ErrorCodes;
 import com.mongodb.kitchensink.constants.RedisValue;
-import com.mongodb.kitchensink.exception.InvalidRequestException;
 import com.mongodb.kitchensink.util.JwtTokenProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.List;
-
-import static com.mongodb.kitchensink.constants.ErrorMessageConstants.INVALID_REQUEST;
 
 @Service
 public class SessionService {

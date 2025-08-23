@@ -35,7 +35,6 @@ interface User {
             <h2 class="text-dark fw-bold mb-1">Admin Dashboard</h2>
             <p class="text-muted mb-0">Monitor your application statistics</p>
           </div>
-          <mat-icon class="text-primary fs-1">dashboard</mat-icon>
         </div>
       </div>
     </div>
@@ -128,7 +127,7 @@ interface User {
         <div class="col-12">
           <h5 class="text-dark fw-semibold mb-3 d-flex align-items-center">
             <mat-icon class="me-2 text-primary">admin_panel_settings</mat-icon>
-            User Roles Breakdown
+            Account Roles Breakdown
           </h5>
         </div>
       </div>
@@ -140,11 +139,12 @@ interface User {
             <mat-card-content class="p-4">
               <div class="d-flex align-items-center justify-content-between">
                 <div>
-                  <p class="text-muted small mb-1 text-uppercase fw-medium">New Users (This Month)</p>
-                  <h3 class="text-secondary fw-bold mb-0">{{ stats.newUsersThisMonth }}</h3>
+                  <p class="text-muted small mb-1 text-uppercase fw-medium">Both Admin and Regular User</p>
+                  <h3 class="text-secondary fw-bold mb-0">{{ stats.bothAdminAndUser }}</h3>
                 </div>
-                <div class="bg-secondary bg-opacity-10 rounded-circle p-3">
-                  <mat-icon class="text-secondary fs-4">person_add</mat-icon>
+                <div class="bg-secondary bg-opacity-10 rounded-circle p-1">
+                  <mat-icon class="text-danger fs-4">admin_panel_settings</mat-icon>
+                  <mat-icon class="text-secondary fs-4">person</mat-icon>
                 </div>
               </div>
             </mat-card-content>
@@ -157,7 +157,7 @@ interface User {
             <mat-card-content class="p-4">
               <div class="d-flex align-items-center justify-content-between">
                 <div>
-                  <p class="text-muted small mb-1 text-uppercase fw-medium">Admin Users</p>
+                  <p class="text-muted small mb-1 text-uppercase fw-medium">Only Admin Users</p>
                   <h3 class="text-danger fw-bold mb-0">{{ stats.adminUsers }}</h3>
                 </div>
                 <div class="bg-danger bg-opacity-10 rounded-circle p-3">
@@ -174,7 +174,7 @@ interface User {
             <mat-card-content class="p-4">
               <div class="d-flex align-items-center justify-content-between">
                 <div>
-                  <p class="text-muted small mb-1 text-uppercase fw-medium">Regular Users</p>
+                  <p class="text-muted small mb-1 text-uppercase fw-medium">Only Regular Users</p>
                   <h3 class="text-dark fw-bold mb-0">{{ stats.regularUsers }}</h3>
                 </div>
                 <div class="bg-dark bg-opacity-10 rounded-circle p-3">
@@ -274,6 +274,7 @@ interface User {
 export class AdminDashboardComponent implements OnInit {
   loading = true;
   stats: DashboardStats = {
+    bothAdminAndUser: 0,
     totalUsers: 0,
     activeUsers: 0,
     pendingVerifications: 0,

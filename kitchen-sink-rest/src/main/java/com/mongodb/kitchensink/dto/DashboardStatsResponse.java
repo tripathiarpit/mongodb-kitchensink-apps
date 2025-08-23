@@ -1,9 +1,5 @@
 package com.mongodb.kitchensink.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 
 public class DashboardStatsResponse {
     private long totalUsers;
@@ -12,8 +8,9 @@ public class DashboardStatsResponse {
     private long firstTimeLogins;
     private long newUsersThisMonth;
     private long adminUsers;
+    private long bothAdminAndUser;
 
-    public DashboardStatsResponse(long totalUsers, long activeUsers, long pendingVerifications, long firstTimeLogins, long newUsersThisMonth, long adminUsers, long regularUsers) {
+    public DashboardStatsResponse(long totalUsers, long activeUsers, long pendingVerifications, long firstTimeLogins, long newUsersThisMonth, long adminUsers, long regularUsers, long bothAdminAndUser) {
         this.totalUsers = totalUsers;
         this.activeUsers = activeUsers;
         this.pendingVerifications = pendingVerifications;
@@ -21,6 +18,7 @@ public class DashboardStatsResponse {
         this.newUsersThisMonth = newUsersThisMonth;
         this.adminUsers = adminUsers;
         this.regularUsers = regularUsers;
+        this.bothAdminAndUser = bothAdminAndUser;
     }
 
     private long regularUsers;
@@ -79,5 +77,13 @@ public class DashboardStatsResponse {
 
     public void setRegularUsers(long regularUsers) {
         this.regularUsers = regularUsers;
+    }
+
+    public long getBothAdminAndUser() {
+        return bothAdminAndUser;
+    }
+
+    public void setBothAdminAndUser(long bothAdminAndUser) {
+        this.bothAdminAndUser = bothAdminAndUser;
     }
 }

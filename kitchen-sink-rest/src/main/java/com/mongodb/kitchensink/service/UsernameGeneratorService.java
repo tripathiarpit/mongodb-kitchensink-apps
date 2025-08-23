@@ -3,15 +3,18 @@ package com.mongodb.kitchensink.service;
 import com.mongodb.kitchensink.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 @Service
 public class UsernameGeneratorService {
 
     private final UserRepository userRepository;
-    private final Random random = new Random();
+    SecureRandom random = new SecureRandom();
+    byte bytes[] = new byte[20];
 
     public UsernameGeneratorService(UserRepository userRepository) {
+        random.nextBytes(bytes);
         this.userRepository = userRepository;
     }
 

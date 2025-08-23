@@ -1,7 +1,6 @@
 package com.mongodb.kitchensink.dto;
 
 import com.mongodb.kitchensink.constants.ErrorCodes;
-import com.mongodb.kitchensink.constants.SuccessMessageConstants;
 
 public class ApiResponse {
     private boolean success;

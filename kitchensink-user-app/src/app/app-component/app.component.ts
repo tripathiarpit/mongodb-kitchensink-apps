@@ -64,7 +64,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subs.push(
       this.idleService.warning$.subscribe(() => {
         this.showWarning = true;
-        this.countdown = 30;
+        this.countdown = 5;
         this.startCountdown();
       })
     );

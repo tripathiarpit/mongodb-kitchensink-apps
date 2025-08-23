@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import {MatTable, MatTableDataSource} from '@angular/material/table';
@@ -31,7 +31,6 @@ export class UserListComponent implements OnInit, AfterViewInit {
     'count',      // ✅ Added numbering column
     'name',
     'email',
-    'phone',
     'username',
     'city',
     'country',
@@ -51,6 +50,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort, {static: false}) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatTable) table!: MatTable<any>;
+  @ViewChild('searchDiv') searchDiv!: ElementRef;
   constructor(
     private userService: UserService,
     private snackBar: MatSnackBar,
@@ -95,7 +95,9 @@ export class UserListComponent implements OnInit, AfterViewInit {
           if(data?.content?.length>0) {
             this.dataSource.data = data.content;
             this.totalRecords = data.totalElements as number;
+            this.applySort();
             this.extractAndPrepareForDownload();
+
           } else {
             this.showMessage("No results found");
           }
@@ -136,11 +138,18 @@ export class UserListComponent implements OnInit, AfterViewInit {
   pageChange(event: any) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
+    if (this.searchDiv) {
+      setTimeout(() => {
+        if (this.searchDiv) {
+          this.searchDiv.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 1);
+    }
     if(this.searchQuery?.length > 0) {
       this.onSearch();
+
     } else{
-      this.pageSize = 5;
-      this.loadUsers()
+      this.loadUsers();
     }
 
   }
@@ -190,9 +199,6 @@ export class UserListComponent implements OnInit, AfterViewInit {
     });
   }
   onSearch(): void {
-    if( this.searchBy !=='all')
-    this.pageSize = this.searchQuery.length == 0 ? 5: 100;
-
     switch (this.searchBy) {
       case 'name':
         this.searchByName();
@@ -338,12 +344,14 @@ export class UserListComponent implements OnInit, AfterViewInit {
           valueB = (b.profile?.country || '').toLowerCase();
           break;
         case 'createdAt':
-          valueA = new Date(a.createdAt).getTime();
-          valueB = new Date(b.createdAt).getTime();
+          valueA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          valueB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
           break;
         default:
-          valueA = (a[field] || '').toString().toLowerCase();
-          valueB = (b[field] || '').toString().toLowerCase();
+          valueA = a[field] ?? '';
+          valueB = b[field] ?? '';
+          if (typeof valueA === 'string') valueA = valueA.toLowerCase();
+          if (typeof valueB === 'string') valueB = valueB.toLowerCase();
       }
 
       if (valueA < valueB) return -1 * direction;
@@ -378,11 +386,12 @@ export class UserListComponent implements OnInit, AfterViewInit {
     } else {
       this.selectedEmailsForDownload = [];
     }
+    this.applySort();
   }
 
   onSearchSelect():void{
-    this.searchQuery ='';
     if(this.searchBy =='all') {
+      this.searchQuery = '';
       this.pageSize = 5;
     }
   }

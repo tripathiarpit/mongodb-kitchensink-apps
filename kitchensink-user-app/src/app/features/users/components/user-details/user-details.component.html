@@ -1,5 +1,6 @@
 @if (showPasswordTemplate) {
-  <app-forgot-password [changingOwnPassword]="true" [currentUserEmail]="emailId"></app-forgot-password>
+  <app-forgot-password [changingOwnPassword]="true" [currentUserEmail]="emailId"
+  (onCancelPressed)="onPasswordCancelPressed()"></app-forgot-password>
 } @else {
   @if(user) {
     <div class="user-details-dialog">
@@ -69,7 +70,7 @@
                         <span class="menu-text">Reset Password</span>
 
                       </button>
-                      @if (user.roles.indexOf('ADMIN')!=-1) {
+                      @if (isLoggedInUserAdmin()) {
                         <mat-divider class="menu-divider"></mat-divider>
                         <button mat-menu-item class="menu-item-custom danger-item">
                           <mat-icon class="menu-icon danger-icon">delete_outline</mat-icon>

@@ -9,7 +9,6 @@ import com.mongodb.kitchensink.exception.UserNotFoundException;
 import com.mongodb.kitchensink.model.User;
 import com.mongodb.kitchensink.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

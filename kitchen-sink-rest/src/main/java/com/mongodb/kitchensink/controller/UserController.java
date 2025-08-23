@@ -243,7 +243,7 @@ public class UserController {
         return downloadFileService.generateUserExcel(users);
     }
     @GetMapping("/download-by-fetched-results")
-    public ResponseEntity<byte[]> downloadUsersbyEmails(@RequestParam()ArrayList<String> emailIds) {
+    public ResponseEntity<byte[]> downloadUsersbyEmails(@RequestParam() List<String> emailIds) {
         List<UserDto> users = userService.getAllUsersByEmailIds(emailIds);
         return downloadFileService.generateUserExcel(users);
     }

@@ -2,7 +2,6 @@ package com.mongodb.kitchensink.util;
 
 import com.mongodb.kitchensink.constants.ErrorCodes;
 import com.mongodb.kitchensink.constants.ErrorMessageConstants;
-import com.mongodb.kitchensink.exception.InvalidOtpException;
 import com.mongodb.kitchensink.exception.JwtExpiredException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;

@@ -54,6 +54,9 @@ public class AuthService {
     public LoginResponse login(LoginRequest loginRequest) throws UserAuthException, UserNotFoundException, Exception {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
+        if(password == null || password.isEmpty()) {
+            throw new InvalidRequestException(ErrorCodes.INVALID_CREDENTIALS);
+        }
         try {
             email = email.toLowerCase();
             UserDto user = userService.getUserByEmail(email);

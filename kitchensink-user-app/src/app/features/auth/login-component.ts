@@ -66,6 +66,7 @@ export class LoginComponent {
     this.authService.login(email, password).subscribe({
       next: (response) => {
         console.log('Login successful', response);
+        this.authService.isLoggedIn$.next(true);
         this.isLoading = false;
         this.currentLoggedInUserEmail = response.email;
         this.isAccountVerificationPending = response.accountVerificationPending;

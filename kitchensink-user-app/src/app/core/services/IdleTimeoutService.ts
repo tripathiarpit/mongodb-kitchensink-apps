@@ -6,8 +6,8 @@ import {AuthService} from './AuthService';
   providedIn: 'root'
 })
 export class IdleTimeoutService {
-  private totalIdleTime = 10_0000;
-  private warningDuration = 5_000;
+  private totalIdleTime = 1860000;
+  private warningDuration = 5000;
   private warnTimerSub?: Subscription;
   private timeoutTimerSub?: Subscription;
   private watching = false;
