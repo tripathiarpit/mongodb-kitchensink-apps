@@ -21,6 +21,15 @@ services:
       - "6379:6379"
     networks:
       - kitchensink-network
+    # RedisInsight for Redis management
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    restart: unless-stopped
+    ports:
+      - "5540:5540"
+    networks:
+      - kitchensink-network
 
   # Spring Boot Backend API
   backend:
