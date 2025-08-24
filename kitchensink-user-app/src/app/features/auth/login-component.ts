@@ -1,6 +1,6 @@
 // login.component.ts
 import { Component } from '@angular/core';
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MaterialModule} from '../../material.module';
 import {CommonModule} from '@angular/common';
 import {animate, style, transition, trigger} from '@angular/animations';
@@ -47,7 +47,7 @@ export class LoginComponent {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email, Validators.pattern(emailRegex)]],
-      password: ['', [Validators.required, Validators.minLength(2)]]
+      password: ['', [Validators.required, Validators.minLength(2), this.notOnlySpacesValidator]]
     });
   }
 
@@ -109,7 +109,10 @@ export class LoginComponent {
     });
   }
 
-
+  notOnlySpacesValidator(control: AbstractControl) {
+    const value = control.value || '';
+    return value.trim().length === 0 ? { onlySpaces: true } : null;
+  }
   togglePasswordVisibility() {
     this.hidePassword = !this.hidePassword;
   }
@@ -133,10 +136,17 @@ export class LoginComponent {
   }
 
   getPasswordErrorMessage() {
-    if (this.loginForm.get('password')?.hasError('required')) {
+    const passwordControl = this.loginForm.get('password');
+    if (passwordControl?.hasError('required')) {
       return 'Password is required';
     }
-    return this.loginForm.get('password')?.hasError('minlength') ? 'Password must be at least 6 characters' : '';
+    if (passwordControl?.hasError('onlySpaces')) {
+      return 'Password cannot be only blank spaces';
+    }
+    if (passwordControl?.hasError('minlength')) {
+      return 'Password must be at least 6 characters';
+    }
+    return '';
   }
 
   isOtpVerificationSuccessful(isOtpSuccessfullyVerified: boolean) {

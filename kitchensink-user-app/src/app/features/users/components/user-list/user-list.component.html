@@ -4,7 +4,7 @@
   </mat-card-header>
   <mat-card-content>
     <div class="d-flex align-items-center gap-2 flex-wrap" >
-      <mat-form-field appearance="outline" style="width: 150px;"  >
+      <mat-form-field appearance="outline" style="width: 150px;"  [matTooltip]="'Select Search Criteria'">
         <mat-label>Search by</mat-label>
         <mat-select [(value)]="searchBy" (selectionChange)="onSearchSelect()">
           <mat-option value="name">Name</mat-option>
@@ -42,7 +42,7 @@
 
       <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap"  >
         <!-- Filter Input -->
-        <mat-form-field appearance="outline" style="width: 250px;">
+        <mat-form-field appearance="outline" style="width: 250px;" [matTooltip]="'Enter text to filter records'">
           <mat-label>Filter users</mat-label>
           <input matInput (keyup)="applyFilter($event)" placeholder="Filter by name, email, city, country">
         </mat-form-field>
@@ -52,7 +52,7 @@
 
         <div class="d-flex align-items-center gap-1" >
           <span >Sort by:</span>
-          <mat-form-field appearance="outline" style="width: 180px;">
+          <mat-form-field appearance="outline" style="width: 180px;" [matTooltip]="'Choose the sorting criteria'">
             <mat-select [(value)]="sortField" (selectionChange)="applySort()">
               <mat-option value="username">Username</mat-option>
               <mat-option value="name">Name</mat-option>
@@ -64,13 +64,13 @@
           </mat-form-field>
 
           <!-- Sort Direction Icon -->
-          <button mat-icon-button (click)="toggleSortDirection()" >
+          <button mat-icon-button (click)="toggleSortDirection()" [matTooltip]="sortDirection==='asc' ? 'Ascending' : 'Descending'" >
             <mat-icon>{{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
           </button>
         </div>
         @if(this.selectedEmailsForDownload.length>0) {
-          <button mat-raised-button color="primary" (click)="download()" style="height: 48px; font-size: 16px;">
-            <mat-icon>download</mat-icon> Download Users CSV
+          <button mat-raised-button color="primary" (click)="download()" [matTooltip]="'Click here to Download Records'" style="height: 48px; font-size: 16px;">
+            <mat-icon>download</mat-icon> Download CSV
           </button>
         }
 

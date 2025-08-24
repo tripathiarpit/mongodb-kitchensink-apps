@@ -5,34 +5,31 @@ import java.util.List;
 public class LoginResponse {
     private boolean success;
     private String message;
-    private String token;
+    private String accessToken;
+    private String refreshToken;
     private String email;
     private String username;
     private String fullName;
     private List<String> roles;
     private boolean accountVerificationPending;
-    private boolean isFirstLogin;
+    private boolean firstLogin;
 
-    public boolean isFirstLogin() {
-        return isFirstLogin;
-    }
-
-    public void setFirstLogin(boolean firstLogin) {
-        isFirstLogin = firstLogin;
-    }
-
-    public LoginResponse(boolean success, String message, String token, String email, String username, String fullname, List<String> roles, boolean accountVerificationPending, boolean isFirstLogin) {
+    public LoginResponse(boolean success, String message, String accessToken, String refreshToken, String email,
+                         String username, String fullName, List<String> roles, boolean accountVerificationPending,
+                         boolean firstLogin) {
         this.success = success;
         this.message = message;
-        this.token = token;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
         this.email = email;
         this.username = username;
-        this.fullName = fullname;
+        this.fullName = fullName;
         this.roles = roles;
         this.accountVerificationPending = accountVerificationPending;
-        this.isFirstLogin = isFirstLogin;
+        this.firstLogin = firstLogin;
     }
 
+    // Getters and Setters
     public boolean isSuccess() {
         return success;
     }
@@ -49,12 +46,20 @@ public class LoginResponse {
         this.message = message;
     }
 
-    public String getToken() {
-        return token;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public String getEmail() {
@@ -73,10 +78,6 @@ public class LoginResponse {
         this.username = username;
     }
 
-    public List<String> getRoles() {
-        return roles;
-    }
-
     public String getFullName() {
         return fullName;
     }
@@ -85,7 +86,15 @@ public class LoginResponse {
         this.fullName = fullName;
     }
 
-    public boolean isAccountVerificationPending() {
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
+    public boolean getAccountVerificationPending() {
         return accountVerificationPending;
     }
 
@@ -93,22 +102,11 @@ public class LoginResponse {
         this.accountVerificationPending = accountVerificationPending;
     }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    public boolean getFirstLogin() {
+        return firstLogin;
     }
 
-    @Override
-    public String toString() {
-        return "LoginResponse{" +
-                "success=" + success +
-                ", message='" + message + '\'' +
-                ", token='" + token + '\'' +
-                ", email='" + email + '\'' +
-                ", username='" + username + '\'' +
-                ", fullName='" + fullName + '\'' +
-                ", roles=" + roles +
-                ", accountVerificationPending=" + accountVerificationPending +
-                ", isFirstLogin=" + isFirstLogin +
-                '}';
+    public void setFirstLogin(boolean firstLogin) {
+        this.firstLogin = firstLogin;
     }
 }

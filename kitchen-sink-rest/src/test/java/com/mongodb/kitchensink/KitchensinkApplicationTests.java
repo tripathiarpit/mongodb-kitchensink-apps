@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@ActiveProfiles("test")  // ensures application-test.properties is used
+@ActiveProfiles("test")
 class KitchensinkApplicationTests {
 
 	@Autowired

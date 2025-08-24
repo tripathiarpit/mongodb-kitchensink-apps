@@ -32,4 +32,7 @@ private ErrorMessageConstants() {
     public static final String USERS_NOT_FOUND_BY_USER_ID= "Users not found with UserID";
     public static final String USERS_FOUND_BY_USER_ID= "There is an Existing account with this UserID.";
     public static final String USERS_ACCOUNT_DISABLED     = "Your account has been disabled, please contact Administrator.";
+    public static final String TOKEN_INVALID = "Session is invalid login again to continue.";
+    public static final String REFRESH_TOKEN_MISSING = "Refresh token is missing";
+    public static final String ANOTHER_SESSION_STARTED = "Another session was started or token is invalid, login again to continue.";
 }

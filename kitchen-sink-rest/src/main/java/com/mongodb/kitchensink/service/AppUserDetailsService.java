@@ -11,6 +11,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,11 +29,12 @@ public class AppUserDetailsService implements UserDetailsService {
         if (user.getPasswordHash() == null || user.getPasswordHash().trim().isEmpty()) {
             throw new UsernameNotFoundException("Password not set for user: " + email);
         }
-
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPasswordHash(),
-                user.getRoles().stream()
+                Optional.ofNullable(user.getRoles())
+                        .orElse(Collections.emptyList())
+                        .stream()
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList())
         );

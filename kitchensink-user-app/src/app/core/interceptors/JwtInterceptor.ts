@@ -5,91 +5,83 @@ import {
   HttpRequest,
   HttpHandler,
   HttpEvent,
-  HttpErrorResponse
+  HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable, throwError, EMPTY, of } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { Observable, throwError, BehaviorSubject, of, EMPTY } from 'rxjs';
+import { catchError, switchMap, filter, take } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/AuthService';
 import { AppSnackbarComponent } from '../../shared/common-components/app-snackbar/app-snackbar';
 import { LoaderService } from '../services/LoaderService';
-import { SessionService } from '../services/SessionService';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
-  private isLoggingOut = false; // prevent multiple logouts
+  private isRefreshing = false;
+  private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   constructor(
     private auth: AuthService,
     private snackBar: MatSnackBar,
     private router: Router,
-    private loader: LoaderService,
-    private sessionService: SessionService
+    private loader: LoaderService
   ) {}
 
-  private shouldBypassAuth(url: string): boolean {
-    return [
-      '/api/auth/login',
-      '/api/users/register',
-      '/api/auth/forgot-password/request-otp',
-      '/api/auth/forgot-password/verify-otp',
-      '/api/auth/forgot-password/reset',
-      '/api/auth/account-verification/request-otp',
-      '/api/auth/account-verification/verify-otp',
-      '/api/auth/account-verification/reset',
-      '/api/auth/get-login-response-after-otp-verification',
-      '/api/auth/logout',
-      '/api/auth/validate-session'
-    ].some((path) => url.includes(path) || url.includes('restcountries.com'));
+  private addToken(request: HttpRequest<any>, token: string): HttpRequest<any> {
+    return request.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // If a request shouldn't be authenticated, handle it directly.
-    if (this.shouldBypassAuth(req.url)) {
+    const accessToken = this.auth.getAuthToken();
+    if (this.isPublicEndpoint(req.url)) {
       return next.handle(req);
     }
-
-    // Check if the session is active before proceeding.
-    return this.sessionService.isSessionActive().pipe(
-      switchMap(isSessionActive => {
-        if (!isSessionActive) {
-          if (!this.isLoggingOut) {
-            this.isLoggingOut = true;
-            this.auth.clearSessionStorage();
-            this.showMessage('Your session has expired. Please log in again.');
-            this.router.navigate(['/login']);
-          }
-          return EMPTY; // Stop the request
+    const requestWithToken = accessToken ? this.addToken(req, accessToken) : req;
+    return next.handle(requestWithToken).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          return this.handle401Error(requestWithToken, next);
         }
-
-        // If session is active, clone the request with the token.
-        const token = this.auth.getAuthToken();
-        const requestWithToken = req.clone({
-          setHeaders: { Authorization: `Bearer ${token}` }
-        });
-
-        // Handle the response after the request has been made.
-        return next.handle(requestWithToken).pipe(
-          catchError((error: HttpErrorResponse) => {
-            const isSessionExpiredError =
-              (error.status === 401) ||
-              (error.status === 400 && error.error?.message?.includes("Session has been expired"));
-
-            if (isSessionExpiredError && !this.isLoggingOut) {
-              this.loader.hide();
-              this.isLoggingOut = true;
-              this.auth.clearSessionStorage();
-              this.showMessage('Your session has expired. Please log in again.');
-              this.router.navigate(['/login']);
-              return EMPTY;
-            }
-
-            return throwError(() => error);
-          })
-        );
+        return throwError(() => error);
       })
     );
+  }
+
+  private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (!this.isRefreshing) {
+      this.isRefreshing = true;
+      this.refreshTokenSubject.next(null); // Clear the subject to hold the new token
+
+      return this.auth.refreshToken().pipe(
+        switchMap((tokens: any) => {
+          this.isRefreshing = false;
+          this.refreshTokenSubject.next(tokens.accessToken);
+          return next.handle(this.addToken(request, tokens.accessToken));
+        }),
+        catchError((refreshError) => {
+          this.isRefreshing = false;
+          return this.logoutAndRedirect('Your session has expired or another login has occurred. Please log in again.');
+        })
+      );
+    } else {
+      // If a refresh is already in progress, wait for it to complete
+      return this.refreshTokenSubject.pipe(
+        filter((token) => token !== null),
+        take(1),
+        switchMap((token) => next.handle(this.addToken(request, token)))
+      );
+    }
+  }
+
+  private logoutAndRedirect(message: string): Observable<never> {
+    this.auth.clearSessionStorage();
+    this.showMessage(message);
+    this.router.navigate(['/login']);
+    return EMPTY;
   }
 
   private showMessage(message: string): void {
@@ -100,5 +92,20 @@ export class JwtInterceptor implements HttpInterceptor {
       verticalPosition: 'top',
       panelClass: ['error-snackbar']
     });
+  }
+
+  private isPublicEndpoint(url: string): boolean {
+    const publicPaths = [
+      '/api/auth/login',
+      '/api/users/register',
+      '/api/auth/forgot-password/request-otp',
+      '/api/auth/forgot-password/verify-otp',
+      '/api/auth/forgot-password/reset',
+      '/api/auth/account-verification/request-otp',
+      '/api/auth/account-verification/verify-otp',
+      '/api/auth/get-login-response-after-otp-verification',
+      '/api/auth/refresh' // Crucial to allow the refresh token endpoint to bypass the interceptor's token check
+    ];
+    return publicPaths.some(path => url.includes(path)) || url.includes('restcountries.com');
   }
 }

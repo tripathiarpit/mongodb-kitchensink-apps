@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject, of } from 'rxjs';
-import { catchError, map, finalize } from 'rxjs/operators'; // Import finalize for cleanup
+import {catchError, map, finalize, tap} from 'rxjs/operators'; // Import finalize for cleanup
 import { Router } from '@angular/router';
 import { ApiResponse } from '../../shared/model/ApiResponse';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -9,7 +9,8 @@ import { AppSnackbarComponent } from '../../shared/common-components/app-snackba
 import {LoaderService} from './LoaderService';
 
 export interface LoginResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   email: string;
   username: string;
   fullName: string;
@@ -26,12 +27,12 @@ export interface DeleteResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private tokenKey = 'auth_token';
+  private refreshKey = 'refresh_token';
   private userRoleKey = 'roles';
   private fullnameKey = 'fullName';
   private emailKey = 'user_email';
   isLoggedIn$ = new BehaviorSubject<boolean>(false);
   rolesSubject = new BehaviorSubject<string>('');
-
   constructor(private http: HttpClient, private router: Router, private snackBar: MatSnackBar,private loader: LoaderService) { }
 
   /**
@@ -100,8 +101,10 @@ export class AuthService {
    * @returns True if a token exists, false otherwise.
    */
   isLoggedIn(): boolean {
-    const token = localStorage.getItem(this.tokenKey);
-    return !!token;
+    // User is considered logged in if both tokens are present locally
+    const accessToken = this.getAccessToken();
+    const refreshToken = this.getRefreshToken();
+    return !!accessToken && !!refreshToken;
   }
 
   /**
@@ -270,9 +273,10 @@ export class AuthService {
    * @param res The LoginResponse object.
    */
   saveUserData(res: LoginResponse) {
-    localStorage.setItem(this.tokenKey, res.token);
+    localStorage.setItem(this.tokenKey, res.accessToken);
     localStorage.setItem(this.emailKey, res.email);
-    localStorage.setItem('username', res.username); // Consider making 'username' a constant like other keys
+    localStorage.setItem('username', res.username);
+    localStorage.setItem(this.refreshKey, res.refreshToken);
     localStorage.setItem(this.fullnameKey, res.fullName);
     localStorage.setItem(this.userRoleKey, JSON.stringify(res.roles));
   }
@@ -345,6 +349,7 @@ export class AuthService {
   }
   clearSessionStorage(): void {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.refreshKey);
     localStorage.removeItem(this.userRoleKey);
     localStorage.removeItem(this.fullnameKey);
     localStorage.removeItem(this.emailKey);
@@ -375,10 +380,43 @@ export class AuthService {
 
     const headers = { Authorization: `Bearer ${token}` };
     return this.http.get<boolean>('/api/auth/validate-session', { headers }).pipe(
-      map(() => true), // Map a successful response to 'true'
+      map(() => true),
       catchError(err => {
-        return of(false); // Map any error to 'false'
+        return of(false);
       })
     );
   }
+  getRefreshToken() {
+    return localStorage.getItem(this.refreshKey);
+  }
+  getAccessToken() {
+    return localStorage.getItem(this.tokenKey);
+  }
+  refreshToken(): Observable<{ accessToken: string; refreshToken: string }> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      return this.handleRefreshError('No refresh token available. Logging out.');
+    }
+
+    return this.http.post<{ accessToken: string; refreshToken: string }>('/api/auth/refresh', { refreshToken }).pipe(
+      tap(response => {
+        // Store the new tokens
+        this.storeTokens(response.accessToken, response.refreshToken);
+      }),
+      catchError(error => {
+        return this.handleRefreshError('Failed to refresh token. Logging out.');
+      })
+    );
+  }
+  private handleRefreshError(message: string): Observable<never> {
+    this.clearSessionStorage();
+    // You might want to display a snackbar message here as well.
+    // However, the AuthInterceptor will handle routing to login.
+    return throwError(() => new Error(message)); // Throw an error that the interceptor will catch
+  }
+  storeTokens(accessToken: string, refreshToken: string) {
+    localStorage.setItem(this.tokenKey, accessToken);
+    localStorage.setItem(this.refreshKey, refreshToken);
+  }
+
 }

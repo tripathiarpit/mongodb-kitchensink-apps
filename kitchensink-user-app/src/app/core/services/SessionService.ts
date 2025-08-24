@@ -11,6 +11,9 @@ export class SessionService {
   isSessionActive(): Observable<boolean> {
     return this.authService.isSessionActive();
   }
+  isRefershSession(): Observable<boolean> {
+    return this.authService.isSessionActive();
+  }
 
 
 }

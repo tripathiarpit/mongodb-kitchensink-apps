@@ -37,7 +37,9 @@ public class Profile {
 
     private String phoneNumber;
     private Address address;
-    private String username; // link to User
+    
+    @Indexed(unique = true)
+    private String username;
 
     public Profile() {}
 

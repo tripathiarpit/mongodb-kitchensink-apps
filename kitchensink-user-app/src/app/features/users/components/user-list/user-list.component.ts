@@ -38,7 +38,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
     'createdAt',
     'actions'
   ];
-  sortField: string = 'username'; // default sort column
+  sortField: string = 'name';
   sortDirection: 'asc' | 'desc' = 'asc';
   dataSource: MatTableDataSource<User> = new MatTableDataSource<User>();
   totalRecords: number = 0;
@@ -95,7 +95,6 @@ export class UserListComponent implements OnInit, AfterViewInit {
           if(data?.content?.length>0) {
             this.dataSource.data = data.content;
             this.totalRecords = data.totalElements as number;
-            this.applySort();
             this.extractAndPrepareForDownload();
 
           } else {

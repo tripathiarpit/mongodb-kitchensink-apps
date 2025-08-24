@@ -22,18 +22,21 @@ import static com.mongodb.kitchensink.constants.ErrorMessageConstants.INVALID_OR
 public class JwtTokenProvider {
 
     private final Key key;
-    private final long validityInMilliseconds;
+    private final long accessTokenValidityInSeconds;
+    private final long refreshTokenValidityInSeconds;
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey,
-                            @Value("${jwt.expiration-ms}") long validityInMilliseconds) {
+                            @Value("${jwt.expiration-seconds}") long accessTokenValidityInMilliseconds,
+                            @Value("${jwt.refresh-expiration-seconds}") long refreshTokenValidityInMilliseconds) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-        this.validityInMilliseconds = validityInMilliseconds;
+        this.accessTokenValidityInSeconds = accessTokenValidityInMilliseconds;
+        this.refreshTokenValidityInSeconds = refreshTokenValidityInMilliseconds;
     }
 
-    public String generateToken(String email, List<String> roles) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + validityInMilliseconds);
 
+    public String generateAccessToken(String email, List<String> roles) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + accessTokenValidityInSeconds *1000);
         return Jwts.builder()
                 .setSubject(email)
                 .claim("roles", roles)
@@ -43,8 +46,19 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String generateRefreshToken(String email) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + refreshTokenValidityInSeconds *1000);
 
-    public void validateToken(String token) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public void validateAccessToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
         } catch (ExpiredJwtException ex) {
@@ -54,14 +68,18 @@ public class JwtTokenProvider {
         }
     }
 
-    public String getUsernameFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key).build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+
+    public void validateRefreshToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+        } catch (ExpiredJwtException ex) {
+            throw new JwtExpiredException(ErrorCodes.SESSION_EXPIRED, ErrorMessageConstants.TOKEN_EXPIRED);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new JwtExpiredException(ErrorCodes.INVALID_JWT_TOKEN, ErrorMessageConstants.TOKEN_INVALID);
+        }
     }
-    public String getEmailFromToken(String token) {
+
+    public String getEmailFromAccessToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key).build()
                 .parseClaimsJws(token)
@@ -69,6 +87,14 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
+
+    public String getEmailFromRefreshToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key).build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
     @SuppressWarnings("unchecked")
     public List<String> getRolesFromToken(String token) {
         return (List<String>) Jwts.parserBuilder()

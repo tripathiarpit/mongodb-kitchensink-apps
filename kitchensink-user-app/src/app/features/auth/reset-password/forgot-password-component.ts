@@ -303,6 +303,9 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   passwordValidator(control: any) {
     const value = control.value;
     if (!value) return null;
+    if (value.trim().length === 0) {
+      return { onlySpaces: true };
+    }
     const hasUpperCase = /[A-Z]+/.test(value);
     const hasLowerCase = /[a-z]+/.test(value);
     const hasNumeric = /[0-9]+/.test(value);

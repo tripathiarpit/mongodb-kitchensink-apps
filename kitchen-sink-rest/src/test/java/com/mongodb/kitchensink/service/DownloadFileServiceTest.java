@@ -3,7 +3,6 @@ package com.mongodb.kitchensink.service;
 import com.mongodb.kitchensink.dto.ProfileDto;
 import com.mongodb.kitchensink.dto.UserDto;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType; // Import CellType
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;

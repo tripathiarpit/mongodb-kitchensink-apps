@@ -69,7 +69,7 @@
                                   (click)="togglePasswordVisibility()">
                             <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
                           </button>
-                          <mat-hint>Must contain uppercase, lowercase, number and special character</mat-hint>
+                          <mat-hint [matTooltip]="'Must not contain all spaces in password'">Must contain uppercase, lowercase, number and special character.</mat-hint>
                           <mat-error *ngIf="personalInfoForm.get('password')?.invalid && personalInfoForm.get('password')?.touched">
                             {{getPersonalInfoErrorMessage('password')}}
                           </mat-error>

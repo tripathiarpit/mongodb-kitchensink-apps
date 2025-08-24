@@ -101,4 +101,72 @@ class AppUserDetailsServiceTest {
         assertEquals("Password not set for user: " + EMAIL, exception.getMessage());
         verify(userRepository, times(1)).findByEmail(EMAIL);
     }
+    @Test
+    @DisplayName("should return UserDetails with multiple roles")
+    void loadUserByUsername_validUserWithMultipleRoles_shouldReturnUserDetails() {
+        User mockUser = new User();
+        mockUser.setEmail(EMAIL);
+        mockUser.setPasswordHash(PASSWORD_HASH);
+        mockUser.setRoles(java.util.Arrays.asList("ROLE_USER", "ROLE_ADMIN"));
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(mockUser));
+
+        UserDetails userDetails = appUserDetailsService.loadUserByUsername(EMAIL);
+
+        assertNotNull(userDetails);
+        assertEquals(2, userDetails.getAuthorities().size());
+        assertTrue(userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
+        assertTrue(userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
+    }
+
+    @Test
+    @DisplayName("should return UserDetails with empty authorities if roles is empty")
+    void loadUserByUsername_userWithEmptyRoles_shouldReturnUserDetailsWithNoAuthorities() {
+        User mockUser = new User();
+        mockUser.setEmail(EMAIL);
+        mockUser.setPasswordHash(PASSWORD_HASH);
+        mockUser.setRoles(Collections.emptyList());
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(mockUser));
+
+        UserDetails userDetails = appUserDetailsService.loadUserByUsername(EMAIL);
+
+        assertNotNull(userDetails);
+        assertTrue(userDetails.getAuthorities().isEmpty());
+    }
+
+    @Test
+    @DisplayName("should return UserDetails with empty authorities if roles is null")
+    void loadUserByUsername_userWithNullRoles_shouldReturnUserDetailsWithNoAuthorities() {
+        User mockUser = new User();
+        mockUser.setEmail(EMAIL);
+        mockUser.setPasswordHash(PASSWORD_HASH);
+        mockUser.setRoles(null);
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(mockUser));
+
+        UserDetails userDetails = appUserDetailsService.loadUserByUsername(EMAIL);
+
+        assertNotNull(userDetails);
+        assertTrue(userDetails.getAuthorities().isEmpty());
+    }
+
+    @Test
+    @DisplayName("should handle user with special characters in email and roles")
+    void loadUserByUsername_userWithSpecialChars_shouldReturnUserDetails() {
+        String specialEmail = "user+test@domain.com";
+        User mockUser = new User();
+        mockUser.setEmail(specialEmail);
+        mockUser.setPasswordHash(PASSWORD_HASH);
+        mockUser.setRoles(java.util.Arrays.asList("ROLE_ÜSER", "ROLE_测试"));
+        when(userRepository.findByEmail(specialEmail)).thenReturn(Optional.of(mockUser));
+
+        UserDetails userDetails = appUserDetailsService.loadUserByUsername(specialEmail);
+
+        assertNotNull(userDetails);
+        assertEquals(specialEmail, userDetails.getUsername());
+        assertTrue(userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ÜSER")));
+        assertTrue(userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_测试")));
+    }
 }

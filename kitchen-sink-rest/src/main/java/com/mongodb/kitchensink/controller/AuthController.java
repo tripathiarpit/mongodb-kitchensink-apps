@@ -63,6 +63,13 @@ public class AuthController {
         }
         return ResponseEntity.ok(valid);
     }
+    @Operation(summary = "Refresh access and refresh tokens",
+            description = "Provides a new access token and refresh token using an existing valid refresh token")
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshTokens(@RequestBody RefreshTokenRequest request) {
+        JwtAuthenticationResponse response = authService.refreshTokens(request.getRefreshToken());
+        return ResponseEntity.ok(response);
+    }
 
     @Operation(summary = "Request OTP for forgot password", description = "Sends an OTP to the user's email for password reset")
     @PostMapping("/forgot-password/request-otp")
@@ -110,12 +117,12 @@ public class AuthController {
     public ResponseEntity<List<String>> getUserRolesByToken(
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.emptyList());
-            }
+            // Let the service layer handle the validation and extraction.
             List<String> roles = authService.getRolesFromToken(authHeader);
-            return ResponseEntity.ok(roles != null ? roles : Collections.emptyList());
+            return ResponseEntity.ok(roles);
         } catch (Exception e) {
+            // Handle any validation or parsing errors with a 401 Unauthorized status.
+            // The service layer should throw a specific exception for this.
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.emptyList());
         }
     }

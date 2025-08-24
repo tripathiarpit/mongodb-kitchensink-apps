@@ -142,6 +142,7 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+
     public UserDto getUserByEmail(String email) {
         if(email == null || email.isEmpty()) {
             throw new UserNotFoundException(ErrorCodes.RESOURCE_NOT_FOUND, ErrorMessageConstants.ACCOUNT_NOT_FOUND_EMAIL);

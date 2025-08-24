@@ -26,31 +26,16 @@ export class AuthGuard implements CanActivate {
     if (state.url === '/login') {
       return of(true);
     }
-    if (!this.authService.isLoggedIn()) {
+    if (this.authService.isLoggedIn()) {
+      // If tokens are present, allow access.
+      // The AuthInterceptor will handle expired access tokens and refreshes during subsequent API calls.
+      return of(true);
+    } else {
       this.loader.hide();
+      this.authService.clearSessionStorage();
       this.showMessage('You are not logged in. Please log in.');
       return of(this.router.createUrlTree(['/login']));
     }
-
-    return this.authService.isSessionActive().pipe(
-      map(isActive => {
-        if (isActive) {
-          console.log('Backend session validation successful.');
-          return true;
-        } else {
-          this.loader.hide();
-          this.authService.clearSessionStorage();
-          this.showMessage('Session invalid. Please log in again.');
-          return this.router.createUrlTree(['/login']);
-        }
-      }),
-      catchError((err) => {
-        this.loader.hide();
-        this.authService.clearSessionStorage();
-        this.showMessage('An unexpected error occurred. Please log in again.');
-        return of(this.router.createUrlTree(['/login']));
-      })
-    );
   }
 
   private showMessage(message: string) {
