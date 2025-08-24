@@ -35,11 +35,17 @@ export class AuthInterceptor implements HttpInterceptor {
         // If refresh request itself fails, log out
         if (error instanceof HttpErrorResponse && error.status === 401 && request.url.includes('/api/auth/refresh')) {
           this.loader.hide();
+          if(error.error.message =="Invalid email or password") {
+            return this.handleAuthenticationError('Invalid email or password.');
+          }
           return this.handleAuthenticationError('Session expired. Please log in again.');
         }
 
         // Handle 401 for other requests by attempting to refresh the token
         if (error instanceof HttpErrorResponse && error.status === 401) {
+          if(error.error.message =="Invalid email or password") {
+            return this.handleAuthenticationError(error.error.message);
+          }
           this.loader.hide();
           return this.handle401Error(request, next);
         }

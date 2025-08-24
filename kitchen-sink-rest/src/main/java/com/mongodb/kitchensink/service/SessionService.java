@@ -12,6 +12,8 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
+import static com.mongodb.kitchensink.constants.AppContants.ACTIVE_ACCESS_TOKEN;
+import static com.mongodb.kitchensink.constants.AppContants.REFRESH_TOKEN;
 import static com.mongodb.kitchensink.constants.ErrorMessageConstants.TOKEN_EXPIRED;
 
 @Service
@@ -23,6 +25,7 @@ public class SessionService {
     private long otpExpirationSeconds;
     @Value("${jwt.refresh-expiration-seconds}")
     private long refreshTokenExpirationSeconds;
+
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -56,15 +59,18 @@ public class SessionService {
         return value.getValue().equals(otp);
     }
     public void storeRefreshToken(String email, String refreshToken, long expirationSeconds) {
-        String key = "REFRESH_TOKEN:" + email;
-        redisTemplate.opsForValue().set(key, refreshToken, Duration.ofSeconds(expirationSeconds));
+        RedisValue<String> sessionValue = new RedisValue<>(refreshToken, expirationSeconds);
+        String key = REFRESH_TOKEN+":" + email;
+        redisTemplate.opsForValue().set(key, sessionValue, Duration.ofSeconds(expirationSeconds));
     }
     public void storeAccessToken(String email, String accessToken, long expirationSeconds) {
-        String key = "ACTIVE_ACCESS_TOKEN:" + email;
-        redisTemplate.opsForValue().set(key, accessToken, Duration.ofSeconds(expirationSeconds));
+        RedisValue<String> sessionValue = new RedisValue<>(accessToken, expirationSeconds);
+        String key = ACTIVE_ACCESS_TOKEN+":" + email;
+        redisTemplate.opsForValue().set(key, sessionValue, Duration.ofSeconds(expirationSeconds));
     }
     public boolean validateAndConsumeRefreshToken(String email, String refreshToken) {
-        String redisKey = "REFRESH_TOKEN:" + email;
+
+        String redisKey = REFRESH_TOKEN+":" + email;
         RedisValue<String> storedValue = (RedisValue<String>) redisTemplate.opsForValue().get(redisKey);
         if (storedValue == null || storedValue.isExpired()) {
             return false;
@@ -77,20 +83,37 @@ public class SessionService {
         return false;
     }
     public void invalidateSession(String email) {
-        String keyRefreshToken = "REFRESH_TOKEN" + email;
-        String keyAccessToken = "ACTIVE_ACCESS_TOKEN" + email;
+        String keyRefreshToken =REFRESH_TOKEN+":" + email;
+        String keyAccessToken = ACTIVE_ACCESS_TOKEN+":" + email;
         if(this.doesSessionExist(email)) {
             redisTemplate.delete(List.of(keyRefreshToken,keyAccessToken));
         }
     }
     public boolean validateSessionToken(String email, String accessToken) {
-        String key = "ACTIVE_ACCESS_TOKEN:" + email;
+        if (accessToken == null) {
+            return false;
+        }
+        String key = ACTIVE_ACCESS_TOKEN + ":" + email;
         Object storedToken = redisTemplate.opsForValue().get(key);
-        return accessToken != null && accessToken.equals(storedToken);
+        return accessToken.equals(storedToken);
     }
-    public boolean doesSessionExist(String email) {
+    public void validateAndRefreshExistingSessionExpiry(String email, long accessTokenExpirationSeconds) {
+        if(doesSessionExist(email)){
+            String key = ACTIVE_ACCESS_TOKEN+":" + email;
+            RedisValue<String> sessionValue = (RedisValue<String>) redisTemplate.opsForValue().get(key);
+            if (sessionValue != null) {
+                storeAccessToken(email,sessionValue.getValue(), accessTokenExpirationSeconds);
+            } else {
+                redisTemplate.delete(key);
+                throw new JwtExpiredException(ErrorCodes.SESSION_EXPIRED, TOKEN_EXPIRED);
+            }
+        } else {
+            throw new JwtExpiredException(ErrorCodes.SESSION_EXPIRED, TOKEN_EXPIRED);
+        }
+    }
+    public boolean  doesSessionExist(String email) {
         try {
-            String key = "ACTIVE_ACCESS_TOKEN:" + email;
+            String key = ACTIVE_ACCESS_TOKEN+":" + email;
             RedisValue<String> sessionValue = (RedisValue<String>) redisTemplate.opsForValue().get(key);
             if (sessionValue == null) {
                 return false;
@@ -105,7 +128,7 @@ public class SessionService {
         return true;
     }
     public String getTokenForExistingSession(String email) {
-        String key = "ACTIVE_ACCESS_TOKEN:" + email;
+        String key = ACTIVE_ACCESS_TOKEN+":" + email;
         RedisValue<String> sessionValue = (RedisValue<String>) redisTemplate.opsForValue().get(key);
         if (sessionValue == null) {
             return null;

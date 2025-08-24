@@ -116,8 +116,13 @@ export class AuthService {
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>('/api/auth/login', { email, password }).pipe(
       catchError(err => {
-        const errorMsg = err?.error?.message || 'Login failed. Please check your credentials.';
-        return throwError(() => new Error(errorMsg));
+        let message = '';
+        if(err?.error?.message) {
+          message = err.error.message;
+        } else {
+          message = err ? err : 'Login failed. Please check your credentials.';
+        }
+        return throwError(() => new Error(message));
       })
     );
   }

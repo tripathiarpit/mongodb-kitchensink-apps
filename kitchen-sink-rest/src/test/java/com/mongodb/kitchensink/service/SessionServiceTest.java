@@ -1,11 +1,15 @@
 package com.mongodb.kitchensink.service;
+import com.mongodb.kitchensink.constants.ErrorCodes;
 import com.mongodb.kitchensink.constants.RedisValue;
+import com.mongodb.kitchensink.exception.JwtExpiredException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,6 +19,9 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.List;
 
+import static com.mongodb.kitchensink.constants.AppContants.ACTIVE_ACCESS_TOKEN;
+import static com.mongodb.kitchensink.constants.AppContants.REFRESH_TOKEN;
+import static com.mongodb.kitchensink.constants.ErrorMessageConstants.TOKEN_EXPIRED;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -32,6 +39,7 @@ class SessionServiceTest {
     private SecureRandom secureRandom;
 
     @InjectMocks
+    @Spy
     private SessionService sessionService;
 
     private final String EMAIL = "test@example.com";
@@ -133,25 +141,34 @@ class SessionServiceTest {
     @Test
     @DisplayName("storeAccessToken stores access token with correct key and duration")
     void storeAccessToken_storesToken() {
-        sessionService.storeAccessToken(EMAIL, "token", SESSION_EXPIRATION_SECONDS);
-
-        verify(valueOperations).set(eq(ACCESS_KEY), eq("token"), eq(Duration.ofSeconds(SESSION_EXPIRATION_SECONDS)));
+        String accessToken = "token";
+        sessionService.storeAccessToken(EMAIL, accessToken, SESSION_EXPIRATION_SECONDS);
+        ArgumentCaptor<RedisValue> captor = ArgumentCaptor.forClass(RedisValue.class);
+        verify(valueOperations).set(eq(ACCESS_KEY), captor.capture(), eq(Duration.ofSeconds(SESSION_EXPIRATION_SECONDS)));
+        RedisValue<String> capturedValue = captor.getValue();
+        assertNotNull(capturedValue, "RedisValue should not be null");
+        assertEquals(accessToken, capturedValue.getValue(), "The RedisValue should contain the correct token");
     }
 
     @Test
     @DisplayName("storeRefreshToken stores refresh token with correct key and duration")
     void storeRefreshToken_storesToken() {
-        sessionService.storeRefreshToken(EMAIL, "refresh", 7200L);
-
-        verify(valueOperations).set(eq(REFRESH_KEY), eq("refresh"), eq(Duration.ofSeconds(7200L)));
+        String refreshToken = "refresh";
+        long expirationSeconds = 7200; // PT2H is 7200 seconds
+        sessionService.storeRefreshToken(EMAIL, refreshToken, expirationSeconds);
+        ArgumentCaptor<RedisValue> captor = ArgumentCaptor.forClass(RedisValue.class);
+        verify(valueOperations).set(eq("REFRESH_TOKEN:" + EMAIL), captor.capture(), eq(Duration.ofSeconds(expirationSeconds)));
+        RedisValue<String> capturedValue = captor.getValue();
+        assertNotNull(capturedValue, "RedisValue should not be null");
+        assertEquals(refreshToken, capturedValue.getValue(), "The RedisValue should contain the correct token");
     }
 
     @Test
     @DisplayName("invalidateSession deletes both access and refresh keys")
     void invalidateSession_deletesKeys() {
+        doReturn(true).when(sessionService).doesSessionExist(EMAIL);
         sessionService.invalidateSession(EMAIL);
-
-        verify(redisTemplate).delete(List.of("REFRESH_TOKEN" + EMAIL, "ACTIVE_ACCESS_TOKEN" + EMAIL));
+        verify(redisTemplate).delete(List.of(REFRESH_KEY, ACCESS_KEY));
     }
 
     @Test
@@ -226,5 +243,149 @@ class SessionServiceTest {
         when(valueOperations.get(ACCESS_KEY)).thenReturn(null);
 
         assertNull(sessionService.getTokenForExistingSession(EMAIL));
+    }
+    @Test
+    @DisplayName("invalidateSession should delete both access and refresh tokens if session exists")
+    void invalidateSession_sessionExists_deletesTokens() {
+        // Arrange
+        String keyRefreshToken = REFRESH_TOKEN + ":" + EMAIL;
+        String keyAccessToken = ACTIVE_ACCESS_TOKEN + ":" + EMAIL;
+
+        // Mock doesSessionExist to return true so the delete branch is taken
+        doReturn(true).when(sessionService).doesSessionExist(EMAIL);
+
+        // Act
+        sessionService.invalidateSession(EMAIL);
+
+        // Assert
+        verify(redisTemplate, times(1)).delete(List.of(keyRefreshToken, keyAccessToken));
+    }
+
+    @Test
+    @DisplayName("invalidateSession should not delete tokens if session does not exist")
+    void invalidateSession_sessionDoesNotExist_doesNotDeleteTokens() {
+        // Arrange
+        // Mock doesSessionExist to return false so the delete branch is skipped
+        doReturn(false).when(sessionService).doesSessionExist(EMAIL);
+
+        // Act
+        sessionService.invalidateSession(EMAIL);
+
+        // Assert
+        verify(redisTemplate, never()).delete(anyList());
+    }
+
+    // --- Tests for validateSessionToken ---
+    @Test
+    @DisplayName("validateSessionToken should return false if accessToken is null")
+    void validateSessionToken_accessTokenIsNull_returnsFalse() {
+        // Act
+        boolean result = sessionService.validateSessionToken(EMAIL, null);
+
+        // Assert
+        assertFalse(result);
+        verify(valueOperations, never()).get(anyString()); // Should not even try to get from Redis
+    }
+
+    @Test
+    @DisplayName("validateSessionToken should return false if stored token is null")
+    void validateSessionToken_storedTokenIsNull_returnsFalse() {
+        // Arrange
+        String key = ACTIVE_ACCESS_TOKEN + ":" + EMAIL;
+        when(valueOperations.get(key)).thenReturn(null); // Simulate no token in Redis
+
+        // Act
+        boolean result = sessionService.validateSessionToken(EMAIL, "ACCESS_TOKEN");
+
+        // Assert
+        assertFalse(result);
+        verify(valueOperations, times(1)).get(key);
+    }
+
+    @Test
+    @DisplayName("validateSessionToken should return false if accessToken does not match stored token")
+    void validateSessionToken_tokenMismatch_returnsFalse() {
+        // Arrange
+        String key = ACTIVE_ACCESS_TOKEN + ":" + EMAIL;
+        when(valueOperations.get(key)).thenReturn("mismatchedToken");
+        boolean result = sessionService.validateSessionToken(EMAIL, "ACCESS_TOKEN");
+
+        // Assert
+        assertFalse(result);
+        verify(valueOperations, times(1)).get(key);
+    }
+
+    @Test
+    @DisplayName("validateSessionToken should return true if accessToken matches stored token")
+    void validateSessionToken_tokenMatches_returnsTrue() {
+        // Arrange
+        String key = ACTIVE_ACCESS_TOKEN + ":" + EMAIL;
+        when(valueOperations.get(key)).thenReturn("ACCESS_TOKEN");
+
+        // Act
+        boolean result = sessionService.validateSessionToken(EMAIL, "ACCESS_TOKEN");
+
+        // Assert
+        assertTrue(result);
+        verify(valueOperations, times(1)).get(key);
+    }
+
+    // --- Tests for validateAndRefreshExistingSessionExpiry ---
+    @Test
+    @DisplayName("validateAndRefreshExistingSessionExpiry should throw JwtExpiredException if session does not exist")
+    void validateAndRefreshExpiry_sessionDoesNotExist_throwsException() {
+        // Arrange
+        doReturn(false).when(sessionService).doesSessionExist(EMAIL);
+
+        // Act & Assert
+        JwtExpiredException exception = assertThrows(JwtExpiredException.class, () ->
+                sessionService.validateAndRefreshExistingSessionExpiry(EMAIL, SESSION_EXPIRATION_SECONDS));
+
+        assertEquals(ErrorCodes.SESSION_EXPIRED, exception.getErrorCode());
+        assertEquals(TOKEN_EXPIRED, exception.getMessage());
+        verify(valueOperations, never()).get(anyString());
+        verify(sessionService, never()).storeAccessToken(anyString(), anyString(), anyLong());
+    }
+
+    @Test
+    @DisplayName("validateAndRefreshExistingSessionExpiry should throw JwtExpiredException if session exists but stored RedisValue is null")
+    void validateAndRefreshExpiry_storedRedisValueIsNull_throwsException() {
+        // Arrange
+        String key = ACTIVE_ACCESS_TOKEN + ":" + EMAIL;
+        doReturn(true).when(sessionService).doesSessionExist(EMAIL);
+        when(valueOperations.get(key)).thenReturn(null); // Simulate Redis entry gone bad or expired
+
+        // Act & Assert
+        JwtExpiredException exception = assertThrows(JwtExpiredException.class, () ->
+                sessionService.validateAndRefreshExistingSessionExpiry(EMAIL, SESSION_EXPIRATION_SECONDS));
+
+        assertEquals(ErrorCodes.SESSION_EXPIRED, exception.getErrorCode());
+        assertEquals(TOKEN_EXPIRED, exception.getMessage());
+        verify(redisTemplate, times(1)).delete(key); // Should attempt to delete the bad key
+        verify(sessionService, never()).storeAccessToken(anyString(), anyString(), anyLong());
+    }
+
+    @Test
+    @DisplayName("validateAndRefreshExistingSessionExpiry should refresh token expiry if session exists and RedisValue is valid")
+    void validateAndRefreshExpiry_sessionExistsAndRedisValueValid_refreshesExpiry() {
+        // Arrange
+        String key = ACTIVE_ACCESS_TOKEN + ":" + EMAIL;
+        RedisValue<String> existingSessionValue = new RedisValue<>("ACCESS_TOKEN", SESSION_EXPIRATION_SECONDS);
+
+        // Use doReturn() to mock the spy's method call
+        doReturn(true).when(sessionService).doesSessionExist(EMAIL);
+
+        when(valueOperations.get(key)).thenReturn(existingSessionValue);
+
+        // This is the crucial part: mock the internal call to storeAccessToken
+        // Use doNothing() because it's a void method
+        doNothing().when(sessionService).storeAccessToken(anyString(), anyString(), anyLong());
+
+        // Act
+        sessionService.validateAndRefreshExistingSessionExpiry(EMAIL, SESSION_EXPIRATION_SECONDS);
+
+        // Assert
+        // Verify that the mocked method was called exactly once with the correct arguments
+        verify(sessionService, times(1)).storeAccessToken(EMAIL, "ACCESS_TOKEN", SESSION_EXPIRATION_SECONDS);
     }
 }

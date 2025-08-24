@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,13 +20,17 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.mongodb.kitchensink.constants.AppContants.ACCOUNT_VERIFICATION;
 import static com.mongodb.kitchensink.constants.ErrorMessageConstants.*;
@@ -68,6 +74,7 @@ class AuthServiceTest {
     private static final String PASSWORD = "password123";
     private static final String TOKEN = "mock-jwt-token";
 
+
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(authService, "accountVerificationTtl", 300L);
@@ -102,6 +109,70 @@ class AuthServiceTest {
         lenient().when(userService.getUserByEmail(anyString())).thenReturn(userDto);
         lenient().when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
         lenient().when(sessionService.doesSessionExist(anyString())).thenReturn(false);
+    }
+
+    @Test
+    @DisplayName("should correctly extract roles from Authentication object")
+    void extractRoles_shouldReturnCorrectRoles() {
+        // Arrange
+        Authentication mockAuth = mock(Authentication.class);
+        List<GrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_ADMIN"),
+                new SimpleGrantedAuthority("ROLE_USER")
+        );
+        doReturn(authorities).when(mockAuth).getAuthorities();
+
+        // Act
+        List<String> roles = (List<String>) ReflectionTestUtils.invokeMethod(authService, "extractRoles", mockAuth);
+
+        // Assert
+        assertNotNull(roles);
+        assertEquals(2, roles.size());
+        assertTrue(roles.contains("ROLE_ADMIN"));
+        assertTrue(roles.contains("ROLE_USER"));
+    }
+
+    @Test
+    @DisplayName("handleAuthException should map BadCredentialsException to correct error code")
+    void handleAuthException_shouldMapBadCredentialsException() {
+        // Act
+        UserAuthException ex = (UserAuthException) ReflectionTestUtils.invokeMethod(authService, "handleAuthException", new BadCredentialsException("bad creds"));
+
+        // Assert
+        assertEquals(ErrorCodes.INVALID_CREDENTIALS, ex.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("handleAuthException should map other exceptions to ACCOUNT_DISABLED")
+    void handleAuthException_shouldMapOtherExceptionsToAccountDisabled() {
+        // Act
+        UserAuthException ex = (UserAuthException) ReflectionTestUtils.invokeMethod(authService, "handleAuthException", new RuntimeException("disabled"));
+
+        // Assert
+        assertEquals(ErrorCodes.ACCOUNT_DISABLED, ex.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("getUserByEmailOrThrow should return UserDto when user is found")
+    void getUserByEmailOrThrow_userFound_shouldReturnUserDto() {
+        // Act
+        UserDto result = (UserDto) ReflectionTestUtils.invokeMethod(authService, "getUserByEmailOrThrow", EMAIL);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(userDto.getEmail(), result.getEmail());
+    }
+
+    @Test
+    @DisplayName("getUserByEmailOrThrow should throw UserNotFoundException when user is not found")
+    void getUserByEmailOrThrow_userNotFound_shouldThrowException() {
+        // Arrange
+        when(userService.getUserByEmail(anyString())).thenReturn(null);
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class, () ->
+                ReflectionTestUtils.invokeMethod(authService, "getUserByEmailOrThrow", EMAIL)
+        );
     }
 
     @Test
@@ -151,7 +222,7 @@ class AuthServiceTest {
         when(jwtTokenProvider.getEmailFromAccessToken(anyString())).thenReturn(EMAIL);
         when(userDetailsService.loadUserByUsername(anyString())).thenReturn(userDetails);
         doNothing().when(jwtTokenProvider).validateAccessToken(anyString());
-        when(jwtTokenProvider.getRolesFromToken(anyString())).thenReturn(List.of("ROLE_USER")); // <-- Add this line
+        when(jwtTokenProvider.getRolesFromToken(anyString())).thenReturn(List.of("ROLE_USER"));
         List<String> roles = authService.getRolesFromToken(authHeader);
         assertNotNull(roles);
         assertEquals(1, roles.size());

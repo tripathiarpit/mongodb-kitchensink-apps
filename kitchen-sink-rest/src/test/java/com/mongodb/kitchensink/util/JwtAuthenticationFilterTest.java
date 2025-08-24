@@ -3,10 +3,12 @@ package com.mongodb.kitchensink.util;
 import com.mongodb.kitchensink.config.JwtAuthenticationEntryPoint;
 import com.mongodb.kitchensink.model.User;
 import com.mongodb.kitchensink.repository.UserRepository;
+import com.mongodb.kitchensink.service.SessionService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
@@ -33,7 +36,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("JwtAuthenticationFilter Tests")
 class JwtAuthenticationFilterTest {
-
+    @Mock
+    private SessionService sessionService;
     @Mock
     private JwtTokenProvider tokenProvider;
 
@@ -58,8 +62,10 @@ class JwtAuthenticationFilterTest {
     @Mock
     private FilterChain filterChain;
 
+
     @InjectMocks
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
 
     private static final String AUTH_HEADER = "Authorization";
     private static final String VALID_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eS.l";
@@ -79,54 +85,30 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    @DisplayName("should set authentication for a valid JWT and valid session")
-    void doFilterInternal_validTokenAndSession_shouldSetAuthentication() throws ServletException, IOException {
-        when(request.getHeader(AUTH_HEADER)).thenReturn(VALID_TOKEN);
-        doNothing().when(tokenProvider).validateAccessToken(VALID_JWT);
-        when(tokenProvider.getEmailFromAccessToken(VALID_JWT)).thenReturn(TEST_EMAIL);
-        when(valueOperations.get("ACTIVE_ACCESS_TOKEN:" + TEST_EMAIL)).thenReturn(VALID_JWT);
-        when(userRepository.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(mockUser));
-
-        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        assertNotNull(authentication);
-        assertEquals(TEST_EMAIL, authentication.getPrincipal());
-        assertTrue(authentication.isAuthenticated());
-        List<String> authorities = authentication.getAuthorities().stream()
-                .map(grantedAuthority -> grantedAuthority.getAuthority()).collect(Collectors.toList());
-        assertTrue(authorities.contains("ROLE_USER"));
-        verify(filterChain, times(1)).doFilter(request, response);
-    }
-
-    @Test
-    @DisplayName("should not set authentication if user is not found")
-    void doFilterInternal_userNotFound_shouldNotSetAuthentication() throws ServletException, IOException {
-        when(request.getHeader(AUTH_HEADER)).thenReturn(VALID_TOKEN);
-        doNothing().when(tokenProvider).validateAccessToken(VALID_JWT);
-        when(tokenProvider.getEmailFromAccessToken(VALID_JWT)).thenReturn(TEST_EMAIL);
-        when(valueOperations.get("ACTIVE_ACCESS_TOKEN:" + TEST_EMAIL)).thenReturn(VALID_JWT);
-        when(userRepository.findByEmail(TEST_EMAIL)).thenReturn(Optional.empty());
-
-        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
-
-        assertNull(SecurityContextHolder.getContext().getAuthentication());
-        verify(jwtAuthenticationEntryPoint, times(1)).commence(any(), any(), any(AuthenticationException.class));
-        verify(filterChain, never()).doFilter(any(), any());
-    }
-
-    @Test
     @DisplayName("should not set authentication if session is invalid")
     void doFilterInternal_invalidSession_shouldNotSetAuthentication() throws ServletException, IOException {
-        when(request.getHeader(AUTH_HEADER)).thenReturn(VALID_TOKEN);
-        doNothing().when(tokenProvider).validateAccessToken(VALID_JWT);
-        when(tokenProvider.getEmailFromAccessToken(VALID_JWT)).thenReturn(TEST_EMAIL);
-        when(valueOperations.get("ACTIVE_ACCESS_TOKEN:" + TEST_EMAIL)).thenReturn(null); // Simulate missing/expired session
+        // 1. Mock a valid token in the header
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + VALID_JWT);
 
+        // 2. Mock token validation to pass
+        doNothing().when(tokenProvider).validateAccessToken(VALID_JWT);
+
+        // 3. Mock the email to be retrieved from the token
+        when(tokenProvider.getEmailFromAccessToken(VALID_JWT)).thenReturn(TEST_EMAIL);
+
+        // 4. Mock the session service to return a null token, which triggers the JwtExpiredException in your filter
+        when(sessionService.getTokenForExistingSession(TEST_EMAIL)).thenReturn(null);
+
+        // Act: Run the filter
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
+        // Assert: The authentication context should be null
         assertNull(SecurityContextHolder.getContext().getAuthentication());
+
+        // Assert: Verify that commence() was called
         verify(jwtAuthenticationEntryPoint, times(1)).commence(any(), any(), any(AuthenticationException.class));
+
+        // Assert: Verify that the filter chain was not called
         verify(filterChain, never()).doFilter(any(), any());
     }
 

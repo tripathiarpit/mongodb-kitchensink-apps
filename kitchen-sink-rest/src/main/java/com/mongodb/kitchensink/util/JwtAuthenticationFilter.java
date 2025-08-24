@@ -6,10 +6,12 @@ import com.mongodb.kitchensink.exception.AccountVerificationException;
 import com.mongodb.kitchensink.exception.JwtExpiredException;
 import com.mongodb.kitchensink.model.User;
 import com.mongodb.kitchensink.repository.UserRepository;
+import com.mongodb.kitchensink.service.SessionService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,6 +26,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.mongodb.kitchensink.constants.AppContants.ACTIVE_ACCESS_TOKEN;
+
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -31,15 +35,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
     private final com.mongodb.kitchensink.config.JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final SessionService sessionService;
+    @Value("${app.session.expiration-seconds}")
+    private long appSessionExpirationSeconds;
     public JwtAuthenticationFilter(JwtTokenProvider tokenProvider,
                                    UserRepository userRepository,
                                    com.mongodb.kitchensink.config.JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-                                   RedisTemplate<String, Object> redisTemplate
-                                   ) {
+                                   RedisTemplate<String, Object> redisTemplate,
+                                   SessionService sessionService) {
         this.tokenProvider = tokenProvider;
         this.userRepository = userRepository;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.redisTemplate = redisTemplate;
+        this.sessionService = sessionService;
     }
 
     @Override
@@ -58,10 +66,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 tokenProvider.validateAccessToken(accessToken);
                 String email = tokenProvider.getEmailFromAccessToken(accessToken);
 
-                String storedAccessToken = (String) redisTemplate.opsForValue().get("ACTIVE_ACCESS_TOKEN:" + email);
+                String storedAccessToken = sessionService.getTokenForExistingSession(email);
                 if (storedAccessToken == null || !storedAccessToken.equals(accessToken)) {
                     throw new JwtExpiredException(ErrorCodes.VALIDATION_ERROR, ErrorMessageConstants.TOKEN_EXPIRED);
                 }
+                sessionService.validateAndRefreshExistingSessionExpiry(email,appSessionExpirationSeconds);
                 User currentUser = userRepository.findByEmail(email)
                         .orElseThrow(() -> new RuntimeException("User not found from token payload"));
                 List<GrantedAuthority> authorities = currentUser.getRoles().stream()
